@@ -1,0 +1,4 @@
+development:
+  dialect: postgres
+  datasource: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  dir: migrations

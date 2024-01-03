@@ -1,0 +1,61 @@
+[general]
+artists = "Artists"
+results = "Results"
+searchfilters = "Search Filters"
+
+[label]
+artist = "Participating Artist"
+area = "Area"
+
+[livehouse]
+shibuya-eggmanday = "shibuya eggman"
+shibuya-eggmannight = "shibuya eggman"
+shibuya-ocrest = "Spotify O-Crest"
+shibuya-oeast = "Spotify O-EAST"
+shibuya-onest = "Spotify O-nest"
+shibuya-owest = "Spotify O-WEST"
+shibuya-www = "WWW"
+shibuya-wwwbeta = "WWWβ"
+shibuya-wwwx = "WWW X"
+shimokitazawa-artist = "Shimokitazawa ARTIST"
+shimokitazawa-basementbar = "BASEMENT BAR"
+shimokitazawa-chikamatsu = "Chikamatsu"
+shimokitazawa-chikamichi = "Chikamichi"
+shimokitazawa-club251 = "CLUB251"
+shimokitazawa-clubque = "CLUB Que"
+shimokitazawa-daisybar = "Shimokitazawa DaisyBar"
+shimokitazawa-dycube = "DY CUBE"
+shimokitazawa-era = "Shimokitazawa ERA"
+shimokitazawa-flowersloft = "Flowers Loft"
+shimokitazawa-laguna = "Shimokitazawa Laguna"
+shimokitazawa-livehaus = "LIVE HAUS"
+shimokitazawa-liveholic = "LIVEHOLIC"
+shimokitazawa-monarecords = "mona records"
+shimokitazawa-mosaic = "LIVE HOUSE MOSAiC"
+shimokitazawa-otemae = "Otemae"
+shimokitazawa-reg = "Shimokitazawa RéG"
+shimokitazawa-shangrila = "Shimokitazawa Shangri-La"
+shimokitazawa-shelter = "Shimokitazawa Shelter"
+shimokitazawa-three = "THREE"
+shimokitazawa-waver = "LIVE HOUSE WAVER"
+shindaita-fever = "LIVE HOUSE FEVER"
+shinjuku-loft = "Shinjuku LOFT"
+shinsaibashi-bronze = "OSAKA BRONZE"
+
+[prefecture]
+osaka = "Osaka"
+tokyo = "Tokyo"
+
+[area.osaka]
+shinsaibashi = "Shinsaibashi"
+
+[area.tokyo]
+shibuya = "Shibuya"
+shimokitazawa = "Shimokitazawa"
+shindaita = "Shindaita"
+shinjuku = "Shinjuku"
+
+[util]
+prefecture-area = "{{.Area}}, {{.Prefecture}}"
+start = "Starts: {{.Start}}"
+open = "Opens: {{.Open}}"

@@ -1,0 +1,23 @@
+{{define "lives"}}
+<h2>{{T "general.results"}}</h2>
+<ul class="live-list non-bullet-list">
+  {{range $live := .}}
+		<li class="live-entry">
+      <h3>{{$live.Title}}</h3>
+      <h4>{{T "general.artists"}}</h4>
+			<ul class="live-artist-list non-bullet-list">
+				{{range $artist := $live.Artists}}
+					<li class="live-artist">{{$artist}}</li>
+				{{end}}
+			</ul>
+			<p>{{T "util.open" "Open" (ParseDate $live.OpenTime)}}</p>
+			<p>{{T "util.start" "Start" (ParseDate $live.StartTime)}}</p>
+			<p>{{T (printf "livehouse.%s" $live.Venue.ID)}}</p>
+      <div class="location-wrapper">
+        <span class="material-symbols-outlined">location_on</span>
+				<span>{{T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" $live.Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" $live.Venue.Area.Prefecture $live.Venue.Area.Area))}}</span>
+      </div>
+		</li>
+	{{end}}
+</ul>
+{{end}}

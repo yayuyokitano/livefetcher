@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+
+  livefetcher:
+    build: .
+    env_file:
+      - .env
+    depends_on:
+      - db
+    ports:
+      - 9999:9999
+      - 2113:2113
+    image: yayuyokitano/golang:1.20.4-alpine3.18
+    platform: linux/amd64
+    volumes:
+      - ./logs:/livefetcher/logs
+    deploy:
+      restart_policy:
+        condition: on-failure
+  
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana:/var/lib/grafana
+    logging:
+      driver: none
+  
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    logging:
+      driver: none
+
+  db:
+    image: postgres:15.3-alpine3.18
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    logging:
+      driver: none
+  
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    ports:
+      - 9187:9187
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_GRAFANA_USER}:${POSTGRES_GRAFANA_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
+    links:
+      - db
+      - prometheus
+    logging:
+      driver: none
+
+volumes:
+  db-data:
+    driver: local
+  grafana:

@@ -1,0 +1,61 @@
+[general]
+artists = "アーティスト"
+results = "検索結果"
+searchfilters = "絞り込み"
+
+[label]
+artist = "参加アーティスト"
+area = "場所"
+
+[livehouse]
+shibuya-eggmanday = "shibuya eggman"
+shibuya-eggmannight = "shibuya eggman"
+shibuya-ocrest = "Spotify O-Crest"
+shibuya-oeast = "Spotify O-EAST"
+shibuya-onest = "Spotify O-nest"
+shibuya-owest = "Spotify O-WEST"
+shibuya-www = "WWW"
+shibuya-wwwbeta = "WWWβ"
+shibuya-wwwx = "WWW X"
+shimokitazawa-artist = "下北沢ARTIST"
+shimokitazawa-basementbar = "BASEMENTBAR"
+shimokitazawa-chikamatsu = "近松"
+shimokitazawa-chikamichi = "近道"
+shimokitazawa-club251 = "CLUB251"
+shimokitazawa-clubque = "CLUB Que"
+shimokitazawa-daisybar = "下北沢DaisyBar"
+shimokitazawa-dycube = "DY CUBE"
+shimokitazawa-era = "下北沢ERA"
+shimokitazawa-flowersloft = "Flowers Loft"
+shimokitazawa-laguna = "下北沢 Laguna"
+shimokitazawa-livehaus = "LIVE HAUS"
+shimokitazawa-liveholic = "LIVEHOLIC"
+shimokitazawa-monarecords = "mona records"
+shimokitazawa-mosaic = "LIVE HOUSE MOSAiC"
+shimokitazawa-otemae = "おてまえ"
+shimokitazawa-reg = "下北沢RéG"
+shimokitazawa-shangrila = "下北沢シャングリラ"
+shimokitazawa-shelter = "下北沢Shelter"
+shimokitazawa-three = "THREE"
+shimokitazawa-waver = "LIVE HOUSE WAVER"
+shindaita-fever = "LIVE HOUSE FEVER"
+shinjuku-loft = "新宿LOFT"
+shinsaibashi-bronze = "OSAKA BRONZE"
+
+[prefecture]
+osaka = "大阪府"
+tokyo = "東京都"
+
+[area.osaka]
+shinsaibashi = "心斎橋"
+
+[area.tokyo]
+shibuya = "渋谷"
+shimokitazawa = "下北沢"
+shindaita = "新代田"
+shinjuku = "新宿"
+
+[util]
+prefecture-area = "{{.Prefecture}}{{.Area}}"
+start = "START {{.Start}}"
+open = "OPEN {{.Open}}"

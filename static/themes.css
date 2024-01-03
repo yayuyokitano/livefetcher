@@ -1,0 +1,17 @@
+html {
+	--text: #222;
+	--bg: #fff;
+	--bg2: #fff2f7;
+	--neuomorphic: 5px 5px 20px #bbb,-5px -5px 20px #fff9f9;
+	--accent: #ffd9e5;
+	--accent2: #ffafcc;
+}
+
+html.dark {
+	--text: #fff;
+	--bg: #222;
+	--bg2: #333;
+	--neuomorphic: 5px 5px 20px #111, -5px -5px 20px #333;
+	--accent: #ffafcc;
+	--accent2: #ffc8dd;
+}
