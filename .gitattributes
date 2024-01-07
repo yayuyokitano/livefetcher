@@ -1,2 +1,2 @@
 # override test documents
-testdocuments/** linguist-vendored
+test/** linguist-vendored

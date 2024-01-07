@@ -4,7 +4,7 @@ default:
 	@echo "Please specify an argument."
 
 watch:
-	gow -e=go,mod,html,css,toml run . start
+	gow -e=go,mod,html,css,toml run ./cmd/livefetcher start
 
 migrate:
 	go run . migrate
