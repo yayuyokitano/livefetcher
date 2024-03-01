@@ -1,3 +1,5 @@
+// Package htmlquerier provides a standardized declarative api for creating a querier
+// that is able to fetch a string from a selector, apply filters to it, and send the result on for processing in the core.
 package htmlquerier
 
 import (
