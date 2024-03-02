@@ -9,6 +9,9 @@ watch:
 migrate:
 	go run . migrate
 
+runtest:
+	go test -v ./... -timeout 120s
+
 run:
 	set -e
 	CONTAINERIZED=true ./livefetcher migrate

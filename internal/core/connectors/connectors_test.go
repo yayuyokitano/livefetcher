@@ -1,7 +1,7 @@
 package coreconnectors
 
 import (
-	"io/ioutil"
+	"os"
 	"sync"
 	"testing"
 
@@ -55,13 +55,13 @@ func executeConnectorTest(t *testing.T, connector fetchers.Simple, wg *sync.Wait
 
 func initTranslations(t *testing.T) {
 	translations = make(map[string]Translation)
-	files, err := ioutil.ReadDir("../../../i18nloader/locales")
+	files, err := os.ReadDir("../../i18n/locales")
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, f := range files {
 		var translation Translation
-		_, err = toml.DecodeFile("../../../i18nloader/locales/"+f.Name(), &translation)
+		_, err = toml.DecodeFile("../../i18n/locales/"+f.Name(), &translation)
 		if err != nil {
 			t.Fatal(err)
 		}
