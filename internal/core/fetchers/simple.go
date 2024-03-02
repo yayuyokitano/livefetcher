@@ -1,3 +1,6 @@
+// Package fetchers contains site fetchers/scrapers.
+//
+// simple.go contains the simple regular fetcher.
 package fetchers
 
 import (
@@ -15,58 +18,200 @@ import (
 	"golang.org/x/net/html"
 )
 
+// TimeHandler is a struct that specifies some queriers and properties relating to getting the
+// opening and start times for lives.
 type TimeHandler struct {
-	YearQuerier      htmlquerier.Querier
-	MonthQuerier     htmlquerier.Querier
-	DayQuerier       htmlquerier.Querier
-	OpenTimeQuerier  htmlquerier.Querier
+	// YearQuerier is a querier that returns the year of the live.
+	YearQuerier htmlquerier.Querier
+
+	// MonthQuerier is a querier that returns the month of the live.
+	MonthQuerier htmlquerier.Querier
+
+	// DayQuerier is a querier that returns the day of the live.
+	DayQuerier htmlquerier.Querier
+
+	// OpenTimeQuerier is a querier that returns the open time of the live in format xx:xx
+	//
+	// The core handles hours >= 24, incrementing day and subtracting hours appropriately.
+	// The core also will automatically remove any extra characters not part of a time.
+	OpenTimeQuerier htmlquerier.Querier
+
+	// OpenTimeQuerier is a querier that returns the start time of the live in format xx:xx
+	//
+	// The core handles hours >= 24, incrementing day and subtracting hours appropriately.
+	// The core also will automatically remove any extra characters not part of a time.
 	StartTimeQuerier htmlquerier.Querier
 
-	IsYearInLive  bool
+	// IsYearInLive specifies whether each live has their own year element,
+	// or if there is a single shared element for all lives in a page.
+	//
+	// If IsYearInLive is true, YearQuerier will execute in the context of LiveSelector.
+	// If IsYearInLive is false, YearQuerier will execute in the context of document.
+	IsYearInLive bool
+
+	// IsMonthInLive specifies whether each live has their own month element,
+	// or if there is a single shared element for all lives in a page.
+	//
+	// If IsMonthInLive is true, MonthQuerier will execute in the context of LiveSelector.
+	// If IsMonthInLive is false, MonthQuerier will execute in the context of document.
 	IsMonthInLive bool
 }
 
+// TestInfo specifies some information relating to connector tests.
+//
+// Each connector should have a test document named after its connector ID in the test/ folder.
 type TestInfo struct {
-	NumberOfLives         int
-	FirstLiveTitle        string
-	FirstLiveArtists      []string
-	FirstLivePrice        string
+	// NumberOfLives specifies the expected number of lives in the test document.
+	NumberOfLives int
+	// FirstLiveTitle specifies the expected title of the first live in the test document.
+	FirstLiveTitle string
+	// FirstLiveArtists specifies an array of the expected artists of the first live in the test document.
+	FirstLiveArtists []string
+	// FirstLivePrice specifies the expected price of the first live in the test document.
+	FirstLivePrice string
+	// FirstLivePriceEnglish specifies the expected translated price of the first live in the test document.
 	FirstLivePriceEnglish string
-	FirstLiveOpenTime     time.Time
-	FirstLiveStartTime    time.Time
-	FirstLiveURL          string
-	KnownEmpty            bool
+	// FirstLiveOpenTime specifies the expected opening timestamp of the first live in the test document.
+	FirstLiveOpenTime time.Time
+	// FirstLiveStartTime specifies the expected starting timestamp of the first live in the test document.
+	FirstLiveStartTime time.Time
+	// FirstLiveURL specifies the expected URL of the first live in the test document.
+	FirstLiveURL string
+	// KnownEmpty is a workaround property, specifying that we expect that one of the live entries in the live test will be empty.
+	//
+	// Set this to true if testIsEmpty fails if you confirm that an empty result for a live is correct.
+	//
+	// TODO: Find a better way to handle this.
+	KnownEmpty bool
 }
 
+// Simple is the basic fetcher, which currently all fetchers base themselves off of.
 type Simple struct {
-	BaseURL              string
-	InitialURL           string
-	LiveSelector         string
+	// BaseURL is the base URL of the live website.
+	// Fetchers often do much href parsing, often requiring us to know the base url in advance.
+	//
+	// TODO: Remove this, we can infer this from whichever URL is being used for first fetch.
+	BaseURL string
+
+	// InitialURL specifies a starting URL.
+	// For InitialURL to work, all lives must be in the same page, or NextSelector must be specified.
+	//
+	// If there are multiple pages, and a usable NextSelector isn't available, IterableURL must be used.
+	InitialURL string
+
+	// LiveSelector specifies an xpath selector for one live.
+	// Livefetcher will query for all instances of this selector, and treat every match as a separate live.
+	LiveSelector string
+
+	// MultiLiveDaySelector provides a selector for a more complicated case of multiple lives in same day.
+	//
+	// Some websites will group multiple lives occurring on the same day under one singular wrapper,
+	// and not provide the day of the live inside both elements.
+	// In this case, we need to get the date using wrapper element,
+	// but get all other info inside each of the live elements.
+	//
+	// On such a site, Liveselector should be the selector for the entire day wrapper,
+	// and MultiLiveDaySelector should be the selector for each of the individual lives.
+	//
+	// See the Loft fetcher in groups.go for an example of this,
+	// with some examples of the relevant page layout on https://www.loft-prj.co.jp/schedule/loft/date/2024/04
 	MultiLiveDaySelector string
+
+	// ExpandedLiveSelector is a selector for an anchor element leading to the full live details of a given live.
+	//
+	// In some cases, all the info needed for a live is not available on the schedule page,
+	// and you need to navigate to a separate page for every single live to get the correct details.
+	//
+	// In this case, use ExpandedLiveSelector.
+	//
+	// If ExpandedLiveSelector is specified:
+	//
+	// 1. LiveSelector is used to fetch all lives on schedule page.
+	//
+	// 2. ExpandedLiveSelector is used within the scope of each live gotten using LiveSelector.
+	//
+	// 3. href of ExpandedLiveSelector element is navigated to, and all live-context detail queriers executed within that page.
 	ExpandedLiveSelector string
 
+	// ShortYearIterableURL is a URL with two %d formatters specifying year and month in that order.
+	//
+	// year and motnh are given without leading zero, if leading zero is needed, provide this yourself using %02d.
+	//
+	// TODO: either make LongYearIterableURL or expand this to work in both cases. For now just use 20%02d in this case.
 	ShortYearIterableURL string
-	NextSelector         string
+	// NextSelector is the selector of a link to the next page of schedule, showing newer lives than the current page.
+	//
+	// Livefetcher will follow the href of the element specified by NextSelector to get more lives, until no more lives are found.
+	//
+	// Must be specified along with an InitialURL.
+	NextSelector string
 
-	TitleQuerier   htmlquerier.Querier
+	// TitleQuerier is a Querier that returns the title of the live.
+	TitleQuerier htmlquerier.Querier
+	// ArtistsQuerier is a Querier that returns an array of the artists of the live.
 	ArtistsQuerier htmlquerier.Querier
-	DetailQuerier  htmlquerier.Querier
+	// DetailQuerier is a Querier that will return an unstructured blob of text,
+	// which can be used to replace ArtistsQuerier, PriceQuerier, OpenTimeQuerier, and/or StartTimeQuerier.
+	//
+	// DetailQuerier is significantly less accurate,
+	// and should only be used if the above queriers cannot be reliably created,
+	// but can often make decent guesses.
+	//
+	// DetailQuerier will be overridden by the above queriers,
+	// and you can choose to for instance only specify PriceQuerier and DetailQuerier,
+	// which will cause PriceQuerier to be used for fetching price,
+	// and DetailQuerier to be used for fetching artists, open time, and start time.
+	//
+	// Avoid using this if possible.
+	DetailQuerier htmlquerier.Querier
 
+	// PriceQuerier is a querier that returns the price of the live, including any details about the price.
 	PriceQuerier htmlquerier.Querier
 
-	DetailsLink         string
+	// DetailsLink, if specified, will be the link for all lives returned by connector.
+	// This is only useful if lives have no individual links, AND you are fetching from some hidden API.
+	DetailsLink string
+	// DetailsLinkSelector is the selector within a live for a link to details about the live.
+	//
+	// This will set the link for each live to the href of the element of the DetailsLinkSelector.
+	//
+	// Note that this does not need to be used if ExpandedLiveSelector is used.
 	DetailsLinkSelector string
 
+	// TimeHandler is a TimeHandler struct used to fetch time details about a live.
+	// See TimeHandler documentation for details.
 	TimeHandler TimeHandler
 
+	// PrefectureName is the prefecture name for the connector.
+	// These are standardized, and you must use the same as all other connectors within same prefecture, CASE SENSITIVE!
+	//
+	// If a new prefecture is added, locale must also be added to internal/i18n/locales toml files as well.
 	PrefectureName string
-	AreaName       string
+	// AreaName is the area name for the connector.
+	// These are standardized, and you must use the same as all other connectors within same area, CASE SENSITIVE!
+	//
+	// If a new area is added, locale must also be added to internal/i18n/locales toml files as well.
+	//
+	// Multiple prefectures may have identically named areas, and they will be treated as entirely separate.
+	AreaName string
 
+	// VenueID is the ID of the venue.
+	// This must be globally unique.
+	//
+	// Do not change the ID of a venue unless there is a VERY strong reason to do so.
+	//
+	// A venue renaming is in itself not reason to change VenueID, only change locales files in this case.
 	VenueID string
 
+	// TestInfo is a struct specifying expected values for some tests for the connector.
+	// See TestInfo documentation for details.
 	TestInfo TestInfo
 
-	Lives     []util.Live
+	// Lives is used internally in the core for processing lives.
+	// Do not use this in connectors.
+	Lives []util.Live
+	// isTesting is used internally in the core for processing lives.
+	// Do not use this in connectors.
 	isTesting bool
 }
 
