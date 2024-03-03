@@ -1,6 +1,6 @@
 # livefetcher
 
-IMPORTANT: This program depends on mecab, please see https://github.com/shogo82148/go-mecab for install instructions.
+IMPORTANT: This program depends on mecab, please see https://github.com/shogo82148/go-mecab for install instructions. livefetcher Makefile expects mecab-config to be installed, and will set up environment flags appropriately if you use it.
 
 To run hot-reloaded basic dev version of livefethcer, simply run `make migrate` and then `make watch`. This will require you to have postgres installed on your machine.
 
