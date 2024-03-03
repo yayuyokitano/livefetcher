@@ -210,7 +210,7 @@ var ShimokitazawaArtistFetcher = fetchers.Simple{
 	InitialURL:     util.InsertYearMonth("http://www.c-artist.com/schedule/list/%d%d.txt"),
 	LiveSelector:   "//div[@class='sche']",
 	TitleQuerier:   *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[1]"),
-	ArtistsQuerier: *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[last()]").Split("\u00A0").Before("』〜one-man_live〜").Before("』〜two-man_live〜").TrimPrefix("『"),
+	ArtistsQuerier: *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[last()]").Split("\u00A0").Before("』〜").TrimPrefix("『"),
 	PriceQuerier:   *htmlquerier.Q("//p[@class='ex']").After(" / "),
 	DetailsLink:    "http://www.c-artist.com/schedule/",
 
@@ -228,12 +228,12 @@ var ShimokitazawaArtistFetcher = fetchers.Simple{
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         17,
-		FirstLiveTitle:        "『ex_jikkatsu_a:side』",
-		FirstLiveArtists:      []string{"パぁ", "かわぐちシンゴ", "モリタケル"},
-		FirstLivePrice:        "2,000yen（1ドリンク込み)",
-		FirstLivePriceEnglish: "2,000yen（1DrinkIncluded)",
-		FirstLiveOpenTime:     time.Unix(1698832800, 0),
-		FirstLiveStartTime:    time.Unix(1698832800, 0),
+		FirstLiveTitle:        "『jikkatsu_c:side』〜 two-man_live 〜",
+		FirstLiveArtists:      []string{"いちろう", "酒井勇也"},
+		FirstLivePrice:        "2,000yen（1ドリンク込み）",
+		FirstLivePriceEnglish: "2,000yen（1DrinkIncluded）",
+		FirstLiveOpenTime:     time.Unix(1709287200, 0),
+		FirstLiveStartTime:    time.Unix(1709287200, 0),
 		FirstLiveURL:          "http://www.c-artist.com/schedule/",
 	},
 }
@@ -652,8 +652,8 @@ var ShimokitazawaMosaicFetcher = fetchers.Simple{
 		YearQuerier:      *htmlquerier.Q("//td[contains(@class, 'month_eng')]/text()[1]"),
 		MonthQuerier:     *htmlquerier.Q("//tr[1]/th").Before("/"),
 		DayQuerier:       *htmlquerier.Q("//tr[1]/th").After("/"),
-		OpenTimeQuerier:  *htmlquerier.Q("//td[contains(@class, 'live_menu')]/text()[4]").After("OPEN ").Before(" "),
-		StartTimeQuerier: *htmlquerier.Q("//td[contains(@class, 'live_menu')]/text()[4]").After("START ").Before(" "),
+		OpenTimeQuerier:  *htmlquerier.Q("//td[contains(@class, 'live_menu')]/text()[4]").After("OPEN "),
+		StartTimeQuerier: *htmlquerier.Q("//td[contains(@class, 'live_menu')]/text()[4]").After("START "),
 
 		IsMonthInLive: true,
 	},
@@ -732,13 +732,13 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 	LiveSelector:   "//div[@id='content']/div[contains(@class, 'hentry')]",
 	TitleQuerier:   *htmlquerier.Q("//strong"),
 	ArtistsQuerier: *htmlquerier.Q("//div[@class='post-content-content']/p[2]").Split("\n"),
-	PriceQuerier:   *htmlquerier.Q("//div[@class='post-content-content']/p[3]/span"),
+	PriceQuerier:   *htmlquerier.Q("//div[@class='post-content-content']/p[3]").After("START ").After("\n").ReplaceAllRegex(`\s+`, " "),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//table[@id='wp-calendar']/caption").Before("年"),
 		MonthQuerier:     *htmlquerier.Q("//h2").Before("/"),
 		DayQuerier:       *htmlquerier.Q("//h2").After("/").Before("("),
-		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='post-content-content']/p[3]/text()[1]").Before("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='post-content-content']/p[3]/text()[1]"),
 		StartTimeQuerier: *htmlquerier.Q("//div[@class='post-content-content']/p[3]/text()[1]").After("/"),
 		IsMonthInLive:    true,
 	},
@@ -748,13 +748,13 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 	VenueID:        "shimokitazawa-shangrila",
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         10,
-		FirstLiveTitle:        "Girls Face in Shangri-La mini!!",
-		FirstLiveArtists:      []string{"Li-V-RAVE", "奏音コレクト", "Fancy Film", "ヒトノユメ", "HALO PALLETE", "SUGAR☆VEGA.\u00adcom"},
-		FirstLivePrice:        "予約￥0（1ドリンク￥600別）\n当日￥0（2ドリンク代￥1200別）",
-		FirstLivePriceEnglish: "Reservation￥0（1Drink￥600Separately）\nDoor￥0（2Drink代￥1200Separately）",
-		FirstLiveOpenTime:     time.Unix(1699153800, 0),
-		FirstLiveStartTime:    time.Unix(1699155000, 0),
+		NumberOfLives:         5,
+		FirstLiveTitle:        "The Cheserasera 2024 春の邂逅ツーマンライブ 其の壱",
+		FirstLiveArtists:      []string{"The Cheserasera", "ABSTRACT MASH"},
+		FirstLivePrice:        "前売￥4,400 / 当日￥4,900 （1ドリンク￥600別）",
+		FirstLivePriceEnglish: "Reservation￥4,400 / Door￥4,900 （1Drink￥600Separately）",
+		FirstLiveOpenTime:     time.Unix(1712224800, 0),
+		FirstLiveStartTime:    time.Unix(1712226600, 0),
 		FirstLiveURL:          "https://www.shan-gri-la.jp/tokyo/category/schedule/",
 	},
 }

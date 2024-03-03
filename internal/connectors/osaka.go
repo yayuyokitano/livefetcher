@@ -15,18 +15,18 @@ import (
 
 var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	BaseURL:              "http://osakabronze.com",
-	ShortYearIterableURL: "http://osakabronze.com/live/?date=%d.%d",
-	LiveSelector:         "//div[@class='day']",
-	TitleQuerier:         *htmlquerier.Q("//h3"),
-	ArtistsQuerier:       *htmlquerier.Q("//h4").SplitIgnoreWithin(`\n|( \/ )`, '（', '）'),
-	PriceQuerier:         *htmlquerier.Q("//h5").ReplaceAllRegex(`\s+`, " ").SplitRegexIndex(`START \d+:\d+ `, 1),
+	ShortYearIterableURL: "http://osakabronze.com/schedule20%d%02d.php",
+	LiveSelector:         "//div[@class='eventbox']",
+	TitleQuerier:         *htmlquerier.Q("//p[@class='midashi']").ReplaceAllRegex(`\s+`, " "), // 10/10
+	ArtistsQuerier:       *htmlquerier.Q("//p[@class='bandlist']").SplitIgnoreWithin(`\n|( \/ )`, '(', ')'),
+	PriceQuerier:         *htmlquerier.Q("//p[@class='openstart']/text()[2]").After("TICKET "),
 
 	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//h2").Before("."),
-		MonthQuerier:     *htmlquerier.Q("//h2").SplitIndex(".", 1),
-		DayQuerier:       *htmlquerier.Q("//h2").SplitRegexIndex("[ .]", 2),
-		OpenTimeQuerier:  *htmlquerier.Q("//h5").After("OPEN ").Before(" "),
-		StartTimeQuerier: *htmlquerier.Q("//h5").After("START ").Before(" "),
+		YearQuerier:      *htmlquerier.Q("//h4").Before("年"),
+		MonthQuerier:     *htmlquerier.Q("//h4").After("年").Before("月"),
+		DayQuerier:       *htmlquerier.Q("//h4").After("月").Before("日"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[@class='openstart']"),
+		StartTimeQuerier: *htmlquerier.Q("//p[@class='openstart']").After("START "),
 
 		IsYearInLive:  true,
 		IsMonthInLive: true,
@@ -37,13 +37,13 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	VenueID:        "shinsaibashi-bronze",
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         24,
-		FirstLiveTitle:        "「初志貫徹」\n1st E.P \"アイ E.P\" Release Tour \"愛されたいツアー\"",
-		FirstLiveArtists:      []string{"21世記少年", "LAURUS NOBILIS", "endroar", "竜也(Genbu)", "青とフーカ"},
-		FirstLivePrice:        "ADV ¥2000 DOOR ¥2500 1D別",
-		FirstLivePriceEnglish: "ADV ¥2000 DOOR ¥2500 1 Drink purchase required",
-		FirstLiveOpenTime:     time.Unix(1685608200, 0),
-		FirstLiveStartTime:    time.Unix(1685610000, 0),
-		FirstLiveURL:          "http://osakabronze.com/live/?date=%d.%d",
+		NumberOfLives:         27,
+		FirstLiveTitle:        "1st full album Desire of life Game Change Tour final seriesLove the past play the future",
+		FirstLiveArtists:      []string{"Hyuga", "DETOX"},
+		FirstLivePrice:        "adv ¥2500 door ¥3000(別途1D ¥600)",
+		FirstLivePriceEnglish: "adv ¥2500 door ¥3000(Separately1D ¥600)",
+		FirstLiveOpenTime:     time.Unix(1709371800, 0),
+		FirstLiveStartTime:    time.Unix(1709373600, 0),
+		FirstLiveURL:          "http://osakabronze.com/schedule20%d%02d.php",
 	},
 }

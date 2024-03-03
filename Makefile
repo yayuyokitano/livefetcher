@@ -1,4 +1,6 @@
 SHELL=/bin/bash -o pipefail
+export CGO_LDFLAGS := $(shell mecab-config --libs)
+export CGO_CFLAGS := -I$(shell mecab-config --inc-dir)
 
 default:
 	@echo "Please specify an argument."
