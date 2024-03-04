@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -606,6 +607,15 @@ func (s *Simple) getTitle(n *html.Node) (title string, err error) {
 	return
 }
 
+func isolateFirstNumber(old string) (isolated string, err error) {
+	re, err := regexp.Compile(`\d+`)
+	if err != nil {
+		return
+	}
+	isolated = re.FindString(old)
+	return
+}
+
 func (s *Simple) getYear(n *html.Node) (year string, err error) {
 	var res []string
 	if s.TimeHandler.YearQuerier.Initialized {
@@ -627,7 +637,10 @@ func (s *Simple) getYear(n *html.Node) (year string, err error) {
 		res = append(res, strconv.Itoa(util.GetRelevantYear(month)))
 	}
 
-	year = res[0]
+	year, err = isolateFirstNumber(res[0])
+	if err != nil {
+		return
+	}
 	if len(year) == 2 {
 		year = "20" + year
 	}
@@ -639,7 +652,11 @@ func (s *Simple) getMonth(n *html.Node) (month string, err error) {
 	if err != nil {
 		return
 	}
-	month = res[0]
+	month, err = isolateFirstNumber(res[0])
+	if err != nil {
+		return
+	}
+
 	if len(month) == 1 {
 		month = "0" + month
 	}
@@ -651,7 +668,10 @@ func (s *Simple) getDay(n *html.Node) (day string, err error) {
 	if err != nil {
 		return
 	}
-	day = res[0]
+	day, err = isolateFirstNumber(res[0])
+	if err != nil {
+		return
+	}
 	if len(day) == 1 {
 		day = "0" + day
 	}
