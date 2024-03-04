@@ -20,6 +20,15 @@ var translations map[string]Translation
 func TestConnectors(t *testing.T) {
 	initTranslations(t)
 
+	// test only one connector if specified, otherwise test all
+	connectorID := os.Getenv("CONNECTOR_ID")
+	if _, ok := Connectors[connectorID]; ok {
+		var wg sync.WaitGroup
+		wg.Add(1)
+		executeConnectorTest(t, Connectors[connectorID], &wg)
+		return
+	}
+
 	var wg sync.WaitGroup
 	for _, connector := range Connectors {
 		wg.Add(1)

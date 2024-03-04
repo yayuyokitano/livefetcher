@@ -777,6 +777,41 @@ var ShimokitazawaShelterFetcher = fetchers.CreateLoftFetcher(
 	},
 )
 
+var ShimokitazawaSpreadFetcher = fetchers.Simple{
+	BaseURL:        "https://spread.tokyo/",
+	InitialURL:     "https://spread.tokyo/schedule.html",
+	LiveSelector:   "//div[@id='c7']/div[@class='box'][position()<200]", // not sure why 200 leads to 99 matches but it does
+	TitleQuerier:   *htmlquerier.Q("//u/b").ReplaceAllRegex(`\s+`, " ").TrimPrefix(`"`).TrimSuffix(`"`),
+	ArtistsQuerier: *htmlquerier.QAll("//div/span[last()]/text()"),
+	PriceQuerier:   *htmlquerier.Q("//div/span[4]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div/span[1]"),
+		MonthQuerier:     *htmlquerier.Q("//div/span[1]").After("."),
+		DayQuerier:       *htmlquerier.Q("//div/span[1]").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//div/span[3]"),
+		StartTimeQuerier: *htmlquerier.Q("//div/span[3]").After("START"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shimokitazawa",
+	VenueID:        "shimokitazawa-spread",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         99,
+		FirstLiveTitle:        `techmoris presents "feel free...!I feel free...! Release Party"`,
+		FirstLiveArtists:      []string{"ラジカセ狂気", "Fanny Hill", "techmoris", "139????"},
+		FirstLivePrice:        "ADV. ¥2,000 | DOOR. ¥2,500 | U23. ¥1,500 (+1D)",
+		FirstLivePriceEnglish: "ADV. ¥2,000 | DOOR. ¥2,500 | U23. ¥1,500 (+1D)",
+		FirstLiveOpenTime:     time.Date(2024, 4, 5, 19, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 4, 5, 20, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://spread.tokyo/schedule.html",
+	},
+}
+
 var ShimokitazawaThreeFetcher = fetchers.CreateToosFetcher(
 	"https://www.toos.co.jp/",
 	"https://www.toos.co.jp/3/events/event/on/20%d/%02d/",

@@ -36,6 +36,7 @@ var Connectors = ConnectorsType{
 	"ShimokitazawaReg":         connectors.ShimokitazawaRegFetcher,
 	"ShimokitazawaShangrila":   connectors.ShimokitazawaShangrilaFetcher,
 	"ShimokitazawaShelter":     connectors.ShimokitazawaShelterFetcher,
+	"ShimokitazawaSpread":      connectors.ShimokitazawaSpreadFetcher,
 	"ShimokitazawaThree":       connectors.ShimokitazawaThreeFetcher,
 	"ShimokitazawaWaver":       connectors.ShimokitazawaWaverFetcher,
 	"ShindaitaFever":           connectors.ShindaitaFeverFetcher,

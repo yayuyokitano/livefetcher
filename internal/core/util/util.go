@@ -113,6 +113,7 @@ var bannedArtists = map[string]bool{
 	"live":        true,
 	"-live-":      true,
 	"◉live◉":      true,
+	"live :":      true,
 	"転換dj":        true,
 	"◉転換dj◉":      true,
 	"act":         true,
@@ -123,6 +124,7 @@ var bannedArtists = map[string]bool{
 	"dj:":         true,
 	"-dj-":        true,
 	"◉dj◉":        true,
+	"dj :":        true,
 	"・出演者":        true,
 	"出演者":         true,
 	"・料金":         true,
@@ -139,6 +141,9 @@ var bannedArtists = map[string]bool{
 	"mc":          true,
 	"mc:":         true,
 	"-mc-":        true,
+	"- 再入場可 *再入場毎にドリンク代頂きます / a drink ticket fee charged at every re-entry": true,
+	"at spread": true,
+	"東京都世田谷区北沢2-12-6 リバーストーンビルb1f": true,
 }
 
 var bannedSubstrings = []string{

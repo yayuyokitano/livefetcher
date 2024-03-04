@@ -9,10 +9,13 @@ watch:
 	gow -e=go,mod,html,css,toml run ./cmd/livefetcher start
 
 migrate:
-	go run . migrate
+	go run ./cmd/livefetcher migrate
 
 runtest:
 	go test -v ./... -timeout 120s
+
+testconnector:
+	CONNECTOR_ID=$(c) go test -v ./internal/core/connectors
 
 run:
 	set -e
