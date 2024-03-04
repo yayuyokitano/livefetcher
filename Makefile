@@ -17,6 +17,9 @@ runtest:
 testconnector:
 	CONNECTOR_ID=$(c) go test -v ./internal/core/connectors
 
+runconnector:
+	CONNECTOR_ID=$(c) go run ./cmd/livefetcher test
+
 run:
 	set -e
 	CONTAINERIZED=true ./livefetcher migrate

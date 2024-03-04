@@ -39,7 +39,7 @@ func main() {
 		fmt.Println("Migration complete!")
 		return
 	case "test":
-		err := runner.RunConnector(os.Args[2])
+		err := runner.RunConnectorTest(os.Getenv("CONNECTOR_ID"))
 		fmt.Println(err)
 		return
 	case "start":
