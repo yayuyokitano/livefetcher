@@ -832,7 +832,7 @@ var ShimokitazawaWaverFetcher = fetchers.Simple{
 
 /***************
  *						 *
- *	Shindaita  *
+ *	Setagaya  *
  *						 *
  ***************/
 
@@ -856,7 +856,7 @@ var ShindaitaFeverFetcher = fetchers.Simple{
 	},
 
 	PrefectureName: "tokyo",
-	AreaName:       "shindaita",
+	AreaName:       "setagaya",
 	VenueID:        "shindaita-fever",
 
 	TestInfo: fetchers.TestInfo{

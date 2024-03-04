@@ -50,9 +50,9 @@ tokyo = "Tokyo"
 shinsaibashi = "Shinsaibashi"
 
 [area.tokyo]
+setagaya = "Setagaya (excl. Shimokitazawa)"
 shibuya = "Shibuya"
 shimokitazawa = "Shimokitazawa"
-shindaita = "Shindaita"
 shinjuku = "Shinjuku"
 
 [util]

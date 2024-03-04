@@ -50,9 +50,9 @@ tokyo = "東京都"
 shinsaibashi = "心斎橋"
 
 [area.tokyo]
+setagaya = "世田谷（下北沢以外）"
 shibuya = "渋谷"
 shimokitazawa = "下北沢"
-shindaita = "新代田"
 shinjuku = "新宿"
 
 [util]
