@@ -319,3 +319,19 @@ func FindPrice(s string) string {
 	arr := re.FindAllString(s, 2)
 	return strings.Join(arr, "、")
 }
+
+// GetRelevantYear gets the year for a given month.
+// Some connectors have no way to get the year from DOM, so we make a basic set of assumptions:
+//
+// 1. If the month of the live is equal to or greater than the current month, assume the live is in the current year.
+//
+// 2. If the month of the live is less than the current month, assume the live is next year.
+func GetRelevantYear(month int) int {
+	now := time.Now()
+	if month < int(now.Month()) {
+		return time.Now().Year() + 1
+	}
+	return time.Now().Year()
+}
+
+var JapanTime = time.FixedZone("UTC+9", +9*60*60)

@@ -94,8 +94,8 @@ var ShibuyaOCrestFetcher = fetchers.CreateOFetcher(
 		FirstLiveArtists:      []string{"IIIIIIIDIOM"},
 		FirstLivePrice:        "優先 ¥3,000 一般 ¥0 当日 ¥0 （ご予約時ドリンク代別途600円）",
 		FirstLivePriceEnglish: "優先 ¥3,000 Ordinary Ticket ¥0 Door ¥0 （ごReservation時Drink代Separately600円）",
-		FirstLiveOpenTime:     time.Unix(1698832800, 0),
-		FirstLiveStartTime:    time.Unix(1698834600, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/crest/schedule/iiiiiiidiom_23-11-1/",
 	},
 )
@@ -112,8 +112,8 @@ var ShibuyaOEastFetcher = fetchers.CreateOFetcher(
 		FirstLiveArtists:      []string{"THE DEAD DAISIES", "THE MIDNIGHT ROSES（Opening Act）"},
 		FirstLivePrice:        "ADV 9,500（ご入場時ドリンク代別途600円）",
 		FirstLivePriceEnglish: "ADV 9,500（ごEntry時Drink代Separately600円）",
-		FirstLiveOpenTime:     time.Unix(1698829200, 0),
-		FirstLiveStartTime:    time.Unix(1698831900, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 18, 45, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/east/schedule/the-dead-daisies/",
 	},
 )
@@ -130,8 +130,8 @@ var ShibuyaONestFetcher = fetchers.CreateOFetcher(
 		FirstLiveArtists:      []string{"may in film", "PRSMIN", "zanka"},
 		FirstLivePrice:        "ADV ¥2,500 DOOR ¥3,000 （ご入場時ドリンク代別途600円）",
 		FirstLivePriceEnglish: "ADV ¥2,500 DOOR ¥3,000 （ごEntry時Drink代Separately600円）",
-		FirstLiveOpenTime:     time.Unix(1698831000, 0),
-		FirstLiveStartTime:    time.Unix(1698832800, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/nest/schedule/may-in-film%e4%b8%bb%e5%82%acmayday-%e6%98%9f%e3%81%ae%e9%99%8d%e3%82%8b%e3%83%8d%e3%82%b9%e3%83%88%e3%81%a7-day1/",
 	},
 )
@@ -148,8 +148,8 @@ var ShibuyaOWestFetcher = fetchers.CreateOFetcher(
 		FirstLiveArtists:      []string{"感覚ピエロ"},
 		FirstLivePrice:        "ADV ¥4,500 (ご入場時ドリンク代別途600円)",
 		FirstLivePriceEnglish: "ADV ¥4,500 (ごEntry時Drink代Separately600円)",
-		FirstLiveOpenTime:     time.Unix(1698831000, 0),
-		FirstLiveStartTime:    time.Unix(1698832800, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/west/schedule/%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad-10th-anniversary%e3%80%8c%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad%e3%81%a7%e3%81%99%e3%81%8c%e3%81%aa%e3%81%ab%e3%81%8b%e3%80%8d%e3%83%84%e3%82%a2/",
 	},
 )
@@ -245,14 +245,14 @@ var ShimokitazawaBasementBarFetcher = fetchers.CreateToosFetcher(
 	"shimokitazawa",
 	"shimokitazawa-basementbar",
 	fetchers.TestInfo{
-		NumberOfLives:         29,
-		FirstLiveTitle:        "Get the Crispy! vol.2",
-		FirstLiveArtists:      []string{"Crispy Camera Club", "Kamisado", "Salan", "Rumi Nagasawa(LIGHTERS)"},
-		FirstLivePrice:        "ADV￥2,400-／DOOR￥2,900-（+1D）",
-		FirstLivePriceEnglish: "ADV￥2,400-／DOOR￥2,900-（+1D）",
-		FirstLiveOpenTime:     time.Unix(1698831000, 0),
-		FirstLiveStartTime:    time.Unix(1698832800, 0),
-		FirstLiveURL:          "https://toos.co.jp/basementbar/ev/get-the-crispy-vol-2/",
+		NumberOfLives:         31,
+		FirstLiveTitle:        "sickufo fanclub",
+		FirstLiveArtists:      []string{"あずき過保護セット", "小林壮侍", "年齢バンド", "まほろば", "Bambi club", "GRASAM ANIMAL", "Laget’s Jam Stack", "sokkuriufo (from Khaki)", "sickufo(60min)"},
+		FirstLivePrice:        "ADV￥1,800-（+2D）",
+		FirstLivePriceEnglish: "ADV￥1,800-（+2D）",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 17, 50, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://toos.co.jp/basementbar/ev/sickufo-fanclub/",
 	},
 )
 
@@ -284,8 +284,8 @@ var ShimokitazawaChikamatsuFetcher = fetchers.Simple{
 		FirstLiveArtists:      []string{"uyuu", "アウフヘーベン", "シンクマクラ", "憂牡丹"},
 		FirstLivePrice:        "¥2,000-/¥2,500-(＋1D)",
 		FirstLivePriceEnglish: "¥2,000-/¥2,500-(＋1D)",
-		FirstLiveOpenTime:     time.Unix(1698829200, 0),
-		FirstLiveStartTime:    time.Unix(1698831000, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://chikamatsu-nite.com/schedule/2023/11/01-id2504.php",
 	},
 }
@@ -597,8 +597,8 @@ var ShimokitazawaLiveHolicFetcher = fetchers.Simple{
 		FirstLiveArtists:      []string{"ザストーンマスター", "おじさん的思考ディスク", "BamblueSiA", "Sonne", "Route4th", "GO SEE REGRET", "※EiNyは出演キャンセル"},
 		FirstLivePrice:        "一般¥2,000 学生¥1,400 (D別)",
 		FirstLivePriceEnglish: "Ordinary Ticket¥2,000 Students¥1,400 (Drinks sold separately)",
-		FirstLiveOpenTime:     time.Unix(1699259400, 0),
-		FirstLiveStartTime:    time.Unix(1699261200, 0),
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(11), 11, 6, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 6, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://liveholic.jp/schedule/2023/11/post-455.php",
 	},
 }
@@ -797,8 +797,7 @@ var ShimokitazawaThreeFetcher = fetchers.CreateToosFetcher(
 
 var ShimokitazawaWaverFetcher = fetchers.Simple{
 	BaseURL:              "https://waverwaver.net/",
-	InitialURL:           "https://waverwaver.net/category/schedule/",
-	NextSelector:         "//ul[contains(@class, 'page-numbers')]//a[contains(@class, 'next')]",
+	ShortYearIterableURL: "https://waverwaver.net/category/schedule/20%d年%02d月/",
 	ExpandedLiveSelector: "//h1/a",
 	LiveSelector:         "//div[contains(@class, 'postList')]/article[contains(@class, 'media')]",
 	TitleQuerier:         *htmlquerier.Q("//ul[contains(@class, 'schedule_list')]//i[contains(@class, 'icon_title')]/following-sibling::text()"),
@@ -827,7 +826,7 @@ var ShimokitazawaWaverFetcher = fetchers.Simple{
 		FirstLivePriceEnglish: "adv¥2,200 / door¥2,500 各＋1drink代Separately(¥600)",
 		FirstLiveOpenTime:     time.Unix(1698918300, 0),
 		FirstLiveStartTime:    time.Unix(1698920100, 0),
-		FirstLiveURL:          "https://waverwaver.net/2023/11/02/2023%e5%b9%b411%e6%9c%8802%e6%97%a5%e6%9c%a8/",
+		FirstLiveURL:          "https://waverwaver.net/2023/11/02/2023%%e5%%b9%%b411%%e6%%9c%%8802%%e6%%97%%a5%%e6%%9c%%a8/",
 	},
 }
 

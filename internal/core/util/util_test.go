@@ -1,6 +1,9 @@
 package util
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestMax(t *testing.T) {
 	if Max(1, 2) != 2 {
@@ -159,18 +162,26 @@ func TestFindTime(t *testing.T) {
 	natsume
 	ushi`
 
-	time := FindTime(str, "start")
-	if time != "19:00" {
-		t.Errorf("Expected %s, got %s", "19:00", time)
-	}
+	testStringEquivalence("19:00", FindTime(str, "start"), t)
+	testStringEquivalence("03:24", FindTime(str, "open"), t)
+	testStringEquivalence("当日券のみ¥2,300", FindPrice(str), t)
+}
 
-	time = FindTime(str, "open")
-	if time != "03:24" {
-		t.Errorf("Expected %s, got %s", "03:24", time)
-	}
+func TestGetRelevantYear(t *testing.T) {
+	testIntEquivalence(time.Now().Year(), GetRelevantYear(int(time.Now().Month())), t)
+	testIntEquivalence(time.Now().Year()+1, GetRelevantYear(int(time.Now().Month())-1), t)
+}
 
-	price := FindPrice(str)
-	if price != "当日券のみ¥2,300" {
-		t.Errorf("Expected %s, got %s", "当日券のみ¥2,300", price)
+func testStringEquivalence(expected string, actual string, t *testing.T) {
+	t.Helper()
+	if expected != actual {
+		t.Errorf("Expected %s, got %s", expected, actual)
+	}
+}
+
+func testIntEquivalence(expected int, actual int, t *testing.T) {
+	t.Helper()
+	if expected != actual {
+		t.Errorf("Expected %d, got %d", expected, actual)
 	}
 }

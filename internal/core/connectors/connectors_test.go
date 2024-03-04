@@ -46,10 +46,7 @@ func executeConnectorTest(t *testing.T, connector fetchers.Simple, wg *sync.Wait
 	t.Run(connector.VenueID, func(t *testing.T) {
 		defer wg.Done()
 
-		err := connector.Test()
-		if err != nil {
-			t.Error(err)
-		}
+		connector.Test(t)
 	})
 }
 

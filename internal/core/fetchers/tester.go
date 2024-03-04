@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/antchfx/htmlquery"
@@ -20,24 +21,30 @@ func getCurrentShortURL(shortYearIterableURL string) string {
 	return strings.Split(fmt.Sprintf(shortYearIterableURL, year, month), "%!(EXTRA")[0]
 }
 
-func (s *Simple) Test() (err error) {
+func (s *Simple) Test(t *testing.T) {
 	s.isTesting = true
 	path := fmt.Sprintf("../../../test/%s/%s/%s.html", s.PrefectureName, s.AreaName, s.VenueID)
 	n, err := htmlquery.LoadDoc(path)
 	if err != nil {
+		t.Error(err)
 		return
 	}
 
 	if s.InitialURL != "" && s.NextSelector != "" {
 		err = s.testHasNextURL(n)
 		if err != nil {
+			t.Error(err)
 			return
 		}
 		err = s.testRemoteInitialNext()
 		if err != nil {
+			t.Error(err)
 			return
 		}
 		err = s.testStaticLive(n, s.InitialURL)
+		if err != nil {
+			t.Error(err)
+		}
 		return
 	}
 
@@ -46,18 +53,25 @@ func (s *Simple) Test() (err error) {
 
 		err = s.testRemoteShortYearIterable(url)
 		if err != nil {
+			t.Error(err)
 			return
 		}
 		err = s.testStaticLive(n, url)
+		if err != nil {
+			t.Error(err)
+		}
 		return
 	}
 
 	err = s.testRemoteShortYearIterable(s.InitialURL)
 	if err != nil {
+		t.Error(err)
 		return
 	}
 	err = s.testStaticLive(n, s.InitialURL)
-	return
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func (s *Simple) testRemoteShortYearIterable(url string) (err error) {

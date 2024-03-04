@@ -624,13 +624,7 @@ func (s *Simple) getYear(n *html.Node) (year string, err error) {
 		if err != nil {
 			return
 		}
-		now := time.Now()
-		if month < int(now.Month()) {
-			res = append(res, strconv.Itoa(time.Now().Year()+1))
-		} else {
-			res = append(res, strconv.Itoa(time.Now().Year()))
-		}
-
+		res = append(res, strconv.Itoa(util.GetRelevantYear(month)))
 	}
 
 	year = res[0]
