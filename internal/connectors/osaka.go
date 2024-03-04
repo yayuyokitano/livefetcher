@@ -5,6 +5,7 @@ import (
 
 	"github.com/yayuyokitano/livefetcher/internal/core/fetchers"
 	"github.com/yayuyokitano/livefetcher/internal/core/htmlquerier"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
 /******************
@@ -42,8 +43,8 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 		FirstLiveArtists:      []string{"Hyuga", "DETOX"},
 		FirstLivePrice:        "adv ¥2500 door ¥3000(別途1D ¥600)",
 		FirstLivePriceEnglish: "adv ¥2500 door ¥3000(Separately1D ¥600)",
-		FirstLiveOpenTime:     time.Unix(1709371800, 0),
-		FirstLiveStartTime:    time.Unix(1709373600, 0),
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://osakabronze.com/schedule20%d%02d.php",
 	},
 }
