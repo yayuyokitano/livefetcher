@@ -40,6 +40,10 @@ type Querier struct {
 	// postsplitmod denotes a filter that has been implemented after any splitter (or if QAll is used, all filters are postsplitmod)
 	// These filters will be applied after splitter, and will be applied separately to every entry in the string array arr.
 	postsplitmod []func(string) string
+	// sliceFilter is applied immediately after a splitter, and will filter the slice itself
+	// This is only needed when you need context of other items in slice.
+	// If you do not need context of other items in slice, just use postsplitmod.
+	sliceFilter []func([]string) []string
 }
 
 // QAll creates a pointer to a Querier struct.
@@ -96,7 +100,7 @@ func (q *Querier) TrimSuffix(suffix string) *Querier {
 
 // BeforeSelector sets an endSelector, and will ensure that only text before the selector specified is selected.
 func (q *Querier) BeforeSelector(selector string) *Querier {
-	(*q).endSelector = selector
+	q.endSelector = selector
 	return q
 }
 
@@ -104,17 +108,16 @@ func (q *Querier) BeforeSelector(selector string) *Querier {
 func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 	if n == nil {
 		a = []string{""}
-		err = fmt.Errorf("node is nil for selector %s", (*q).selector)
+		err = fmt.Errorf("node is nil for selector %s", q.selector)
 		return
 	}
-	if (*q).splitter == nil {
-		(*q).SetSplitter(dontSplit)
+	if q.splitter == nil {
+		q.SetSplitter(dontSplit)
 	}
-	(*q).postsplitmod = append((*q).postsplitmod, trim)
 
-	if (*q).selectAll {
+	if q.selectAll {
 		var res []*html.Node
-		res, err = htmlquery.QueryAll(n, (*q).selector)
+		res, err = htmlquery.QueryAll(n, q.selector)
 		if err != nil || res == nil || len(res) == 0 {
 			a = []string{""}
 			return
@@ -124,43 +127,56 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 			//fmt.Println(htmlquery.InnerText(artistNode))
 			strs = append(strs, htmlquery.InnerText(artistNode))
 		}
-		(*q).arr = strs
+		q.arr = strs
 	} else {
 		var res *html.Node
-		res, err = htmlquery.Query(n, (*q).selector)
+		res, err = htmlquery.Query(n, q.selector)
 		if err != nil || res == nil {
 			a = []string{""}
 			return
 		}
-		(*q).str = htmlquery.InnerText(res)
+		q.str = htmlquery.InnerText(res)
 
-		if (*q).endSelector != "" {
+		if q.endSelector != "" {
 			var end *html.Node
-			end, err = htmlquery.Query(res, (*q).endSelector)
+			end, err = htmlquery.Query(res, q.endSelector)
 			if err == nil && end != nil {
-				(*q).str = strings.Split((*q).str, htmlquery.InnerText(end))[0]
+				q.str = strings.Split(q.str, htmlquery.InnerText(end))[0]
 			}
 			err = nil
 		}
 
-		for _, mod := range (*q).presplitmod {
-			(*q).str = mod((*q).str)
+		for _, mod := range q.presplitmod {
+			q.str = mod(q.str)
 		}
-		(*q).arr = (*q).splitter((*q).str)
+		q.arr = q.splitter(q.str)
 	}
 
-	for _, mod := range (*q).postsplitmod {
+	for _, filter := range q.sliceFilter {
+		q.arr = filter(q.arr)
+	}
+
+	for _, mod := range q.postsplitmod {
 		newArr := make([]string, 0)
-		for _, str := range (*q).arr {
+		for _, str := range q.arr {
 			newStr := mod(str)
 			if newStr != "" {
 				newArr = append(newArr, newStr)
 			}
 		}
-		(*q).arr = newArr
+		q.arr = newArr
 	}
 
-	a = (*q).arr
+	newArr := make([]string, 0)
+	for _, str := range q.arr {
+		newStr := trim(str)
+		if newStr != "" {
+			newArr = append(newArr, newStr)
+		}
+	}
+	q.arr = newArr
+
+	a = q.arr
 	if len(a) == 0 {
 		a = []string{""}
 	}
@@ -175,11 +191,16 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 //
 // The order that filters and splitter are added to the Querier matters.
 func (q *Querier) AddFilter(fn func(string) string) *Querier {
-	if (*q).splitter != nil || (*q).selectAll {
-		(*q).postsplitmod = append((*q).postsplitmod, fn)
+	if q.splitter != nil || q.selectAll {
+		q.postsplitmod = append(q.postsplitmod, fn)
 	} else {
-		(*q).presplitmod = append((*q).presplitmod, fn)
+		q.presplitmod = append(q.presplitmod, fn)
 	}
+	return q
+}
+
+func (q *Querier) AddSliceFilter(fn func([]string) []string) *Querier {
+	q.sliceFilter = append(q.sliceFilter, fn)
 	return q
 }
 
@@ -289,8 +310,8 @@ func (q *Querier) SplitRegexIndex(exp string, i int) *Querier {
 //
 // Any filter added after SetSpliter is called will be executed on each individual entries of this slice.
 func (q *Querier) SetSplitter(fn func(string) []string) *Querier {
-	if !(*q).selectAll {
-		(*q).splitter = fn
+	if !q.selectAll {
+		q.splitter = fn
 	}
 	return q
 }
@@ -348,5 +369,47 @@ func (q *Querier) ReplaceAllRegex(exp, new string) *Querier {
 func (q *Querier) Prefix(p string) *Querier {
 	return q.AddFilter(func(s string) string {
 		return fmt.Sprintf(p + s)
+	})
+}
+
+// DeleteFrom adds a slice filter that deletes every item starting at an item with specific value
+func (q *Querier) DeleteFrom(s string) *Querier {
+	return q.AddSliceFilter(func(old []string) []string {
+		new := make([]string, 0)
+		for _, cur := range old {
+			if s == cur {
+				break
+			}
+			new = append(new, cur)
+		}
+		return new
+	})
+}
+
+// DeleteUntil adds a slice filter that deletes every item until and including an item with specific value
+func (q *Querier) DeleteUntil(s string) *Querier {
+	return q.AddSliceFilter(func(old []string) []string {
+		new := make([]string, 0)
+		shouldDelete := true
+		for _, cur := range old {
+			if !shouldDelete {
+				new = append(new, cur)
+				continue
+			}
+			if s == cur {
+				shouldDelete = false
+			}
+		}
+		return new
+	})
+}
+
+// KeepIndex keeps only the element at specific index, or empty string if does not exist
+func (q *Querier) KeepIndex(i int) *Querier {
+	return q.AddSliceFilter(func(old []string) []string {
+		if len(old) > i {
+			return []string{old[i]}
+		}
+		return []string{""}
 	})
 }

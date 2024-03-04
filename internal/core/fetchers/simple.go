@@ -272,6 +272,7 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 		return
 	}
 	prevURL := initialURL
+
 	for next, err2 := htmlquery.Query(n, s.NextSelector); next != nil && err2 == nil; next, err2 = htmlquery.Query(n, s.NextSelector) {
 		var nextURL *url.URL
 		nextURL, err = base.Parse(htmlquery.SelectAttr(next, "href"))
@@ -294,6 +295,18 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 		if len(appL) == 0 {
 			break
 		}
+		// also leave if all lives are from a previous year
+		hasCurrentYearLive := false
+		for _, live := range appL {
+			if live.OpenTime.Year() >= time.Now().Year() {
+				hasCurrentYearLive = true
+				break
+			}
+		}
+		if !hasCurrentYearLive {
+			break
+		}
+
 		l = append(l, appL...)
 	}
 	s.Lives = l
