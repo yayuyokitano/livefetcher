@@ -413,3 +413,10 @@ func (q *Querier) KeepIndex(i int) *Querier {
 		return []string{""}
 	})
 }
+
+// Concat concatenates all the strings from the slice to one
+func (q *Querier) Join(sep string) *Querier {
+	return q.AddSliceFilter(func(old []string) []string {
+		return []string{strings.Join(old, sep)}
+	})
+}

@@ -41,7 +41,10 @@ var Connectors = ConnectorsType{
 	"ShimokitazawaWaver":       connectors.ShimokitazawaWaverFetcher,
 	"ShindaitaFever":           connectors.ShindaitaFeverFetcher,
 	"ShinjukuLoft":             connectors.ShinjukuLoftFetcher,
+	"ShinsaibashiBigcat":       connectors.ShinsaibashiBigcatFetcher,
 	"ShinsaibashiBronze":       connectors.ShinsaibashiBronzeFetcher,
+	"ShinsaibashiFanjtwice":    connectors.ShinsaibashiFanjtwiceFetcher,
+	"ShinsaibashiJanus":        connectors.ShinsaibashiJanusFetcher,
 	"ShinsaibashiKurage":       connectors.ShinsaibashiKurageFetcher,
 	"ShinsaibashiUtausakana":   connectors.ShinsaibashiUtausakanaFetcher,
 }

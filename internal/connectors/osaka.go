@@ -14,6 +14,39 @@ import (
  *								*
  ******************/
 
+var ShinsaibashiBigcatFetcher = fetchers.Simple{
+	BaseURL:              "https://bigcat-live.com/",
+	ShortYearIterableURL: "https://bigcat-live.com/20%d/%d",
+	LiveSelector:         "//div[contains(@class, 'archive_block')]",
+	TitleQuerier:         *htmlquerier.Q("//h3[@class='ttl']"),
+	ArtistsQuerier:       *htmlquerier.Q("//dt[text()='LIVE INFO']/following-sibling::dd/p").Split("/"),
+	PriceQuerier:         *htmlquerier.QAll("//dt[text()='ADV' or text()='DOOR']/ancestor::dl").Join(" ").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		MonthQuerier:     *htmlquerier.Q("//span[@class='date_txt']"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='date_txt']").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//dt[text()='OPEN']/following-sibling::dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dt[text()='START']/following-sibling::dd"),
+
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-bigcat",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         23,
+		FirstLiveTitle:        "押忍フェス in BIGCAT",
+		FirstLiveArtists:      []string{"KRD8", "WT☆Egret", "すたんぴっ！", "シンセカイヒーロー", "森ふうか", "HIGH SPY DOLL", "ミケネコガールズ", "Mellow giRLs", "Vress", "LOViSH", "caprice", "frecia", "いつでも夢を", "link start", "REBEL REBEL", "EVERYTHING IS WONDER", "Lunouir Tiara", "イロハサクラ"},
+		FirstLivePrice:        "ADV 優先：￥2,400一般：￥1,000 DOOR 優先：￥3,400一般：￥2,000",
+		FirstLivePriceEnglish: "ADV Priority entry：￥2,400Ordinary Ticket：￥1,000 DOOR Priority entry：￥3,400Ordinary Ticket：￥2,000",
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 1, 15, 15, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 1, 15, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://bigcat-live.com/20%d/%d",
+	},
+}
+
 var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	BaseURL:              "http://osakabronze.com",
 	ShortYearIterableURL: "http://osakabronze.com/schedule20%d%02d.php",
@@ -46,6 +79,75 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 3, 2, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 2, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://osakabronze.com/schedule20%d%02d.php",
+	},
+}
+
+var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
+	BaseURL:        "http://www.fanj-twice.com/",
+	InitialURL:     "http://www.fanj-twice.com/sch_twice/sch000.html",
+	LiveSelector:   "//div[contains(@class, 'cssskin-_block_main_news_m')]",
+	TitleQuerier:   *htmlquerier.Q("//h4"),
+	ArtistsQuerier: *htmlquerier.Q("//p[@class='c-body']/span[2]//span[not(*)]").Split(" / "),
+	PriceQuerier:   *htmlquerier.Q("//p[@class='c-body']/span[3]//span[@class='d-bold']/following-sibling::text()"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@class='c-lead']"),
+		MonthQuerier:     *htmlquerier.Q("//p[@class='c-lead']").After("."),
+		DayQuerier:       *htmlquerier.Q("//p[@class='c-lead']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[@class='c-body']/span[3]//span[@class='d-bold']/preceding-sibling::text()"),
+		StartTimeQuerier: *htmlquerier.Q("//p[@class='c-body']/span[3]//span[@class='d-bold']/preceding-sibling::text()").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-fanjtwice",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         12,
+		FirstLiveTitle:        "GEM JAM FES！",
+		FirstLiveArtists:      []string{"meluQ", "SITRA.", "青のメロディー", "caprice", "AsteRythm", "Stella!", "ネテルダイヤ", "ゆめポケ", "めいてん"},
+		FirstLivePrice:        "前売り 1,900円 / 前方エリア 3,000円（別途1DRINK）",
+		FirstLivePriceEnglish: "Reservation 1,900円 / Front area 3,000円（Separately1DRINK）",
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 10, 15, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 10, 35, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.fanj-twice.com/sch_twice/sch000.html",
+	},
+}
+
+var ShinsaibashiJanusFetcher = fetchers.Simple{
+	BaseURL:              "https://janusosaka.com/",
+	ShortYearIterableURL: "https://janusosaka.com/schedule/20%d-%02d/",
+	LiveSelector:         "//article[@class='c-scheduleList']",
+	TitleQuerier:         *htmlquerier.Q("//div[@class='c-scheduleList__head--title']"),
+	ArtistsQuerier:       *htmlquerier.Q("//div[@class='c-scheduleList__head--act']").SplitIgnoreWithin(`( / )|(【?((opening)|(Opening)|(OPENING))?\s*((Guest)|(guest)|(GUEST)|(ゲスト)|(artist)|(Artist)|(ARTIST)|(act)|(Act)|(ACT))\s*((artist)|(Artist)|(ARTIST)|(act)|(Act)|(ACT))?】?((\s*):)?)|(O.A.(\s*):)|(【DJ/MC】)|(【LIVE】)|(\(O.A.\))`, '(', ')'), // dont worry about it
+	PriceQuerier:         *htmlquerier.Q("//dt[text()='ADV/DOOR']/following-sibling::dd").Prefix("ADV/DOOR: ").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div[@id='c-breadcrumb']//li[last()]"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='c-scheduleList__date--month']"),
+		DayQuerier:       *htmlquerier.Q("//div[@class='c-scheduleList__date--date']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//dt[text()='OPEN/START']/following-sibling::dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dt[text()='OPEN/START']/following-sibling::dd").After("/"),
+
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-janus",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         28,
+		FirstLiveTitle:        "帝国喫茶ワンマンツアー2024 「きみの待つ場所へ春のメロディーを」",
+		FirstLiveArtists:      []string{"帝国喫茶"},
+		FirstLivePrice:        "ADV/DOOR: ￥3,800 / 未定",
+		FirstLivePriceEnglish: "ADV/DOOR: ￥3,800 / TBA",
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://janusosaka.com/schedule/20%d-%02d/",
 	},
 }
 
