@@ -287,10 +287,44 @@ var ShinsaibashiKurageFetcher = fetchers.Simple{
 		FirstLiveTitle:        "天女神樂 神楽祭『〜花〜』",
 		FirstLiveArtists:      []string{"天女神樂", "Panic×Panic", "メイビスレーヌ"},
 		FirstLivePrice:        "前売3,500円/当日4,000円(ドリンク代別途600円)/カメラ登録料＋1,000円",
-		FirstLivePriceEnglish: "Reservation3,500円/Door4,000円(Drink代Separately600円)/Camera fee＋1,000円",
+		FirstLivePriceEnglish: "Reservation3,500円/Door4,000円(DrinkNot included in ticket600円)/Camera fee＋1,000円",
 		FirstLiveOpenTime:     time.Date(2024, 3, 10, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 10, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://livehouse-kurage.com/schedule/%e5%a4%a9%e5%a5%b3%e7%a5%9e%e6%a8%82-%e7%a5%9e%e6%a5%bd%e7%a5%ad%e3%80%8e%e3%80%9c%e8%8a%b1%e3%80%9c%e3%80%8f/",
+	},
+}
+
+var ShinsaibashiMuseFetcher = fetchers.Simple{
+	BaseURL:              "http://osaka.muse-live.com/",
+	ShortYearIterableURL: "http://osaka.muse-live.com/schedule/?y=20%d&m=%d",
+	LiveSelector:         "//article[@class='media schedule']",
+	TitleQuerier:         *htmlquerier.Q("//h3"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='schedule_content']/p[1]/a"),
+	PriceQuerier:         *htmlquerier.Q("//ul[@class='schedule_info_list']/li[2]/span[2]").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div[@class='schedule_date']/span"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='month']"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='month']/following-sibling::text()"),
+		OpenTimeQuerier:  *htmlquerier.Q("//ul[@class='schedule_info_list']/li[1]/span[2]"),
+		StartTimeQuerier: *htmlquerier.Q("//ul[@class='schedule_info_list']/li[1]/span[2]").After("/"),
+
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-muse",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         28,
+		FirstLiveTitle:        "FASTMUSIC CARNIVAL TOUR2024",
+		FirstLiveArtists:      []string{"Bentham", "SAKANAMON", "板歯目"},
+		FirstLivePrice:        "ADV.¥4,000 入場時DRINK代別途600円必要",
+		FirstLivePriceEnglish: "ADV.¥4,000 When enteringDRINKNot included in ticket600円Necessary",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://osaka.muse-live.com/schedule/?y=20%d&m=%d",
 	},
 }
 
