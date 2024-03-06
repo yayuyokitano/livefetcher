@@ -192,7 +192,7 @@ var ShibuyaWWWXFetcher = fetchers.CreateWWWFetcher(
 		FirstLiveTitle:        "BIG ROMANTIC RECORDS presents Carsick Cars live in Tokyo",
 		FirstLiveArtists:      []string{"Carsick Cars", "Hello Shitty (a.k.a Sophia from UptownRecords)"},
 		FirstLivePrice:        "¥5,000 / ¥5,500 (税込 / ドリンク代別)※当日券は19:00~、前売りの入場が落ち着き次第 WWW Xにて¥5,500+D代で販売いたします。",
-		FirstLivePriceEnglish: "¥5,000 / ¥5,500 (Incl. Tax / Drink代Separately)※Door券は19:00~、ReservationのEntryが落ち着き次第 WWW Xにて¥5,500+D代で販売いたします",
+		FirstLivePriceEnglish: "¥5,000 / ¥5,500 (Incl. Tax / Drink代Separately)※Door券は19:00~、ReservationのEntryが落ち着き次第 WWW Xにて¥5,500+D代で販売いたします。",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www-shibuya.jp/schedule/017258.php",

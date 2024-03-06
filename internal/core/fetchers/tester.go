@@ -14,11 +14,26 @@ import (
 	"golang.org/x/net/html"
 )
 
-func getCurrentShortURL(shortYearIterableURL string) string {
+func (s *Simple) getTestCurrentShortURL(shortYearIterableURL string) string {
 	t := time.Now()
 	year := t.Year() % 100
 	month := int(t.Month())
-	return strings.Split(fmt.Sprintf(shortYearIterableURL, year, month), "%!(EXTRA")[0]
+	if s.ShortYearIterableURL != "" {
+		return strings.Split(fmt.Sprintf(shortYearIterableURL, year, month), "%!(EXTRA")[0]
+	} else {
+		return strings.Split(fmt.Sprintf(shortYearIterableURL, month, year), "%!(EXTRA")[0]
+	}
+}
+
+func (s *Simple) getCurrentShortURL() string {
+	t := time.Now()
+	year := t.Year() % 100
+	month := int(t.Month())
+	if s.ShortYearIterableURL != "" {
+		return strings.Split(fmt.Sprintf(s.ShortYearIterableURL, year, month), "%!(EXTRA")[0]
+	} else {
+		return strings.Split(fmt.Sprintf(s.ShortYearReverseIterableURL, month, year), "%!(EXTRA")[0]
+	}
 }
 
 func (s *Simple) Test(t *testing.T) {
@@ -48,8 +63,8 @@ func (s *Simple) Test(t *testing.T) {
 		return
 	}
 
-	if s.ShortYearIterableURL != "" {
-		url := getCurrentShortURL(s.ShortYearIterableURL)
+	if s.ShortYearIterableURL != "" || s.ShortYearReverseIterableURL != "" {
+		url := s.getCurrentShortURL()
 
 		err = s.testRemoteShortYearIterable(url)
 		if err != nil {
@@ -171,8 +186,8 @@ func (s *Simple) testStaticLive(n *html.Node, path string) (err error) {
 		err = fmt.Errorf("expected url %s, got %s", s.TestInfo.FirstLiveURL, firstLive.URL)
 		return
 	}
-	if s.ShortYearIterableURL != "" && firstLive.URL != getCurrentShortURL(s.TestInfo.FirstLiveURL) {
-		err = fmt.Errorf("expected url %s, got %s", getCurrentShortURL(s.TestInfo.FirstLiveURL), firstLive.URL)
+	if s.ShortYearIterableURL != "" && firstLive.URL != s.getTestCurrentShortURL(s.TestInfo.FirstLiveURL) {
+		err = fmt.Errorf("expected url %s, got %s", s.getTestCurrentShortURL(s.TestInfo.FirstLiveURL), firstLive.URL)
 		return
 	}
 	return

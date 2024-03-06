@@ -140,6 +140,9 @@ type Simple struct {
 	//
 	// TODO: either make LongYearIterableURL or expand this to work in both cases. For now just use 20%02d in this case.
 	ShortYearIterableURL string
+
+	// ShortYearReverseIterableURL is the same as ShortYearIterableURL, except the order of the format strings is changed, so month is before year.
+	ShortYearReverseIterableURL string
 	// NextSelector is the selector of a link to the next page of schedule, showing newer lives than the current page.
 	//
 	// Livefetcher will follow the href of the element specified by NextSelector to get more lives, until no more lives are found.
@@ -222,7 +225,7 @@ func (s *Simple) Fetch() (err error) {
 		if err != nil {
 			return
 		}
-	} else if s.ShortYearIterableURL != "" {
+	} else if s.ShortYearIterableURL != "" || s.ShortYearReverseIterableURL != "" {
 		err = s.iterateUsingShortYear()
 		if err != nil {
 			return
@@ -313,6 +316,14 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 	return
 }
 
+func (s *Simple) getNewIterableURL(year, month int) (*url.URL, error) {
+	if s.ShortYearIterableURL != "" {
+		return url.Parse(fmt.Sprintf(s.ShortYearIterableURL, year, month))
+	} else {
+		return url.Parse(fmt.Sprintf(s.ShortYearReverseIterableURL, month, year))
+	}
+}
+
 func (s *Simple) iterateUsingShortYear() (err error) {
 	t := time.Now()
 	year := t.Year() % 100
@@ -321,7 +332,7 @@ func (s *Simple) iterateUsingShortYear() (err error) {
 	for err == nil {
 		var n *html.Node
 		var newURL *url.URL
-		newURL, err = url.Parse(fmt.Sprintf(s.ShortYearIterableURL, year, month))
+		newURL, err = s.getNewIterableURL(year, month)
 		if err != nil {
 			break
 		}

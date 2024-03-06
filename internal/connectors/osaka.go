@@ -189,6 +189,41 @@ var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiHokageFetcher = fetchers.Simple{
+	BaseURL:                     "http://musicbarhokage.net/",
+	ShortYearReverseIterableURL: "http://musicbarhokage.net/schedule%d_20%d.htm",
+	LiveSelector:                "//table[@bordercolor='#FF0000']/tbody/tr/td/div/table/tbody",
+	TitleQuerier:                *htmlquerier.Q("/tr[3]//strong"),
+	ArtistsQuerier:              *htmlquerier.Q("/tr[4]//strong").Split("\n"),
+	PriceQuerier:                *htmlquerier.Q("/tr[6]//strong"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@class='style15']"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='style15']").After("."),
+		DayQuerier:       *htmlquerier.Q("//span[@class='style15']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("/tr[5]//strong").After("OPEN:"),
+		StartTimeQuerier: *htmlquerier.Q("/tr[5]//strong").After("START:"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-hokage",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         24,
+		FirstLiveTitle:        "[DUB UNDERGROUND vol.4]",
+		FirstLiveArtists:      []string{"DUBBY BON", "Manabu Dub", "Black Warriyah", "BIG \"DUB\" HEAD (fr.Medical Tempo)"},
+		FirstLivePrice:        "Adv.1000yen Door.1000yen (+Drink fee)",
+		FirstLivePriceEnglish: "Adv.1000yen Door.1000yen (+Drink fee)",
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 1, 21, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 1, 21, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://musicbarhokage.net/schedule%d_20%d.htm",
+	},
+}
+
 var ShinsaibashiJanusFetcher = fetchers.Simple{
 	BaseURL:              "https://janusosaka.com/",
 	ShortYearIterableURL: "https://janusosaka.com/schedule/20%d-%02d/",
