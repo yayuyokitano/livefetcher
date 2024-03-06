@@ -23,33 +23,20 @@ type Querier struct {
 	// endSelector specifies a selector to stop before.
 	// Any text in or after endSelector will not be included in results.
 	endSelector string
-	// str denotes the string return in its current state. This may be modified by filters as the query executes.
-	str string
-	// arr denotes an array of strings being returned. This will be created through a QAll query or a splitter function.
-	// Typically used for fetching and returning multiple artists in a single live.
+	// arr denotes a slice of strings being returned. If only using basic filters and .Q() this will be a slice with only one string.
 	arr []string
 	// selector denotes the primary selector to fetch the initial string(s) from.
 	selector string
-	// selectAll denotes whether only string from first match should be assigned to str, or if string from all matches should be assigned to arr.
+	// selectAll determines fetch strategy. If selectAll is true, all matches are fetched and sent to arr; if selectAll is false, only first match is fetched and added to first index of array.
 	selectAll bool
-	// presplitmod denotes a filter that has been implemented before any splitter (if there is a splitter).
-	// These filters will be executed in order on str, before splitter is executed.
-	presplitmod []func(string) string
-	// splitter is a splitter function, that takes an initial single input string (stored in str), and splits it into an array of strings (stored in arr)
-	splitter func(string) []string
-	// postsplitmod denotes a filter that has been implemented after any splitter (or if QAll is used, all filters are postsplitmod)
-	// These filters will be applied after splitter, and will be applied separately to every entry in the string array arr.
-	postsplitmod []func(string) string
-	// sliceFilter is applied immediately after a splitter, and will filter the slice itself
-	// This is only needed when you need context of other items in slice.
-	// If you do not need context of other items in slice, just use postsplitmod.
-	sliceFilter []func([]string) []string
+	// filters contains the filters to apply to modify result.
+	filters []func([]string) []string
 }
 
 // QAll creates a pointer to a Querier struct.
 // A Querier struct initialized using QAll will fetch all instances of the selector, get the string within, and assign them all to arr.
 //
-// Any filters specified on QAll Querier will behave as if they are being executed after a splitter.
+// Any basic filters specified will be applied individually on each match
 func QAll(selector string) *Querier {
 	return &Querier{
 		selector:    selector,
@@ -65,11 +52,6 @@ func Q(selector string) *Querier {
 		selector:    selector,
 		Initialized: true,
 	}
-}
-
-// dontSplit is a placeholder splitter function that does nothing, used when no splitter was used.
-func dontSplit(s string) []string {
-	return []string{s}
 }
 
 // trim is a splitter function that trims whitespace from the beginning and end of the string.
@@ -111,9 +93,6 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 		err = fmt.Errorf("node is nil for selector %s", q.selector)
 		return
 	}
-	if q.splitter == nil {
-		q.SetSplitter(dontSplit)
-	}
 
 	if q.selectAll {
 		var res []*html.Node
@@ -135,36 +114,22 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 			a = []string{""}
 			return
 		}
-		q.str = htmlquery.InnerText(res)
+		q.arr = []string{htmlquery.InnerText(res)}
 
 		if q.endSelector != "" {
 			var end *html.Node
 			end, err = htmlquery.Query(res, q.endSelector)
 			if err == nil && end != nil {
-				q.str = strings.Split(q.str, htmlquery.InnerText(end))[0]
+				for i := range q.arr {
+					q.arr[i] = strings.Split(q.arr[i], htmlquery.InnerText(end))[0]
+				}
 			}
 			err = nil
 		}
-
-		for _, mod := range q.presplitmod {
-			q.str = mod(q.str)
-		}
-		q.arr = q.splitter(q.str)
 	}
 
-	for _, filter := range q.sliceFilter {
+	for _, filter := range q.filters {
 		q.arr = filter(q.arr)
-	}
-
-	for _, mod := range q.postsplitmod {
-		newArr := make([]string, 0)
-		for _, str := range q.arr {
-			newStr := mod(str)
-			if newStr != "" {
-				newArr = append(newArr, newStr)
-			}
-		}
-		q.arr = newArr
 	}
 
 	newArr := make([]string, 0)
@@ -183,42 +148,42 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 	return
 }
 
-// AddFilter adds a filter to the Querier struct.
-//
-// If a splitter has been specified or Querier was made using QAll, the filter will be individually applied to every string in the string array created by splitter.
-//
-// If a splitter has not yet been specified, filter will be applied to the single string.
-//
-// The order that filters and splitter are added to the Querier matters.
+// AddFilter adds a simple filter to the Querier struct.
+// Simple filter will run once on each entry in slice, replacing each entry with the filtered version.
 func (q *Querier) AddFilter(fn func(string) string) *Querier {
-	if q.splitter != nil || q.selectAll {
-		q.postsplitmod = append(q.postsplitmod, fn)
-	} else {
-		q.presplitmod = append(q.presplitmod, fn)
-	}
+	q.AddComplexFilter(func(arr []string) []string {
+		for i := range arr {
+			arr[i] = fn(arr[i])
+		}
+		return arr
+	})
 	return q
 }
 
-func (q *Querier) AddSliceFilter(fn func([]string) []string) *Querier {
-	q.sliceFilter = append(q.sliceFilter, fn)
+// AddComplexFilter adds a filter that takes the full slice of strings, and returns a new slice.
+// This should only be used if you need the full context of the array, or if you want to be able to entirely remove entries.
+//
+// Make sure not to return an empty slice, at minimum return slice containing a single entry with empty string.
+func (q *Querier) AddComplexFilter(fn func([]string) []string) *Querier {
+	q.filters = append(q.filters, fn)
 	return q
 }
 
-// Split sets a splitter that splits on a given separator string sep.
+// Split adds a splitter that splits on a given separator string sep.
 func (q *Querier) Split(sep string) *Querier {
-	return q.SetSplitter(func(s string) []string {
+	return q.AddSplitter(func(s string) []string {
 		return strings.Split(s, sep)
 	})
 }
 
-// SplitIgnoreWithin sets a splitter that splits using a given separator, while ignoring that separator if its within a set of left and right brackets.
+// SplitIgnoreWithin adds a splitter that splits using a given separator, while ignoring that separator if its within a set of left and right brackets.
 //
 // For instance, often, the slash character "/" is used as a separator between artists on websites.
 // However, slash may also appear often in parentheses on individual artists to denote things like features etc.
 //
 // In this case, we can use SplitIgnoreWithin to separate on "/", while ensuring splitting does not occur within the parentheses used by the site.
 func (q *Querier) SplitIgnoreWithin(sep string, l, r rune) *Querier {
-	return q.SetSplitter(func(s string) (arr []string) {
+	return q.AddSplitter(func(s string) (arr []string) {
 		re, err := regexp.Compile(fmt.Sprintf("[%s].*?[%s]|(%s)", string(l), string(r), sep))
 		if err != nil {
 			arr = []string{s}
@@ -269,9 +234,9 @@ func (q *Querier) SplitIgnoreWithin(sep string, l, r rune) *Querier {
 	})
 }
 
-// SplitRegex sets a splitter that splits using a regular expression exp.
+// SplitRegex adds a splitter that splits using a regular expression exp.
 func (q *Querier) SplitRegex(exp string) *Querier {
-	return q.SetSplitter(func(s string) []string {
+	return q.AddSplitter(func(s string) []string {
 		re, err := regexp.Compile(exp)
 		if err != nil {
 			return []string{s}
@@ -280,9 +245,9 @@ func (q *Querier) SplitRegex(exp string) *Querier {
 	})
 }
 
-// SplitIndex sets a splitter that splits using a string, but only returns the entry at index i, or empty string if index i doesnt exist.
+// SplitIndex adds a splitter that splits using a string, but only returns the entry at index i, or empty string if index i doesnt exist.
 func (q *Querier) SplitIndex(sep string, i int) *Querier {
-	return q.SetSplitter(func(s string) []string {
+	return q.AddSplitter(func(s string) []string {
 		arr := strings.Split(s, sep)
 		if i < len(arr) {
 			return []string{arr[i]}
@@ -293,7 +258,7 @@ func (q *Querier) SplitIndex(sep string, i int) *Querier {
 
 // SplitRegexIndex works like SplitIndex, except using regex.
 func (q *Querier) SplitRegexIndex(exp string, i int) *Querier {
-	return q.SetSplitter(func(s string) []string {
+	return q.AddSplitter(func(s string) []string {
 		re, err := regexp.Compile(exp)
 		if err != nil {
 			return []string{s}
@@ -306,13 +271,15 @@ func (q *Querier) SplitRegexIndex(exp string, i int) *Querier {
 	})
 }
 
-// SetSplitter sets a splitter function for the Querier, splitting the string into a slice of strings using the function given.
-//
-// Any filter added after SetSpliter is called will be executed on each individual entries of this slice.
-func (q *Querier) SetSplitter(fn func(string) []string) *Querier {
-	if !q.selectAll {
-		q.splitter = fn
-	}
+// AddSplitter adds a splitter filter for the Querier, which iterates over the slice, and may or may not turn the entry into multiple entries.
+func (q *Querier) AddSplitter(fn func(string) []string) *Querier {
+	q.AddComplexFilter(func(old []string) []string {
+		newArr := make([]string, 0)
+		for _, s := range old {
+			newArr = append(newArr, fn(s)...)
+		}
+		return newArr
+	})
 	return q
 }
 
@@ -372,9 +339,9 @@ func (q *Querier) Prefix(p string) *Querier {
 	})
 }
 
-// DeleteFrom adds a slice filter that deletes every item starting at an item with specific value
+// DeleteFrom adds a complex filter that deletes every item starting at an item with specific value
 func (q *Querier) DeleteFrom(s string) *Querier {
-	return q.AddSliceFilter(func(old []string) []string {
+	return q.AddComplexFilter(func(old []string) []string {
 		new := make([]string, 0)
 		for _, cur := range old {
 			if s == cur {
@@ -386,9 +353,9 @@ func (q *Querier) DeleteFrom(s string) *Querier {
 	})
 }
 
-// DeleteUntil adds a slice filter that deletes every item until and including an item with specific value
+// DeleteUntil adds a complex filter that deletes every item until and including an item with specific value
 func (q *Querier) DeleteUntil(s string) *Querier {
-	return q.AddSliceFilter(func(old []string) []string {
+	return q.AddComplexFilter(func(old []string) []string {
 		new := make([]string, 0)
 		shouldDelete := true
 		for _, cur := range old {
@@ -406,7 +373,7 @@ func (q *Querier) DeleteUntil(s string) *Querier {
 
 // KeepIndex keeps only the element at specific index, or empty string if does not exist
 func (q *Querier) KeepIndex(i int) *Querier {
-	return q.AddSliceFilter(func(old []string) []string {
+	return q.AddComplexFilter(func(old []string) []string {
 		if len(old) > i {
 			return []string{old[i]}
 		}
@@ -414,9 +381,9 @@ func (q *Querier) KeepIndex(i int) *Querier {
 	})
 }
 
-// Concat concatenates all the strings from the slice to one
+// Concat concatenates all the strings from the slice to one using a separator sep
 func (q *Querier) Join(sep string) *Querier {
-	return q.AddSliceFilter(func(old []string) []string {
+	return q.AddComplexFilter(func(old []string) []string {
 		return []string{strings.Join(old, sep)}
 	})
 }

@@ -8,14 +8,17 @@ import (
 	"golang.org/x/net/html"
 )
 
-func createQuerier(t *testing.T, s string) (q htmlquerier.Querier, n *html.Node) {
-	t.Helper()
+func createBaseQuerier() (n *html.Node, err error) {
 	doc, err := htmlquery.LoadDoc("./test.html")
 	if err != nil {
-		t.Error(err)
 		return
 	}
 	n, err = htmlquery.Query(doc, "//body")
+	return
+}
+
+func createQuerier(t *testing.T, s string) (q htmlquerier.Querier, n *html.Node) {
+	n, err := createBaseQuerier()
 	if err != nil {
 		t.Error(err)
 		return
@@ -24,24 +27,75 @@ func createQuerier(t *testing.T, s string) (q htmlquerier.Querier, n *html.Node)
 	return
 }
 
+func createQuerierAll(t *testing.T, s string) (q htmlquerier.Querier, n *html.Node) {
+	n, err := createBaseQuerier()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	q = *htmlquerier.QAll(s)
+	return
+}
+
+func TestQAll(t *testing.T) {
+	q, n := createQuerierAll(t, "//p[@id='complex']/text()")
+	arr, err := q.Split("-").Trim().Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one", "two", "three", "four"}, arr)
+}
+
+func TestTrim(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitter']")
+	arr, err := q.Split("-").Trim().Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one", "two", "three"}, arr)
+}
+
+func TestTrimSuffix(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitter']")
+	arr, err := q.Split(" - ").TrimSuffix("ee").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one", "two", "thr"}, arr)
+}
+
+func TestTrimPrefix(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitter']")
+	arr, err := q.Split(" - ").TrimPrefix("thr").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one", "two", "ee"}, arr)
+}
+
+func TestBeforeSelector(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='complex']")
+	arr, err := q.BeforeSelector("//span").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"onetwo"}, arr)
+}
+
 func TestAfter(t *testing.T) {
 	q, n := createQuerier(t, "//p[@id='splitter']")
 	arr, err := q.After(" - ").Execute(n)
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "two - three", arr[0])
-}
+	testStringSliceEquals(t, []string{"two - three"}, arr)
 
-func TestAfterEmpty(t *testing.T) {
-	q, n := createQuerier(t, "//p[@id='empty']")
-	arr, err := q.After(" - ").Execute(n)
-	if err != nil {
-		t.Error(err)
+	q2, n := createQuerier(t, "//p[@id='splitter']")
+	arr2, err2 := q2.After("hehe").Execute(n)
+	if err2 != nil {
+		t.Error(err2)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "", arr[0])
+	testStringSliceEquals(t, []string{"one - two - three"}, arr2)
 }
 
 func TestPrefix(t *testing.T) {
@@ -50,8 +104,7 @@ func TestPrefix(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "zero - one - two - three", arr[0])
+	testStringSliceEquals(t, []string{"zero - one - two - three"}, arr)
 }
 
 func TestBefore(t *testing.T) {
@@ -60,18 +113,23 @@ func TestBefore(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "one", arr[0])
+	testStringSliceEquals(t, []string{"one"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='splitter']")
+	arr2, err2 := q2.Before("hehe").Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{"one - two - three"}, arr2)
 }
 
-func TestBeforeEmpty(t *testing.T) {
-	q, n := createQuerier(t, "//p[@id='empty']")
-	arr, err := q.After(" - ").Execute(n)
+func TestHalfWidth(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='fullwidth']")
+	arr, err := q.HalfWidth().Execute(n)
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "", arr[0])
+	testStringSliceEquals(t, []string{"ONE23"}, arr)
 }
 
 func TestReplaceAll(t *testing.T) {
@@ -80,8 +138,16 @@ func TestReplaceAll(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "onetwo/threefour", arr[0])
+	testStringSliceEquals(t, []string{"onetwo/threefour"}, arr)
+}
+
+func TestReplaceAllRegex(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='multisplit']")
+	arr, err := q.ReplaceAllRegex("[-/]", "").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"onetwothreefour"}, arr)
 }
 
 func TestSplit(t *testing.T) {
@@ -90,10 +156,7 @@ func TestSplit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 3, arr)
-	testStringEquals(t, "one", arr[0])
-	testStringEquals(t, "two", arr[1])
-	testStringEquals(t, "three", arr[2])
+	testStringSliceEquals(t, []string{"one", "two", "three"}, arr)
 }
 
 func TestAfterSplit(t *testing.T) {
@@ -102,9 +165,7 @@ func TestAfterSplit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 2, arr)
-	testStringEquals(t, "two", arr[0])
-	testStringEquals(t, "four", arr[1])
+	testStringSliceEquals(t, []string{"two", "four"}, arr)
 }
 
 func TestSplitIgnoreWithin(t *testing.T) {
@@ -113,10 +174,8 @@ func TestSplitIgnoreWithin(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 3, arr)
-	testStringEquals(t, "one", arr[0])
-	testStringEquals(t, "two", arr[1])
-	testStringEquals(t, "three（four / five）", arr[2])
+
+	testStringSliceEquals(t, []string{"one", "two", "three（four / five （six / seven） eight / nine）", "ten"}, arr)
 }
 
 func TestSplitRegex(t *testing.T) {
@@ -125,11 +184,7 @@ func TestSplitRegex(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 4, arr)
-	testStringEquals(t, "one", arr[0])
-	testStringEquals(t, "two", arr[1])
-	testStringEquals(t, "three", arr[2])
-	testStringEquals(t, "four", arr[3])
+	testStringSliceEquals(t, []string{"one", "two", "three", "four"}, arr)
 }
 
 func TestSplitIndex(t *testing.T) {
@@ -138,8 +193,14 @@ func TestSplitIndex(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "two", arr[0])
+	testStringSliceEquals(t, []string{"two"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='splitter']")
+	arr2, err2 := q2.SplitIndex(" - ", 3).Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{""}, arr2)
 }
 
 func TestSplitRegexIndex(t *testing.T) {
@@ -148,20 +209,81 @@ func TestSplitRegexIndex(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	testSliceLength(t, 1, arr)
-	testStringEquals(t, "three", arr[0])
-}
+	testStringSliceEquals(t, []string{"three"}, arr)
 
-func testSliceLength[T any](t *testing.T, expectedLen int, arr []T) {
-	t.Helper()
-	if len(arr) != expectedLen {
-		t.Errorf("Expected slice to have length %d, was length %d", expectedLen, len(arr))
+	q2, n := createQuerier(t, "//p[@id='multisplit']")
+	arr2, err2 := q2.SplitRegexIndex("[/-]", 4).Execute(n)
+	if err2 != nil {
+		t.Error(err2)
 	}
+	testStringSliceEquals(t, []string{""}, arr2)
 }
 
-func testStringEquals(t *testing.T, expected, res string) {
+func TestDeleteFrom(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitterlong']")
+	arr, err := q.Split(" - ").DeleteFrom("three").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one", "two"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='splitterlong']")
+	arr2, err2 := q2.Split(" - ").DeleteFrom("one").Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{""}, arr2)
+}
+
+func TestDeleteUntil(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitterlong']")
+	arr, err := q.Split(" - ").DeleteUntil("two").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"three", "four"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='splitterlong']")
+	arr2, err2 := q2.Split(" - ").DeleteUntil("four").Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{""}, arr2)
+}
+
+func TestKeepIndex(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitter']")
+	arr, err := q.Split(" - ").KeepIndex(1).Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"two"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='splitter']")
+	arr2, err2 := q2.Split(" - ").KeepIndex(3).Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{""}, arr2)
+}
+
+func TestJoin(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='splitter']")
+	arr, err := q.Split(" - ").Join("|").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one|two|three"}, arr)
+}
+
+func testStringSliceEquals(t *testing.T, expected, res []string) {
 	t.Helper()
-	if expected != res {
-		t.Errorf("Expected result to be %s, was %s", expected, res)
+	if len(expected) != len(res) {
+		t.Errorf("Expected length of %v (%d) to be equal to length of %v (%d)", res, len(res), expected, len(expected))
+	}
+	for i := 0; i < len(expected); i++ {
+		if expected[i] != res[i] {
+			t.Errorf("Expected %v to equal %v: on index %d expected %s, got %s", res, expected, i, expected[i], res[i])
+		}
 	}
 }
