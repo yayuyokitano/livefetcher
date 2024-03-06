@@ -14,6 +14,42 @@ import (
  *								*
  ******************/
 
+var ShinsaibashiAnimaFetcher = fetchers.Simple{
+	BaseURL:              "https://liveanima.jp/",
+	ShortYearIterableURL: "https://liveanima.jp/?page_id=174",
+	LiveSelector:         "//div[contains(@class, 'eo-events')]/div[@class='container']",
+	DetailsLinkSelector:  "//a",
+	TitleQuerier:         *htmlquerier.Q("//a/span"),
+	ArtistsQuerier:       *htmlquerier.Q("//span[text()='出演者']/following-sibling::text()").SplitIgnoreWithin("[/\n]", '(', ')'),
+	PriceQuerier:         *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//h5/span[@class='animabadge mont']"),
+		MonthQuerier:     *htmlquerier.Q("//h5/span[@class='animabadge mont']").After("/"),
+		DayQuerier:       *htmlquerier.Q("//h5/span[@class='animabadge mont']").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[text()='OPEN']/following-sibling::text()"),
+		StartTimeQuerier: *htmlquerier.Q("//span[text()='START']/following-sibling::text()"),
+
+		IsMonthInLive: true,
+		IsYearInLive:  true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-anima",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         36,
+		FirstLiveTitle:        "EMERGENCY CALL",
+		FirstLiveArtists:      []string{"Absopetus-アブソプ-", "CYCLONISTA", "MAGMAZ", "MiNO", "mistress", "ココロシンドローム", "処刑台のシンデレラ"},
+		FirstLivePrice:        "ADV ¥1500 DOOR ¥2000 ＋1drink(¥600)",
+		FirstLivePriceEnglish: "ADV ¥1500 DOOR ¥2000 ＋1drink(¥600)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 6, 18, 45, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 6, 19, 15, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://liveanima.jp/live/gig/emergency-call",
+	},
+}
+
 var ShinsaibashiBigcatFetcher = fetchers.Simple{
 	BaseURL:              "https://bigcat-live.com/",
 	ShortYearIterableURL: "https://bigcat-live.com/20%d/%d",
