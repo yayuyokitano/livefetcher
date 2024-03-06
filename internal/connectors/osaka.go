@@ -15,13 +15,13 @@ import (
  ******************/
 
 var ShinsaibashiAnimaFetcher = fetchers.Simple{
-	BaseURL:              "https://liveanima.jp/",
-	ShortYearIterableURL: "https://liveanima.jp/?page_id=174",
-	LiveSelector:         "//div[contains(@class, 'eo-events')]/div[@class='container']",
-	DetailsLinkSelector:  "//a",
-	TitleQuerier:         *htmlquerier.Q("//a/span"),
-	ArtistsQuerier:       *htmlquerier.Q("//span[text()='出演者']/following-sibling::text()").SplitIgnoreWithin("[/\n]", '(', ')'),
-	PriceQuerier:         *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
+	BaseURL:             "https://liveanima.jp/",
+	InitialURL:          "https://liveanima.jp/?page_id=174",
+	LiveSelector:        "//div[contains(@class, 'eo-events')]/div[@class='container']",
+	DetailsLinkSelector: "//a",
+	TitleQuerier:        *htmlquerier.Q("//a/span"),
+	ArtistsQuerier:      *htmlquerier.Q("//span[text()='出演者']/following-sibling::text()").SplitIgnoreWithin("[/\n]", '(', ')'),
+	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//h5/span[@class='animabadge mont']"),
@@ -325,6 +325,40 @@ var ShinsaibashiMuseFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://osaka.muse-live.com/schedule/?y=20%d&m=%d",
+	},
+}
+
+var ShinsaibashiPangeaFetcher = fetchers.Simple{
+	BaseURL:             "https://liveanima.jp/",
+	InitialURL:          "https://livepangea.com/schedule/",
+	LiveSelector:        "//div[contains(@class, 'eo-events')]/div",
+	DetailsLinkSelector: "//a",
+	TitleQuerier:        *htmlquerier.Q("//a").TrimPrefix(`"`).TrimSuffix(`"`),
+	ArtistsQuerier:      *htmlquerier.Q("//span[text()='出演者']/following-sibling::p").SplitIgnoreWithin("[/\n]", '(', ')'),
+	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		MonthQuerier:     *htmlquerier.Q("//p[contains(@class,'live_mom')]"),
+		DayQuerier:       *htmlquerier.Q("//p[contains(@class,'live_day')]"),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[text()='OPEN']/following-sibling::text()"),
+		StartTimeQuerier: *htmlquerier.Q("//span[text()='START']/following-sibling::text()"),
+
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-pangea",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         69,
+		FirstLiveTitle:        "Lyanas 1st mini Album「Telescope of You」Release Tour “共鳴シンフォニア”",
+		FirstLiveArtists:      []string{"Lyanas", "Cleo", "しゃららんベイビーズ", "Serpent Stellar"},
+		FirstLivePrice:        "ADV ¥2500 DOOR ¥3000 【＋1drink(¥600)】",
+		FirstLivePriceEnglish: "ADV ¥2500 DOOR ¥3000 【＋1drink(¥600)】",
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 7, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 7, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://livepangea.com/live/event-17706",
 	},
 }
 

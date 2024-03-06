@@ -50,5 +50,6 @@ var Connectors = ConnectorsType{
 	"ShinsaibashiJanus":        connectors.ShinsaibashiJanusFetcher,
 	"ShinsaibashiKurage":       connectors.ShinsaibashiKurageFetcher,
 	"ShinsaibashiMuse":         connectors.ShinsaibashiMuseFetcher,
+	"ShinsaibashiPangea":       connectors.ShinsaibashiPangeaFetcher,
 	"ShinsaibashiUtausakana":   connectors.ShinsaibashiUtausakanaFetcher,
 }
