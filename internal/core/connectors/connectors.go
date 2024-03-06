@@ -42,6 +42,7 @@ var Connectors = ConnectorsType{
 	"ShindaitaFever":           connectors.ShindaitaFeverFetcher,
 	"ShinjukuLoft":             connectors.ShinjukuLoftFetcher,
 	"ShinsaibashiAnima":        connectors.ShinsaibashiAnimaFetcher,
+	"ShinsaibashiBeyond":       connectors.ShinsaibashiBeyondFetcher,
 	"ShinsaibashiBigcat":       connectors.ShinsaibashiBigcatFetcher,
 	"ShinsaibashiBronze":       connectors.ShinsaibashiBronzeFetcher,
 	"ShinsaibashiFanjtwice":    connectors.ShinsaibashiFanjtwiceFetcher,

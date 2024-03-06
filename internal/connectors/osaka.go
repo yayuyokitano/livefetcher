@@ -50,6 +50,42 @@ var ShinsaibashiAnimaFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiBeyondFetcher = fetchers.Simple{
+	BaseURL:              "https://beyond-osaka.jp/",
+	ShortYearIterableURL: "https://beyond-osaka.jp/schedule/calendar/20%d/%02d/",
+	LiveSelector:         "//div[@class='container scheduleList']/ul/li",
+	ExpandedLiveSelector: "//a[@class='btnStyle01']",
+	TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " "),
+	ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("/", '(', ')'),
+	PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@class='day']"),
+		MonthQuerier:     *htmlquerier.Q("//p[@class='day']").After("."),
+		DayQuerier:       *htmlquerier.Q("//p[@class='day']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//dl[@class='openTime']/dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dl[@class='openTime']/dd").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-beyond",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         33,
+		FirstLiveTitle:        "おかんに見られたくない いや、見て欲しいVol.4 らくだのレコ発",
+		FirstLiveArtists:      []string{"らくだのこぶX", "セックスマシーン!!", "百回中百回", "Blow the instability(O.A)"},
+		FirstLivePrice:        "ADV/DOOR ￥3,600/￥4,000（別途1Drink代金¥600-必要）",
+		FirstLivePriceEnglish: "ADV/DOOR ￥3,600/￥4,000（Separately1DrinkPrice¥600-Necessary）",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://beyond-osaka.jp/schedule/detail/29388",
+	},
+}
+
 var ShinsaibashiBigcatFetcher = fetchers.Simple{
 	BaseURL:              "https://bigcat-live.com/",
 	ShortYearIterableURL: "https://bigcat-live.com/20%d/%d",
