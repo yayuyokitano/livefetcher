@@ -216,7 +216,7 @@ func CreateDaisyBarFetcher(
 
 func CreateLoftFetcher(
 	baseUrl string,
-	initialURL string,
+	shortYearIterableURL string,
 	prefecture string,
 	area string,
 	venue string,
@@ -224,10 +224,9 @@ func CreateLoftFetcher(
 ) Simple {
 	return Simple{
 		BaseURL:              baseUrl,
-		InitialURL:           initialURL,
-		NextSelector:         "//span[@id='next_btn']/a",
+		ShortYearIterableURL: shortYearIterableURL,
 		LiveSelector:         "//table[contains(@class, 'timetable')]/tbody/tr",
-		TitleQuerier:         *htmlquerier.Q("//h3"),
+		TitleQuerier:         *htmlquerier.Q("//h3").TrimPrefix("『").TrimSuffix("』"),
 		MultiLiveDaySelector: "//div[contains(@class, 'event clearfix')]",
 		ArtistsQuerier:       *htmlquerier.Q("//p[contains(@class, 'month_content')]").SplitIgnoreWithin("(\n)|( / )", '（', '）'),
 		PriceQuerier:         *htmlquerier.Q("//p[contains(@class, 'ticket')]"),

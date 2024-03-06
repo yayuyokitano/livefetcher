@@ -8,6 +8,7 @@ import (
 type ConnectorsType map[string]fetchers.Simple
 
 var Connectors = ConnectorsType{
+	"ChuoLoftPlusOneWest":      connectors.ChuoLoftPlusOneWestFetcher,
 	"ShibuyaEggmanDay":         connectors.ShibuyaEggmanDayFetcher,
 	"ShibuyaEggmanNight":       connectors.ShibuyaEggmanNightFetcher,
 	"ShibuyaOCrest":            connectors.ShibuyaOCrestFetcher,

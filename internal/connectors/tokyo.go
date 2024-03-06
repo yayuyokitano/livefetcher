@@ -501,7 +501,7 @@ var ShimokitazawaEraFetcher = fetchers.Simple{
 
 var ShimokitazawaFlowersLoftFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp/",
-	util.InsertYearMonth("https://www.loft-prj.co.jp/schedule/flowersloft/date/%d/%d"),
+	"https://www.loft-prj.co.jp/schedule/flowersloft/date/20%d/%d",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-flowersloft",
@@ -761,7 +761,7 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 
 var ShimokitazawaShelterFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp",
-	util.InsertYearMonth("https://www.loft-prj.co.jp/schedule/shelter/date/%d/%02d"),
+	"https://www.loft-prj.co.jp/schedule/shelter/date/20%d/%02d",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-shelter",
@@ -913,8 +913,8 @@ var ShindaitaFeverFetcher = fetchers.Simple{
  **************/
 
 var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
-	"http://mu-seum.co.jp",
-	util.InsertYearMonth("https://www.loft-prj.co.jp/schedule/loft/date/%d/%02d"),
+	"https://www.loft-prj.co.jp/",
+	"https://www.loft-prj.co.jp/schedule/loft/date/20%d/%02d",
 	"tokyo",
 	"shinjuku",
 	"shinjuku-loft",
