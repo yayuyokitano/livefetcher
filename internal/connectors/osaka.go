@@ -178,6 +178,41 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiClapperFetcher = fetchers.Simple{
+	BaseURL:              "https://clapper.jp/",
+	ShortYearIterableURL: "https://clapper.jp/data/category/20%d-%02d/",
+	LiveSelector:         "//ul[@id='scheduleList']/li",
+	TitleQuerier:         *htmlquerier.Q("//h4[@class='event_name']").CutWrapper("『", "』"),
+	ArtistsQuerier:       *htmlquerier.QAll("//h5[text()='出演']/following-sibling::p[1]/text()"),
+	PriceQuerier:         *htmlquerier.QAll("//h5[text()='料金']/following-sibling::text()").Join(" "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@class='ev_date']"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='ev_date']").After("."),
+		DayQuerier:       *htmlquerier.Q("//span[@class='ev_date']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.QAll("//h5[text()='OPEN／START']/following-sibling::text()").Join(""),
+		StartTimeQuerier: *htmlquerier.QAll("//h5[text()='OPEN／START']/following-sibling::text()").Join("").After(":"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-clapper",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         23,
+		FirstLiveTitle:        "大阪最終単独公演『集諦』",
+		FirstLiveArtists:      []string{"NIGAI"},
+		FirstLivePrice:        "前売¥5,000-(1D別)　当日¥0-(1D別)",
+		FirstLivePriceEnglish: "Reservation¥5,000-(1 Drink purchase required)　Door¥0-(1 Drink purchase required)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 7, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 7, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://clapper.jp/data/category/2024-03/",
+	},
+}
+
 var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	BaseURL:        "http://www.fanj-twice.com/",
 	InitialURL:     "http://www.fanj-twice.com/sch_twice/sch000.html",
