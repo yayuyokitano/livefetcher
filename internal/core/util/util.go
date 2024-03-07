@@ -113,6 +113,7 @@ var bannedArtists = map[string]bool{
 	"live":        true,
 	"[live]":      true,
 	"[band]":      true,
+	"-band-":      true,
 	"[dj]":        true,
 	"-live-":      true,
 	"◉live◉":      true,

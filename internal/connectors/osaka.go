@@ -213,6 +213,42 @@ var ShinsaibashiClapperFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiConpassFetcher = fetchers.Simple{
+	BaseURL:              "https://www.conpass.jp/",
+	ShortYearIterableURL: "https://www.conpass.jp/?cat=4&m=20%d%02d",
+	LiveSelector:         "//div[@id='main']//ul/div[not(@class) and not(@id)]",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//p[@class='event_tittle']"),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[text()='LINEUP:']/following-sibling::p[1]/text()"),
+	PriceQuerier:         *htmlquerier.QAll("//p[text()='CHARGE:']/following-sibling::p[1]/text()").Join(" "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@class='event_day_in']"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='event_day_in']").After("."),
+		DayQuerier:       *htmlquerier.Q("//span[@class='event_day_in']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[text()='INFORMATION:']/following-sibling::text()[1]"),
+		StartTimeQuerier: *htmlquerier.Q("//span[text()='INFORMATION:']/following-sibling::text()[1]").After(":"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-conpass",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         16,
+		FirstLiveTitle:        "West Side Unity presents. 『LEAVE YOUTH HERE -EXTRA PARTY-』",
+		FirstLiveArtists:      []string{"Demonstration Of Power (UK)", "Despize (UK)", "SAND", "Decasion", "UNMASK aLIVE", "RESENTMENT", "waterweed", "ReVERSE BOYZ", "UNHOLY11", "Fallen Grace", "CE$", "MOON SHOW Fr. JAH WORKS", "DJ ACE Fr. JAH WORKS"},
+		FirstLivePrice:        "前売 ¥3,500(D別) 当日 ¥4,000(D別)",
+		FirstLivePriceEnglish: "Reservation ¥3,500(Drinks sold separately) Door ¥4,000(Drinks sold separately)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 3, 14, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 3, 14, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.conpass.jp/7168.html",
+	},
+}
+
 var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	BaseURL:        "http://www.fanj-twice.com/",
 	InitialURL:     "http://www.fanj-twice.com/sch_twice/sch000.html",
