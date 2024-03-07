@@ -31,8 +31,8 @@ var ShibuyaCycloneFetcher = fetchers.Simple{
 	},
 
 	PrefectureName: "tokyo",
-	AreaName:       "shimokitazawa",
-	VenueID:        "shimokitazawa-440",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-cyclone",
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         29,
