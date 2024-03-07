@@ -63,7 +63,7 @@ tokyo = "東京都"
 
 [area.osaka]
 chuo = "中央（心斎橋以外）"
-shinsaibashi = "心斎橋"
+shinsaibashi = "心斎橋・堀江"
 
 [area.tokyo]
 setagaya = "世田谷（下北沢以外）"

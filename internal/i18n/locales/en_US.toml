@@ -63,7 +63,7 @@ tokyo = "Tokyo"
 
 [area.osaka]
 chuo = "Chuo (excl. Shinsaibashi)"
-shinsaibashi = "Shinsaibashi"
+shinsaibashi = "Shinsaibashi/Horie"
 
 [area.tokyo]
 setagaya = "Setagaya (excl. Shimokitazawa)"
