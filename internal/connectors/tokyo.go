@@ -781,7 +781,7 @@ var ShimokitazawaSpreadFetcher = fetchers.Simple{
 	BaseURL:        "https://spread.tokyo/",
 	InitialURL:     "https://spread.tokyo/schedule.html",
 	LiveSelector:   "//div[@id='c7']/div[@class='box'][position()<200]", // not sure why 200 leads to 99 matches but it does
-	TitleQuerier:   *htmlquerier.Q("//u/b").ReplaceAllRegex(`\s+`, " ").TrimPrefix(`"`).TrimSuffix(`"`),
+	TitleQuerier:   *htmlquerier.Q("//u/b").ReplaceAllRegex(`\s+`, " ").CutWrapper(`"`, `"`),
 	ArtistsQuerier: *htmlquerier.QAll("//div/span[last()]/text()"),
 	PriceQuerier:   *htmlquerier.Q("//div/span[4]"),
 

@@ -226,7 +226,7 @@ func CreateLoftFetcher(
 		BaseURL:              baseUrl,
 		ShortYearIterableURL: shortYearIterableURL,
 		LiveSelector:         "//table[contains(@class, 'timetable')]/tbody/tr",
-		TitleQuerier:         *htmlquerier.Q("//h3").TrimPrefix("『").TrimSuffix("』"),
+		TitleQuerier:         *htmlquerier.Q("//h3").CutWrapper("『", "』"),
 		MultiLiveDaySelector: "//div[contains(@class, 'event clearfix')]",
 		ArtistsQuerier:       *htmlquerier.Q("//p[contains(@class, 'month_content')]").SplitIgnoreWithin("(\n)|( / )", '（', '）'),
 		PriceQuerier:         *htmlquerier.Q("//p[contains(@class, 'ticket')]"),

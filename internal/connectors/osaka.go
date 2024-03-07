@@ -282,6 +282,40 @@ var ShinsaibashiJanusFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiKingCobraFetcher = fetchers.Simple{
+	BaseURL:              "http://king-cobra.net/",
+	ShortYearIterableURL: "http://king-cobra.net/schedule/20%d_%d.html",
+	LiveSelector:         "//font[@color='#00CCFF' and string-length(normalize-space(text())) > 10]",
+	TitleQuerier:         *htmlquerier.Q("/.").Trim().CutWrapper("『", "』").ReplaceAllRegex(`\s+`, " "),
+	ArtistsQuerier:       *htmlquerier.QAll("/ancestor::tr[1]/following-sibling::tr[1]/td[1]//text()").DeleteFrom("[FOOD]"),
+	PriceQuerier:         *htmlquerier.QAll("/ancestor::tr[1]/following-sibling::tr[1]/td[3]//text()").Join("").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//font[@color='#FF33CC']"),
+		MonthQuerier:     *htmlquerier.Q("/ancestor::td[1]/preceding-sibling::td[1]//text()[contains(., '月')]"),
+		DayQuerier:       *htmlquerier.Q("/ancestor::td[1]/preceding-sibling::td[1]//text()[contains(., '月')]").After("月"),
+		OpenTimeQuerier:  *htmlquerier.Q("/ancestor::tr[1]/following-sibling::tr[1]/td[2]//text()[contains(., '開場')]"),
+		StartTimeQuerier: *htmlquerier.Q("/ancestor::tr[1]/following-sibling::tr[1]/td[2]//text()[contains(., '開演')]"),
+
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-kingcobra",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         10,
+		FirstLiveTitle:        "ヘルスマパンク 春の電波ジャック!!",
+		FirstLiveArtists:      []string{"ギターパンダ", "THE FLYING PANTS", "アンモニアンズ", "JOKE?!", "THE MAYUCHIX", "ラティーノ山口", "大義"},
+		FirstLivePrice:        "・ADV.3,500 ・DOOR.4,000",
+		FirstLivePriceEnglish: "・ADV.3,500 ・DOOR.4,000",
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://king-cobra.net/schedule/20%d_%d.html",
+	},
+}
+
 var ShinsaibashiKurageFetcher = fetchers.Simple{
 	BaseURL:              "https://livehouse-kurage.com",
 	InitialURL:           "https://livehouse-kurage.com/schedule/",
@@ -357,7 +391,7 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	InitialURL:          "https://livepangea.com/schedule/",
 	LiveSelector:        "//div[contains(@class, 'eo-events')]/div",
 	DetailsLinkSelector: "//a",
-	TitleQuerier:        *htmlquerier.Q("//a").TrimPrefix(`"`).TrimSuffix(`"`),
+	TitleQuerier:        *htmlquerier.Q("//a").CutWrapper(`"`, `"`),
 	ArtistsQuerier:      *htmlquerier.Q("//span[text()='出演者']/following-sibling::p").SplitIgnoreWithin("[/\n]", '(', ')'),
 	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
 
@@ -392,7 +426,7 @@ var ShinsaibashiUtausakanaFetcher = fetchers.Simple{
 	InitialURL:          "http://utausakana.com/menu/",
 	NextSelector:        "//div[@class='pager']/a[@class='next']",
 	LiveSelector:        "//div[@class='menu_body']/p[text()='act)']",
-	TitleQuerier:        *htmlquerier.Q("/preceding::p[1]").TrimPrefix("『").TrimSuffix("』"),
+	TitleQuerier:        *htmlquerier.Q("/preceding::p[1]").CutWrapper("『", "』"),
 	ArtistsQuerier:      *htmlquerier.QAll("/following-sibling::p").DeleteFrom("\u00A0"),
 	PriceQuerier:        *htmlquerier.QAll("/following-sibling::p").DeleteUntil("\u00A0").KeepIndex(1).ReplaceAll("\u00A0", ""),
 	DetailsLinkSelector: "/ancestor::div[@class='menu_body']/div[@class='menu_title']/a",

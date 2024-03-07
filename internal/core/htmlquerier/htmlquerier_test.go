@@ -73,6 +73,22 @@ func TestTrimPrefix(t *testing.T) {
 	testStringSliceEquals(t, []string{"one", "two", "ee"}, arr)
 }
 
+func TestCutWrapper(t *testing.T) {
+	q, n := createQuerier(t, "//p[@id='wrapper']")
+	arr, err := q.CutWrapper("「", "」").Execute(n)
+	if err != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"one - two"}, arr)
+
+	q2, n := createQuerier(t, "//p[@id='wrapperfail']")
+	arr2, err2 := q2.CutWrapper("「", "」").Execute(n)
+	if err2 != nil {
+		t.Error(err2)
+	}
+	testStringSliceEquals(t, []string{"one 「two」"}, arr2)
+}
+
 func TestBeforeSelector(t *testing.T) {
 	q, n := createQuerier(t, "//p[@id='complex']")
 	arr, err := q.BeforeSelector("//span").Execute(n)

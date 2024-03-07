@@ -80,6 +80,16 @@ func (q *Querier) TrimSuffix(suffix string) *Querier {
 	})
 }
 
+// CutWrapper adds a filter to the querier that removes a wrapping prefix and suffix only if both are present.
+func (q *Querier) CutWrapper(prefix, suffix string) *Querier {
+	return q.AddFilter(func(s string) string {
+		if strings.HasPrefix(s, prefix) && strings.HasSuffix(s, suffix) && len(s) >= len(suffix)+len(prefix) {
+			s = s[len(prefix) : len(s)-len(suffix)]
+		}
+		return s
+	})
+}
+
 // BeforeSelector sets an endSelector, and will ensure that only text before the selector specified is selected.
 func (q *Querier) BeforeSelector(selector string) *Querier {
 	q.endSelector = selector
@@ -103,7 +113,6 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 		}
 		strs := make([]string, 0)
 		for _, artistNode := range res {
-			//fmt.Println(htmlquery.InnerText(artistNode))
 			strs = append(strs, htmlquery.InnerText(artistNode))
 		}
 		q.arr = strs
