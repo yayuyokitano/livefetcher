@@ -228,7 +228,7 @@ func CreateBassOnTopFetcher(
 		LiveSelector:         "//div[@class='container scheduleList']/ul/li",
 		ExpandedLiveSelector: "//a[@class='btnStyle01']",
 		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " ").CutWrapper("【", "】"),
-		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("/", '(', ')'),
+		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("(/|(【MC】))", '(', ')'),
 		PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
 
 		TimeHandler: TimeHandler{

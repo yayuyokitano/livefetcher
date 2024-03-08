@@ -27,6 +27,8 @@ func ParseTime(d string, t string) (res time.Time, err error) {
 func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(p, "前売り", "Reservation")
 	price = strings.ReplaceAll(price, "前売", "Reservation")
+	price = strings.ReplaceAll(price, "別途1D代要", "1 Drink must be purchased separately")
+	price = strings.ReplaceAll(price, "別途2D代要", "2 Drinks must be purchased separately")
 	price = strings.ReplaceAll(price, "スタンディング", "Standing")
 	price = strings.ReplaceAll(price, "税込", "Incl. Tax")
 	price = strings.ReplaceAll(price, "税抜", "Excl. Tax")
@@ -64,5 +66,7 @@ func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(price, "優先", "Priority entry")
 	price = strings.ReplaceAll(price, "代金", "Price")
 	price = strings.ReplaceAll(price, "必要", "Necessary")
+	price = strings.ReplaceAll(price, "来場", "In Person")
+	price = strings.ReplaceAll(price, "配信", "Livestream")
 	return
 }

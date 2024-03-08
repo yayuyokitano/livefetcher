@@ -171,6 +171,7 @@ var bannedSubstrings = []string{
 	"アルバム",
 	"vol.",
 	"food:",
+	"【food】",
 }
 
 var bannedRegexes = []string{

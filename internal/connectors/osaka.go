@@ -197,7 +197,7 @@ var ShinsaibashiClapperFetcher = fetchers.Simple{
 
 var ShinsaibashiClubVijonFetcher = fetchers.CreateBassOnTopFetcher(
 	"https://vijon.jp/",
-	"https://vijon.jp/schedule/calendar/2024/03/",
+	"https://vijon.jp/schedule/calendar/20%d/%02d/",
 	"osaka",
 	"shinsaibashi",
 	"shinsaibashi-clubvijon",
@@ -248,6 +248,24 @@ var ShinsaibashiConpassFetcher = fetchers.Simple{
 		FirstLiveURL:          "https://www.conpass.jp/7168.html",
 	},
 }
+
+var ShinsaibashiDropFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://vijon.jp/",
+	"https://vijon.jp/schedule/calendar/20%d/%02d/",
+	"osaka",
+	"shinsaibashi",
+	"shinsaibashi-drop",
+	fetchers.TestInfo{
+		NumberOfLives:         39,
+		FirstLiveTitle:        "世史久祭り大阪編vol.23 春のドドスコベイベーナイト",
+		FirstLiveArtists:      []string{"世史久", "MEGAHORN", "ELBRUNCH", "イチゼンバッカー", "飛太", "ほーDK", "T-face", "浦田哲也", "ウルトラソウル", "10ripeee", "田中佑生大", "竹歳みずほ", "Mifuyu", "林奈恵"},
+		FirstLivePrice:        "♢(来場)￥3.800 別途1D代要 ♢(配信)3000円",
+		FirstLivePriceEnglish: "♢(In Person)￥3.800 1 Drink must be purchased separately ♢(Livestream)3000円",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://clubdrop.jp/schedule/detail/32308",
+	},
+)
 
 var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	BaseURL:        "http://www.fanj-twice.com/",
