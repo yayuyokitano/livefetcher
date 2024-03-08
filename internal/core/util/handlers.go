@@ -70,5 +70,7 @@ func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(price, "必要", "Necessary")
 	price = strings.ReplaceAll(price, "来場", "In Person")
 	price = strings.ReplaceAll(price, "配信", "Livestream")
+	price = strings.ReplaceAll(price, "前", "ADV ")
+	price = strings.ReplaceAll(price, "当", "DOOR ")
 	return
 }

@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"strings"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/fetchers"
@@ -378,6 +379,98 @@ var ShinsaibashiKingCobraFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 3, 2, 17, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 2, 17, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://king-cobra.net/schedule/20%d_%d.html",
+	},
+}
+
+var ShinsaibashiKnaveFetcher = fetchers.Simple{
+	BaseURL:              "http://www.knave.co.jp/",
+	ShortYearIterableURL: "http://www.knave.co.jp/schedule/s_20%d_%02d.html",
+	LiveSelector:         "//div[@class='event-details']",
+	TitleQuerier: *htmlquerier.QAll("//p[@class='f-12']/text()").Trim().AddComplexFilter(func(old []string) []string {
+		newArr := make([]string, 0)
+		for i, s1 := range old {
+			// if we have reached last entry, assume this is the artist
+			if i == len(old)-1 {
+				break
+			}
+
+			// if we have a slash in there, assume we have reached artist list
+			if strings.Contains(s1, "/") {
+				break
+			}
+
+			// if we have new line being substring of previous line or opposite, assume we have now reached an artist arranging this.
+			for _, s2 := range newArr {
+				if strings.Contains(s1, s2) || strings.Contains(s2, s1) {
+					break
+				}
+			}
+
+			newArr = append(newArr, s1)
+		}
+		return newArr
+	}).Join(" "),
+	ArtistsQuerier: *htmlquerier.QAll("//p[@class='f-12']/text()").Trim().AddComplexFilter(func(old []string) []string {
+		titleArr := make([]string, 0)
+		artistArr := make([]string, 0)
+		hasReachedArtist := false
+		for i, s1 := range old {
+			if hasReachedArtist {
+				artistArr = append(artistArr, s1)
+				continue
+			}
+
+			// if we have reached last entry, assume this is the artist
+			if i == len(old)-1 {
+				hasReachedArtist = true
+			}
+
+			// if we have a slash in there, assume we have reached artist list
+			if strings.Contains(s1, "/") {
+				hasReachedArtist = true
+			}
+
+			// if we have new line being substring of previous line or opposite, assume we have now reached an artist arranging this.
+			for _, s2 := range titleArr {
+				if strings.Contains(s1, s2) || strings.Contains(s2, s1) {
+					hasReachedArtist = true
+				}
+			}
+
+			if hasReachedArtist {
+				artistArr = append(artistArr, s1)
+			} else {
+				titleArr = append(titleArr, s1)
+			}
+		}
+		return artistArr
+	}).Split("/"),
+	PriceQuerier: *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]//span[@class='f-12 white']").After(":").After(":").After(" "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]/h3/text()[1]"),
+		MonthQuerier:     *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]/h3/text()[1]").After("."),
+		DayQuerier:       *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]/h3/text()[1]").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]//span[@class='f-12 white']"),
+		StartTimeQuerier: *htmlquerier.Q("/preceding-sibling::div[@class='black-back'][1]//span[@class='f-12 white']").After(":"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-knave",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         36,
+		FirstLiveTitle:        "takimoto.age 主催 愛が泣くMV 配信イベント 『愛が泣いている。バンド集めました』",
+		FirstLiveArtists:      []string{"takimoto.age", "soratobiwo", "さんかくとバツ", "ヨルノアト"},
+		FirstLivePrice:        "前￥2,500当￥3,000(+1D）",
+		FirstLivePriceEnglish: "ADV ￥2,500DOOR ￥3,000(+1D）",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.knave.co.jp/schedule/s_2024_03.html",
 	},
 }
 
