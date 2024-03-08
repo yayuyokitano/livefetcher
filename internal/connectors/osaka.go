@@ -8,30 +8,6 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
-/**********
- * 				*
- *	Chuo	*
- *				*
- **********/
-
-var ChuoLoftPlusOneWestFetcher = fetchers.CreateLoftFetcher(
-	"https://www.loft-prj.co.jp/",
-	"https://www.loft-prj.co.jp/schedule/west/date/20%d/%02d",
-	"osaka",
-	"chuo",
-	"chuo-loftplusonewest",
-	fetchers.TestInfo{
-		NumberOfLives:         25,
-		FirstLiveTitle:        "はっぴー空間",
-		FirstLiveArtists:      []string{"ChanceMovement"},
-		FirstLivePrice:        "◎観覧について\n前売,当日共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
-		FirstLivePriceEnglish: "◎観覧について\nReservation,Door共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
-		FirstLiveOpenTime:     time.Date(2024, 3, 2, 12, 0, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 3, 2, 12, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/west/277016",
-	},
-)
-
 /******************
  * 								*
  *	Shinsaibashi	*
@@ -441,6 +417,24 @@ var ShinsaibashiKurageFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiLoftPlusOneWestFetcher = fetchers.CreateLoftFetcher(
+	"https://www.loft-prj.co.jp/",
+	"https://www.loft-prj.co.jp/schedule/west/date/20%d/%02d",
+	"osaka",
+	"shinsaibashi",
+	"shinsaibashi-loftplusonewest",
+	fetchers.TestInfo{
+		NumberOfLives:         25,
+		FirstLiveTitle:        "はっぴー空間",
+		FirstLiveArtists:      []string{"ChanceMovement"},
+		FirstLivePrice:        "◎観覧について\n前売,当日共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
+		FirstLivePriceEnglish: "◎観覧について\nReservation,Door共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 12, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 12, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/west/277016",
+	},
+)
+
 var ShinsaibashiMuseFetcher = fetchers.Simple{
 	BaseURL:              "http://osaka.muse-live.com/",
 	ShortYearIterableURL: "http://osaka.muse-live.com/schedule/?y=20%d&m=%d",
@@ -546,3 +540,21 @@ var ShinsaibashiUtausakanaFetcher = fetchers.Simple{
 		FirstLiveURL:          "http://utausakana.com/menu/1023584",
 	},
 }
+
+var ShinsaibashiVaronFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://osaka-varon.jp/",
+	"https://osaka-varon.jp/schedule/calendar/20%d/%02d/",
+	"osaka",
+	"shinsaibashi",
+	"shinsaibashi-varon",
+	fetchers.TestInfo{
+		NumberOfLives:         29,
+		FirstLiveTitle:        "The Dust’n’Bonez 「20th anniversary」",
+		FirstLiveArtists:      []string{"The Dust’n’Bonez"},
+		FirstLivePrice:        "ADV/DOOR ￥5000/￥5500(1D別・整理番号付・税込)",
+		FirstLivePriceEnglish: "ADV/DOOR ￥5000/￥5500(1 Drink purchase required・Numbered tickets (may affect entry order)・Incl. Tax)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://osaka-varon.jp/schedule/detail/31089",
+	},
+)

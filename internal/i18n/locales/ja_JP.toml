@@ -8,7 +8,6 @@ artist = "参加アーティスト"
 area = "場所"
 
 [livehouse]
-chuo-loftplusonewest = "Loft PlusOne West"
 shibuya-eggmanday = "shibuya eggman"
 shibuya-eggmannight = "shibuya eggman"
 shibuya-ocrest = "Spotify O-Crest"
@@ -56,16 +55,17 @@ shinsaibashi-hokage = "Music Bar HOKAGE"
 shinsaibashi-janus = "Music Club JANUS"
 shinsaibashi-kingcobra = "KING COBRA"
 shinsaibashi-kurage = "心斎橋KuRaGe"
+shinsaibashi-loftplusonewest = "Loft PlusOne West"
 shinsaibashi-muse = "OSAKA MUSE"
 shinsaibashi-pangea = "LIVE HOUSE Pangea"
 shinsaibashi-utausakana = "歌う魚"
+shinsaibashi-varon = "心斎橋VARON"
 
 [prefecture]
 osaka = "大阪府"
 tokyo = "東京都"
 
 [area.osaka]
-chuo = "中央（心斎橋以外）"
 shinsaibashi = "心斎橋・堀江"
 
 [area.tokyo]
