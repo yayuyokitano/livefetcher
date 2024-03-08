@@ -199,6 +199,7 @@ var prefixes = []string{
 }
 
 func ProcessArtists(a []string) (artists []string) {
+	artists = []string{}
 	for _, artist := range a {
 		for _, r := range removable {
 			artist = strings.Replace(artist, r, "", -1)

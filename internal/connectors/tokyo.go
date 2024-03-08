@@ -929,3 +929,21 @@ var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/loft/252531",
 	},
 )
+
+var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://zirco-tokyo.jp/",
+	"https://zirco-tokyo.jp/schedule/calendar/20%d/%02d/",
+	"tokyo",
+	"shinjuku",
+	"shinjuku-zircotokyo",
+	fetchers.TestInfo{
+		NumberOfLives:         32,
+		FirstLiveTitle:        "専門学校東京ビジュアルアーツ　音楽総合学科ミュージシャン専攻卒業公演",
+		FirstLiveArtists:      []string{},
+		FirstLivePrice:        "ADV/DOOR ￥0- (1Drink代金￥600別途必要)",
+		FirstLivePriceEnglish: "ADV/DOOR ￥0- (1DrinkPrice￥600Must be purchased separately)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://zirco-tokyo.jp/schedule/detail/31777",
+	},
+)

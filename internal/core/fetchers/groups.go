@@ -225,7 +225,7 @@ func CreateBassOnTopFetcher(
 	return Simple{
 		BaseURL:              baseURL,
 		ShortYearIterableURL: shortYearIterableURL,
-		LiveSelector:         "//div[@class='container scheduleList']/ul/li",
+		LiveSelector:         "//div[@class='container scheduleList']/ul/li[.//h1/text()!='HALL RENTAL']",
 		ExpandedLiveSelector: "//a[@class='btnStyle01']",
 		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " ").CutWrapper("【", "】"),
 		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("(/|(【MC】))", '(', ')'),
