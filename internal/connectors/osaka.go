@@ -74,31 +74,13 @@ var ShinsaibashiAnimaFetcher = fetchers.Simple{
 	},
 }
 
-var ShinsaibashiBeyondFetcher = fetchers.Simple{
-	BaseURL:              "https://beyond-osaka.jp/",
-	ShortYearIterableURL: "https://beyond-osaka.jp/schedule/calendar/20%d/%02d/",
-	LiveSelector:         "//div[@class='container scheduleList']/ul/li",
-	ExpandedLiveSelector: "//a[@class='btnStyle01']",
-	TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " "),
-	ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("/", '(', ')'),
-	PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
-
-	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//p[@class='day']"),
-		MonthQuerier:     *htmlquerier.Q("//p[@class='day']").After("."),
-		DayQuerier:       *htmlquerier.Q("//p[@class='day']").After(".").After("."),
-		OpenTimeQuerier:  *htmlquerier.Q("//dl[@class='openTime']/dd"),
-		StartTimeQuerier: *htmlquerier.Q("//dl[@class='openTime']/dd").After("/"),
-
-		IsYearInLive:  true,
-		IsMonthInLive: true,
-	},
-
-	PrefectureName: "osaka",
-	AreaName:       "shinsaibashi",
-	VenueID:        "shinsaibashi-beyond",
-
-	TestInfo: fetchers.TestInfo{
+var ShinsaibashiBeyondFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://beyond-osaka.jp/",
+	"https://beyond-osaka.jp/schedule/calendar/20%d/%02d/",
+	"osaka",
+	"shinsaibashi",
+	"shinsaibashi-beyond",
+	fetchers.TestInfo{
 		NumberOfLives:         33,
 		FirstLiveTitle:        "おかんに見られたくない いや、見て欲しいVol.4 らくだのレコ発",
 		FirstLiveArtists:      []string{"らくだのこぶX", "セックスマシーン!!", "百回中百回", "Blow the instability(O.A)"},
@@ -108,7 +90,7 @@ var ShinsaibashiBeyondFetcher = fetchers.Simple{
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://beyond-osaka.jp/schedule/detail/29388",
 	},
-}
+)
 
 var ShinsaibashiBigcatFetcher = fetchers.Simple{
 	BaseURL:              "https://bigcat-live.com/",
@@ -212,6 +194,24 @@ var ShinsaibashiClapperFetcher = fetchers.Simple{
 		FirstLiveURL:          "https://clapper.jp/data/category/2024-03/",
 	},
 }
+
+var ShinsaibashiClubVijonFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://vijon.jp/",
+	"https://vijon.jp/schedule/calendar/2024/03/",
+	"osaka",
+	"shinsaibashi",
+	"shinsaibashi-clubvijon",
+	fetchers.TestInfo{
+		NumberOfLives:         38,
+		FirstLiveTitle:        "FREE! FREE! FREE!",
+		FirstLiveArtists:      []string{"Louve noir", "ZERO", "sp1at", "CARKLAND", "LOCO"},
+		FirstLivePrice:        "ADV/DOOR ￥0 別途2Drink代￥1,200",
+		FirstLivePriceEnglish: "ADV/DOOR ￥0 Separately2Drink代￥1,200",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://vijon.jp/schedule/detail/33505",
+	},
+)
 
 var ShinsaibashiConpassFetcher = fetchers.Simple{
 	BaseURL:              "https://www.conpass.jp/",

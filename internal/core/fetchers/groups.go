@@ -214,6 +214,42 @@ func CreateDaisyBarFetcher(
 
 }
 
+func CreateBassOnTopFetcher(
+	baseURL string,
+	shortYearIterableURL string,
+	prefecture string,
+	area string,
+	venueID string,
+	testInfo TestInfo,
+) Simple {
+	return Simple{
+		BaseURL:              baseURL,
+		ShortYearIterableURL: shortYearIterableURL,
+		LiveSelector:         "//div[@class='container scheduleList']/ul/li",
+		ExpandedLiveSelector: "//a[@class='btnStyle01']",
+		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " ").CutWrapper("【", "】"),
+		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("/", '(', ')'),
+		PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//p[@class='day']"),
+			MonthQuerier:     *htmlquerier.Q("//p[@class='day']").After("."),
+			DayQuerier:       *htmlquerier.Q("//p[@class='day']").After(".").After("."),
+			OpenTimeQuerier:  *htmlquerier.Q("//dl[@class='openTime']/dd"),
+			StartTimeQuerier: *htmlquerier.Q("//dl[@class='openTime']/dd").After("/"),
+
+			IsYearInLive:  true,
+			IsMonthInLive: true,
+		},
+
+		PrefectureName: prefecture,
+		AreaName:       area,
+		VenueID:        venueID,
+
+		TestInfo: testInfo,
+	}
+}
+
 func CreateLoftFetcher(
 	baseUrl string,
 	shortYearIterableURL string,
