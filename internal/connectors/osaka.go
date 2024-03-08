@@ -596,6 +596,42 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiQupeFetcher = fetchers.Simple{
+	BaseURL:              "https://www.skqupe.com/",
+	InitialURL:           "https://www.skqupe.com/live/",
+	LiveSelector:         "//div[@class='live-list']/ul/li",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//span[.='TITLE']/following-sibling::span/span[@class='highlight']"),
+	ArtistsQuerier:       *htmlquerier.Q("//span[contains(@class, 'act-wrap')]").Split("\n"),
+	PriceQuerier:         *htmlquerier.Q("//span[.='TICKET']/following-sibling::span"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[.='DATE']/following-sibling::span/span[@class='highlight']"),
+		MonthQuerier:     *htmlquerier.Q("//span[.='DATE']/following-sibling::span/span[@class='highlight']").After("/"),
+		DayQuerier:       *htmlquerier.Q("//span[.='DATE']/following-sibling::span/span[@class='highlight']").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[.='TIME']/following-sibling::span"),
+		StartTimeQuerier: *htmlquerier.Q("//span[.='TIME']/following-sibling::span").After("START"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-qupe",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         2,
+		FirstLiveTitle:        "ONE SHOT‼︎",
+		FirstLiveArtists:      []string{"JUU(Section U.G）", "カッチョ (Xmas Eileen)", "Shige-Bitch (HARVEST)", "ナオミチ（KNOCK OUT MONKEY）", "kimists (THE GAME SHOP)", "Da!sK (OXYMORPHONN)", "tAiki", "爆裂", "RiKU(Junk Story)", "大和 (I CRY RED)"},
+		FirstLivePrice:        "CHARGE ¥1000",
+		FirstLivePriceEnglish: "CHARGE ¥1000",
+		FirstLiveOpenTime:     time.Date(2024, 3, 15, 23, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 15, 23, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.skqupe.com/live/22009bd7-c3de-4f00-be81-bc29b8780d4c",
+	},
+}
+
 // this is insanity
 var ShinsaibashiUtausakanaFetcher = fetchers.Simple{
 	BaseURL:             "http://utausakana.com/",
