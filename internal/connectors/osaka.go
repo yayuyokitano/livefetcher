@@ -597,6 +597,42 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiSocoreFactoryFetcher = fetchers.Simple{
+	BaseURL:              "https://socorefactory.com/",
+	ShortYearIterableURL: "https://socorefactory.com/schedule/20%d/%02d/",
+	LiveSelector:         "//div[@class='schedule']",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//h1").ReplaceAllRegex(`\s+`, " "),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='act']/text()"),
+	PriceQuerier:         *htmlquerier.Q("//p[@class='act']/following-sibling::p[1]").SplitIndex("Adv:", 1).Prefix("Adv:").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@class='singledate']"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='singledate']").After("/"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='singledate']").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[@class='lives'][.='Open:']/following-sibling::text()"),
+		StartTimeQuerier: *htmlquerier.Q("//span[@class='lives'][.='Start:']/following-sibling::text()"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-socorefactory",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         25,
+		FirstLiveTitle:        "ナインティーズは突然に 7th Anniversary ライブ",
+		FirstLiveArtists:      []string{"オナニ渕剛 (LIVE)", "モンゴール☆天山 (LIVE)", "男藪下 (LIVE)", "サカグチマナブ (DJ)", "ワンダラー王子が歌う90年代ヒットパレード", "牧野渚 (THE YANG)", "藤本ぽやな (UNDERHAIRZ)", "dododrum", "DJ naonari ueda", "江口YOU介", "デス声シェフ (生前葬喪主)"},
+		FirstLivePrice:        "Adv:¥1,600 (D込) / Door:¥1,600 (D込)",
+		FirstLivePriceEnglish: "Adv:¥1,600 (D込) / Door:¥1,600 (D込)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://socorefactory.com/schedule/2024/03/01/%%e3%%83%%8a%%e3%%82%%a4%%e3%%83%%b3%%e3%%83%%86%%e3%%82%%a3%%e3%%83%%bc%%e3%%82%%ba%%e3%%81%%af%%e7%%aa%%81%%e7%%84%%b6%%e3%%81%%ab-7th-anniversary/",
+	},
+}
+
 var ShinsaibashiSomaFetcher = fetchers.Simple{
 	BaseURL:              "https://bigcat-live.com/",
 	ShortYearIterableURL: "http://www.will-music.net/soma/liveschedule/date/20%d/%02d/",
