@@ -715,7 +715,7 @@ func (s *Simple) getPrice(n *html.Node) (price string, err error) {
 		if err != nil || len(prices) == 0 {
 			return
 		}
-		price = util.FindPrice(prices[0])
+		price = util.FindPrice(prices)
 	}
 	return
 }
@@ -735,7 +735,7 @@ func (s *Simple) getOpenTime(n *html.Node, date string) (open time.Time, err err
 			open, err = util.ParseTime(date, "03:24")
 			return
 		}
-		open, err = util.ParseTime(date, util.FindTime(arr[0], "open"))
+		open, err = util.ParseTime(date, util.FindTime(strings.Join(arr, ""), "open"))
 	}
 	return
 }
@@ -755,7 +755,7 @@ func (s *Simple) getStartTime(n *html.Node, date string) (start time.Time, err e
 			start, err = util.ParseTime(date, "03:24")
 			return
 		}
-		start, err = util.ParseTime(date, util.FindTime(arr[0], "start"))
+		start, err = util.ParseTime(date, util.FindTime(strings.Join(arr, ""), "start"))
 	}
 	return
 }

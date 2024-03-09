@@ -1,6 +1,7 @@
 package connectors
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -593,6 +594,60 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 7, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 7, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://livepangea.com/live/event-17706",
+	},
+}
+
+var ShinsaibashiSomaFetcher = fetchers.Simple{
+	BaseURL:              "https://bigcat-live.com/",
+	ShortYearIterableURL: "http://www.will-music.net/soma/liveschedule/date/20%d/%02d/",
+	LiveSelector:         "//div[@class='archive_wrap wow fadeInUp'][not(contains(.//span[@style='font-size: 20px;'], 'RENTAL'))]",
+	TitleQuerier:         *htmlquerier.QAll("//span[@style='font-size: 20px;']").Join(" "),
+	ArtistsQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p[not(./span[@style='font-size: 20px;'])]").AddComplexFilter(func(old []string) []string {
+		re, err := regexp.Compile(`\d{2}:\d{2}`)
+		if err != nil {
+			return old
+		}
+		re2, err := regexp.Compile(`【.*】`)
+		if err != nil {
+			return old
+		}
+
+		newArr := make([]string, 0)
+		for _, s := range old {
+			if strings.Contains(s, "チケット") {
+				break
+			}
+			if re.FindStringIndex(s) != nil {
+				break
+			}
+			newArr = append(newArr, re2.ReplaceAllString(s, ""))
+		}
+		return newArr
+	}).SplitIgnoreWithin("[/\n]", '(', ')'),
+	DetailQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p/text()"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//span[@class='date']"),
+		MonthQuerier: *htmlquerier.Q("//span[@class='date']").After("年"),
+		DayQuerier:   *htmlquerier.Q("//span[@class='date']").After("月"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-soma",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         18,
+		FirstLiveTitle:        "『TATSUNORI YAGI presents  LIVE and LIVEPHOTO EXHIBITION  光が鳴り響く瞬間 vol.5』",
+		FirstLiveArtists:      []string{"くぴぽ", "Cosmoslay", "sui sui", "0番線と夜明け前", "望まひろ", "まちだガールズ・クワイア", "都の国のアリス"},
+		FirstLivePrice:        "■チケット：前売3,300円+1D/当日3,800円+1D",
+		FirstLivePriceEnglish: "■ Ticket：Reservation3,300円+1D/Door3,800円+1D",
+		FirstLiveOpenTime:     time.Date(2024, 3, 9, 13, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 9, 14, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.will-music.net/soma/liveschedule/date/20%d/%02d/",
 	},
 }
 

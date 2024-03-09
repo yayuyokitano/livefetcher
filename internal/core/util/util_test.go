@@ -163,8 +163,8 @@ func TestFindTime(t *testing.T) {
 	ushi`
 
 	testStringEquivalence("19:00", FindTime(str, "start"), t)
-	testStringEquivalence("03:24", FindTime(str, "open"), t)
-	testStringEquivalence("当日券のみ¥2,300", FindPrice(str), t)
+	testStringEquivalence("19:00", FindTime(str, "open"), t)
+	testStringEquivalence("当日券のみ¥2,300", FindPrice([]string{str}), t)
 }
 
 func TestGetRelevantYear(t *testing.T) {

@@ -133,9 +133,6 @@ var bannedArtists = map[string]bool{
 	"-dj-":        true,
 	"◉dj◉":        true,
 	"dj :":        true,
-	"・出演者":        true,
-	"■出演者":        true,
-	"出演者":         true,
 	"・料金":         true,
 	"料金":          true,
 	"ライブ情報":       true,
@@ -143,7 +140,6 @@ var bannedArtists = map[string]bool{
 	"+1d":         true,
 	"host dj:":    true,
 	"host dj":     true,
-	"出演者多数":       true,
 	"judge":       true,
 	"judge:":      true,
 	"-judge-":     true,
@@ -173,6 +169,7 @@ var bannedSubstrings = []string{
 	"vol.",
 	"food:",
 	"【food】",
+	"出演者",
 }
 
 var bannedRegexes = []string{
@@ -315,29 +312,57 @@ func GetUniqueVenueIDs(a []LiveHouse) (b []string) {
 	return
 }
 
-func FindTime(s string, prefix string) string {
-	arr := strings.Split(strings.ToLower(s), prefix)
-	if len(arr) < 2 {
-		return "03:24"
-	}
-	str := strings.TrimSpace(arr[1])[0:5]
+func findNthTime(s string, n int) string {
 	re, err := regexp.Compile(`\d{2}:\d{2}`)
 	if err != nil {
 		return "03:24"
 	}
+	matches := re.FindAllString(s, n)
+	if matches == nil {
+		return "03:24"
+	}
+	return matches[len(matches)-1]
+}
+
+func prefixToN(prefix string) int {
+	switch prefix {
+	case "open":
+		return 1
+	case "start":
+		return 2
+	default:
+		return -1
+	}
+}
+
+func FindTime(s string, prefix string) string {
+	arr := strings.Split(strings.ToLower(s), prefix)
+	if len(arr) < 2 {
+		return findNthTime(s, prefixToN(prefix))
+	}
+	str := strings.TrimSpace(arr[1])[0:5]
+	re, err := regexp.Compile(`\d{2}:\d{2}`)
+	if err != nil {
+		return findNthTime(s, prefixToN(prefix))
+	}
 	if re.MatchString(str) {
 		return str
 	}
-	return "03:24"
+	return findNthTime(s, prefixToN(prefix))
 }
 
-func FindPrice(s string) string {
-	re, err := regexp.Compile(`[^\s]*\s?(?:(?:¥[\d,]+)|(?:[\d,]+円))`)
+func FindPrice(arr []string) string {
+	re, err := regexp.Compile(`[^\s]*\s?(?:(?:¥[\d,]+)|(?:[\d,]+円))(?:\s*\+\d(?:(?:D)|(?:ドリンク)))?`)
 	if err != nil {
 		return ""
 	}
-	arr := re.FindAllString(s, 2)
-	return strings.Join(arr, "、")
+	for _, s := range arr {
+		arr := re.FindAllString(s, 2)
+		if arr != nil {
+			return strings.Join(arr, "、")
+		}
+	}
+	return ""
 }
 
 // GetRelevantYear gets the year for a given month.
