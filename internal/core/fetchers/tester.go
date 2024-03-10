@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -37,12 +38,25 @@ func (s *Simple) getCurrentShortURL() string {
 }
 
 func (s *Simple) Test(t *testing.T) {
+	var n *html.Node
+	var err error
+	var testDocument []byte
 	s.isTesting = true
-	path := fmt.Sprintf("../../../test/%s/%s/%s.html", s.PrefectureName, s.AreaName, s.VenueID)
-	n, err := htmlquery.LoadDoc(path)
-	if err != nil {
-		t.Error(err)
-		return
+
+	if s.LiveHTMLFetcher == nil {
+		path := fmt.Sprintf("../../../test/%s/%s/%s.html", s.PrefectureName, s.AreaName, s.VenueID)
+		n, err = htmlquery.LoadDoc(path)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	} else {
+		path := fmt.Sprintf("../../../test/%s/%s/%s.txt", s.PrefectureName, s.AreaName, s.VenueID)
+		testDocument, err = os.ReadFile(path)
+		if err != nil {
+			t.Error(err)
+			return
+		}
 	}
 
 	if s.InitialURL != "" && s.NextSelector != "" {
@@ -56,7 +70,7 @@ func (s *Simple) Test(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = s.testStaticLive(n, s.InitialURL)
+		err = s.testStaticLive(n, s.InitialURL, nil)
 		if err != nil {
 			t.Error(err)
 		}
@@ -71,22 +85,41 @@ func (s *Simple) Test(t *testing.T) {
 			t.Error(err)
 			return
 		}
-		err = s.testStaticLive(n, url)
+		err = s.testStaticLive(n, url, nil)
 		if err != nil {
 			t.Error(err)
 		}
 		return
 	}
 
-	err = s.testRemoteShortYearIterable(s.InitialURL)
-	if err != nil {
-		t.Error(err)
+	if s.InitialURL != "" {
+		err = s.testRemoteShortYearIterable(s.InitialURL)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+		err = s.testStaticLive(n, s.InitialURL, nil)
+		if err != nil {
+			t.Error(err)
+		}
 		return
 	}
-	err = s.testStaticLive(n, s.InitialURL)
-	if err != nil {
-		t.Error(err)
+
+	if s.LiveHTMLFetcher != nil {
+		err = s.testNotEmpty(nil, s.BaseURL)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		err = s.testStaticLive(nil, s.BaseURL, testDocument)
+		if err != nil {
+			t.Error(err)
+		}
+		return
 	}
+
+	t.Error("no appropriate fetching mechanism detected")
 }
 
 func (s *Simple) testRemoteShortYearIterable(url string) (err error) {
@@ -131,13 +164,13 @@ func (s *Simple) testHasNextURL(n *html.Node) (err error) {
 	return
 }
 
-func (s *Simple) testStaticLive(n *html.Node, path string) (err error) {
+func (s *Simple) testStaticLive(n *html.Node, path string, testDocument []byte) (err error) {
 	var pathURL *url.URL
 	pathURL, err = url.Parse(path)
 	if err != nil {
 		return
 	}
-	l, err := s.fetchLives(n, pathURL)
+	l, err := s.fetchLives(n, pathURL, testDocument)
 	if err != nil {
 		return
 	}
@@ -202,7 +235,7 @@ func (s *Simple) testNotEmpty(n *html.Node, path string) (err error) {
 	if err != nil {
 		return
 	}
-	l, err := s.fetchLives(n, pathURL)
+	l, err := s.fetchLives(n, pathURL, nil)
 	if err != nil {
 		return
 	}

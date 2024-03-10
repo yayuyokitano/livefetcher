@@ -104,6 +104,10 @@ type Simple struct {
 	// Livefetcher will query for all instances of this selector, and treat every match as a separate live.
 	LiveSelector string
 
+	// LiveHTMLFetcher specifies a function that returns an array of html nodes corresponding to lives
+	// Do not use this unless absolutely necessary
+	LiveHTMLFetcher func([]byte) ([]*html.Node, error)
+
 	// MultiLiveDaySelector provides a selector for a more complicated case of multiple lives in same day.
 	//
 	// Some websites will group multiple lives occurring on the same day under one singular wrapper,
@@ -248,7 +252,7 @@ func (s *Simple) fetchSingle() (err error) {
 	if err != nil {
 		return
 	}
-	l, err := s.fetchLives(n, initialURL)
+	l, err := s.fetchLives(n, initialURL, nil)
 	if err != nil {
 		return
 	}
@@ -270,7 +274,7 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 	if err != nil {
 		return
 	}
-	l, err := s.fetchLives(n, initialURL)
+	l, err := s.fetchLives(n, initialURL, nil)
 	if err != nil {
 		return
 	}
@@ -291,7 +295,7 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 			break
 		}
 		var appL []util.Live
-		appL, err = s.fetchLives(n, nextURL)
+		appL, err = s.fetchLives(n, nextURL, nil)
 		if err != nil {
 			break
 		}
@@ -341,7 +345,7 @@ func (s *Simple) iterateUsingShortYear() (err error) {
 			break
 		}
 		var appL []util.Live
-		appL, err = s.fetchLives(n, newURL)
+		appL, err = s.fetchLives(n, newURL, nil)
 		if err != nil {
 			break
 		}
@@ -393,7 +397,7 @@ type LiveContext struct {
 	url *url.URL
 }
 
-func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL) (l []util.Live, err error) {
+func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []byte) (l []util.Live, err error) {
 	var lives []LiveContext
 	if s.ExpandedLiveSelector != "" {
 		var overview []*html.Node
@@ -427,9 +431,25 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL) (l []util.Live, 
 				url: liveDetails.url,
 			})
 		}
-	} else {
+	} else if s.LiveSelector != "" {
 		var rawLives []*html.Node
 		rawLives, err = htmlquery.QueryAll(n, s.LiveSelector)
+		if err != nil {
+			return
+		}
+		if rawLives == nil {
+			err = errors.New("raw live query returned nil")
+			return
+		}
+		for _, live := range rawLives {
+			lives = append(lives, LiveContext{
+				n:   live,
+				url: overviewURL,
+			})
+		}
+	} else if s.LiveHTMLFetcher != nil {
+		var rawLives []*html.Node
+		rawLives, err = s.LiveHTMLFetcher(testDocument)
 		if err != nil {
 			return
 		}
@@ -710,12 +730,14 @@ func (s *Simple) getPrice(n *html.Node) (price string, err error) {
 			return
 		}
 		price = prices[0]
-	} else {
+	} else if s.DetailQuerier.Initialized {
 		prices, err = s.DetailQuerier.Execute(n)
 		if err != nil || len(prices) == 0 {
 			return
 		}
 		price = util.FindPrice(prices)
+	} else {
+		price = "このライブハウスのイベントの値段にアクセスできません。ライブのリンクをチェックしてください。"
 	}
 	return
 }
@@ -729,13 +751,15 @@ func (s *Simple) getOpenTime(n *html.Node, date string) (open time.Time, err err
 			return
 		}
 		open, err = util.ParseTime(date, arr[0])
-	} else {
+	} else if s.DetailQuerier.Initialized {
 		arr, err = s.DetailQuerier.Execute(n)
 		if err != nil || arr[0] == "" {
 			open, err = util.ParseTime(date, "03:24")
 			return
 		}
 		open, err = util.ParseTime(date, util.FindTime(strings.Join(arr, ""), "open"))
+	} else {
+		open, err = util.ParseTime(date, "03:24")
 	}
 	return
 }
@@ -749,13 +773,15 @@ func (s *Simple) getStartTime(n *html.Node, date string) (start time.Time, err e
 			return
 		}
 		start, err = util.ParseTime(date, arr[0])
-	} else {
+	} else if s.DetailQuerier.Initialized {
 		arr, err = s.DetailQuerier.Execute(n)
 		if err != nil || arr[0] == "" {
 			start, err = util.ParseTime(date, "03:24")
 			return
 		}
 		start, err = util.ParseTime(date, util.FindTime(strings.Join(arr, ""), "start"))
+	} else {
+		start, err = util.ParseTime(date, "03:24")
 	}
 	return
 }

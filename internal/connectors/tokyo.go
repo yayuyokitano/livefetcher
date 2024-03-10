@@ -1,11 +1,15 @@
 package connectors
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/fetchers"
 	"github.com/yayuyokitano/livefetcher/internal/core/htmlquerier"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"golang.org/x/net/html"
 )
 
 /*************
@@ -153,6 +157,129 @@ var ShibuyaOWestFetcher = fetchers.CreateOFetcher(
 		FirstLiveURL:          "https://shibuya-o.com/west/schedule/%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad-10th-anniversary%e3%80%8c%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad%e3%81%a7%e3%81%99%e3%81%8c%e3%81%aa%e3%81%ab%e3%81%8b%e3%80%8d%e3%83%84%e3%82%a2/",
 	},
 )
+
+type shibuyaTokioTokyoListResponse []struct {
+	Document struct {
+		Fields struct {
+			Default struct {
+				MapValue struct {
+					Fields struct {
+						List struct {
+							ArrayValue struct {
+								Values []struct {
+									ReferenceValue string `json:"referenceValue"`
+								} `json:"values"`
+							} `json:"arrayValue"`
+						} `json:"list"`
+					} `json:"fields"`
+				} `json:"mapValue"`
+			} `json:"default"`
+		} `json:"fields"`
+	} `json:"document"`
+}
+
+type shibuyaTokioTokyoLiveJSON struct {
+	Fields struct {
+		Default struct {
+			MapValue struct {
+				Fields struct {
+					Title struct {
+						StringValue string `json:"stringValue"`
+					} `json:"title"`
+					Body struct {
+						StringValue string `json:"stringValue"`
+					} `json:"body"`
+					Slug struct {
+						StringValue string `json:"stringValue"`
+					} `json:"slug"`
+					Date struct {
+						StringValue string `json:"stringValue"`
+					} `json:"hMPvAUXl"` //wtf?
+				} `json:"fields"`
+			} `json:"mapValue"`
+		} `json:"default"`
+	} `json:"fields"`
+}
+
+func shibuyaTokioTokyoGetBody(body, title string) string {
+	if body != "" {
+		return body
+	}
+	return title
+}
+
+// please never break i do not want to ever deal with this again what the fuck is this abomination
+var ShibuyaTokioTokyoFetcher = fetchers.Simple{
+	BaseURL: "https://tokio.world/",
+	LiveHTMLFetcher: func(testDocument []byte) (nodes []*html.Node, err error) {
+		nodes = make([]*html.Node, 0)
+		var list shibuyaTokioTokyoListResponse
+		if testDocument == nil {
+			if err = util.GetJSON(
+				"https://api.cms.studiodesignapp.com/documents:runQuery?q=eyJzdHJ1Y3R1cmVkUXVlcnkiOnsiZnJvbSI6W3siY29sbGVjdGlvbklkIjoicHVibGlzaGVkIiwiYWxsRGVzY2VuZGFudHMiOnRydWV9XSwid2hlcmUiOnsiY29tcG9zaXRlRmlsdGVyIjp7Im9wIjoiQU5EIiwiZmlsdGVycyI6W3siZmllbGRGaWx0ZXIiOnsiZmllbGQiOnsiZmllbGRQYXRoIjoiX21ldGEucHJvamVjdC5pZCJ9LCJvcCI6IkVRVUFMIiwidmFsdWUiOnsic3RyaW5nVmFsdWUiOiIyNGMyMTZkOTUwY2U0OTY5YWU2ZiJ9fX0seyJmaWVsZEZpbHRlciI6eyJmaWVsZCI6eyJmaWVsZFBhdGgiOiJfbWV0YS5zY2hlbWEua2V5In0sIm9wIjoiRVFVQUwiLCJ2YWx1ZSI6eyJzdHJpbmdWYWx1ZSI6InplQ2FyaG5yIn19fV19fSwib3JkZXJCeSI6W3siZmllbGQiOnsiZmllbGRQYXRoIjoiX21ldGEucHVibGlzaGVkQXQifSwiZGlyZWN0aW9uIjoiREVTQ0VORElORyJ9XSwibGltaXQiOjF9fQ%3D%3D",
+				&list,
+			); err != nil {
+				return
+			}
+		} else {
+			if err = json.Unmarshal(testDocument, &list); err != nil {
+				return
+			}
+		}
+		for _, liveReference := range list[0].Document.Fields.Default.MapValue.Fields.List.ArrayValue.Values {
+			var live shibuyaTokioTokyoLiveJSON
+			if err = util.GetJSON(
+				strings.Replace(liveReference.ReferenceValue, "projects/studio-7e371/databases/(default)/", "https://api.cms.studiodesignapp.com/", 1),
+				&live,
+			); err != nil {
+				continue
+			}
+			if strings.Contains(live.Fields.Default.MapValue.Fields.Title.StringValue, "ホールレンタル") {
+				continue
+			}
+			var n *html.Node
+			n, err = html.Parse(strings.NewReader(fmt.Sprintf(
+				"<span id='date'>%s</span><span id='title'>%s</span><span id='body'>%s</span><span id='url'>%s</span>",
+				live.Fields.Default.MapValue.Fields.Date.StringValue,
+				live.Fields.Default.MapValue.Fields.Title.StringValue,
+				shibuyaTokioTokyoGetBody(live.Fields.Default.MapValue.Fields.Body.StringValue, live.Fields.Default.MapValue.Fields.Title.StringValue),
+				fmt.Sprintf("https://tokio.world/posts/%s", live.Fields.Default.MapValue.Fields.Slug.StringValue),
+			)))
+			if err != nil {
+				continue
+			}
+			nodes = append(nodes, n)
+		}
+		return
+	},
+	DetailsLinkSelector: "//span[@id='url']",
+	TitleQuerier:        *htmlquerier.Q("//span[@id='body']"),
+	ArtistsQuerier:      *htmlquerier.Q("//span[@id='title']").After("】").Split("/"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//span[@id='date']"),
+		MonthQuerier: *htmlquerier.Q("//span[@id='date']").After("/"),
+		DayQuerier:   *htmlquerier.Q("//span[@id='date']").After("/").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-tokiotokyo",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         17,
+		FirstLiveTitle:        "MUSIC NEXUS Presents Live 導 -SHIRUBE- Vol.0",
+		FirstLiveArtists:      []string{"BESPER", "LUKA", "佐野諒太", "浜野はるき", "灯橙あか"},
+		FirstLivePrice:        "このライブハウスのイベントの値段にアクセスできません。ライブのリンクをチェックしてください。",
+		FirstLivePriceEnglish: "Cannot access prices for lives at this venue. Please check live link.",
+		FirstLiveOpenTime:     time.Date(2024, 3, 12, 03, 24, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 12, 03, 24, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://tokio.world/posts/OMwpVbLU",
+	},
+}
 
 var ShibuyaWWWFetcher = fetchers.CreateWWWFetcher(
 	"@data-place='www' or @data-place='wwwxwww'",

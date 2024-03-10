@@ -1,8 +1,10 @@
 package util
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -400,6 +402,17 @@ func GetRelevantYear(month int) int {
 		return time.Now().Year() + 1
 	}
 	return time.Now().Year()
+}
+
+func GetJSON(url string, target interface{}) error {
+	client := &http.Client{Timeout: 10 * time.Second}
+	r, err := client.Get(url)
+	if err != nil {
+		return err
+	}
+	defer r.Body.Close()
+
+	return json.NewDecoder(r.Body).Decode(target)
 }
 
 var JapanTime = time.FixedZone("UTC+9", +9*60*60)
