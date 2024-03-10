@@ -375,7 +375,7 @@ func FindTime(s string, prefix string) string {
 }
 
 func FindPrice(arr []string) string {
-	re, err := regexp.Compile(`[^\s]*\s?(?:(?:[¥￥][\d,]+)|(?:[\d,]+円))(?:\s*\+\d(?:(?:D)|(?:ドリンク)))?`)
+	re, err := regexp.Compile(`[^\s]*\s?(?:(?:[¥￥][\d,]+)|(?:[\d,]+円))(?:\s*\+\d?(?:(?:D)|(?:ドリンク)))?`)
 	if err != nil {
 		return ""
 	}
