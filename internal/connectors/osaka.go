@@ -280,6 +280,40 @@ var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiHillsPanFetcher = fetchers.Simple{
+	BaseURL:              "http://livehillspankojyo.com/",
+	InitialURL:           "http://livehillspankojyo.com/",
+	LiveSelector:         "//div[@id='schedule_inner']/div[@class='schedulearea'][.//a!='ホールレンタル']",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//div[@class='live-title']").Trim().CutWrapper("【", "】"),
+	ArtistsQuerier:       *htmlquerier.Q("//div[@class='perform-artist']").After("[Performer]").Split("、"),
+	DetailQuerier:        *htmlquerier.QAll("//div[@class='live-article']//text()").Join("\n").HalfWidth(),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//div[@class='live-date']"),
+		MonthQuerier: *htmlquerier.Q("//div[@class='live-date']").After("."),
+		DayQuerier:   *htmlquerier.Q("//div[@class='live-date']").After(".").After("."),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-hillspan",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         13,
+		FirstLiveTitle:        "寺尾祭り〜hillsパン工場21周年おめでとう〜",
+		FirstLiveArtists:      []string{"寺尾広", "AKI", "葛原豊", "北川加奈"},
+		FirstLivePrice:        "🔳TICKET:前売り:¥3,500(税込､全自由席､別途1D¥600、当日:¥4,000",
+		FirstLivePriceEnglish: "🔳TICKET:Reservation:¥3,500(Incl. Tax､全自由席､Separately1D¥600、Door:¥4,000",
+		FirstLiveOpenTime:     time.Date(2024, 3, 23, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 23, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://livehillspankojyo.com/detail.cgi?code=7aKjFLxI",
+	},
+}
+
 var ShinsaibashiHokageFetcher = fetchers.Simple{
 	BaseURL:                     "http://musicbarhokage.net/",
 	ShortYearReverseIterableURL: "http://musicbarhokage.net/schedule%d_20%d.htm",
