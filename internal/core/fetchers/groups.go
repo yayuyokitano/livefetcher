@@ -250,6 +250,40 @@ func CreateBassOnTopFetcher(
 	}
 }
 
+func CreateCycloneFetcher(
+	baseURL string,
+	shortYearIterableURL string,
+	prefecture string,
+	area string,
+	venueID string,
+	dayImageSubstring string,
+	testInfo TestInfo,
+) Simple {
+	return Simple{
+		BaseURL:              baseURL,
+		ShortYearIterableURL: shortYearIterableURL,
+		LiveSelector:         "//body/table",
+		// trust
+		TitleQuerier:   *htmlquerier.QAll("//td/p/span[1]/descendant::text()[not(preceding-sibling::*[self::span or self::strong]) and normalize-space(.)!='' and (not(ancestor::strong or ancestor::a) or ancestor::span[last()]/text()[1]/preceding-sibling::*[self::span or self::strong])]").Join(" ").ReplaceAllRegex(`\s+`, " "),
+		ArtistsQuerier: *htmlquerier.QAll("//span/strong").Trim().TrimSuffix("PRESENTS").SplitIgnoreWithin("[\n/]", '(', ')'),
+		PriceQuerier:   *htmlquerier.Q("//td/p/span[1]/text()[last()-1]").ReplaceAllRegex(`\s+`, " "),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//b"),
+			MonthQuerier:     *htmlquerier.Q("//b/strong"),
+			DayQuerier:       *htmlquerier.Q(fmt.Sprintf("//img[contains(@src, '%s')]/@src", dayImageSubstring)),
+			OpenTimeQuerier:  *htmlquerier.Q("//td/p/span[1]/text()[last()-2]"),
+			StartTimeQuerier: *htmlquerier.Q("//td/p/span[1]/text()[last()-2]").After("|"),
+		},
+
+		PrefectureName: prefecture,
+		AreaName:       area,
+		VenueID:        venueID,
+
+		TestInfo: testInfo,
+	}
+}
+
 func CreateLoftFetcher(
 	baseUrl string,
 	shortYearIterableURL string,

@@ -8,8 +8,10 @@ artist = "参加アーティスト"
 area = "場所"
 
 [livehouse]
+shibuya-cyclone = "SHIBUYA CYCLONE"
 shibuya-eggmanday = "shibuya eggman"
 shibuya-eggmannight = "shibuya eggman"
+shibuya-garret = "GARRET udagawa"
 shibuya-ocrest = "Spotify O-Crest"
 shibuya-oeast = "Spotify O-EAST"
 shibuya-onest = "Spotify O-nest"

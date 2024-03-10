@@ -18,37 +18,24 @@ import (
  *           *
  *************/
 
-var ShibuyaCycloneFetcher = fetchers.Simple{
-	BaseURL:              "http://www.cyclone1997.com/",
-	ShortYearIterableURL: "http://www.cyclone1997.com/schedule/20%dschedule_%d.html",
-	LiveSelector:         "//body/table",
-	TitleQuerier:         *htmlquerier.Q("//td/p/span[1]").ReplaceAllRegex(`\s+`, " "),
-	ArtistsQuerier:       *htmlquerier.Q("//span/strong").SplitIgnoreWithin("[\n/]", '(', ')'),
-	PriceQuerier:         *htmlquerier.Q("//dl[@class='schedule-content__ticket']//p/text()[2]"),
-
-	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//span[@class='date']").Before("/"),
-		MonthQuerier:     *htmlquerier.Q("//span[@class='date']").SplitIndex("/", 1),
-		DayQuerier:       *htmlquerier.Q("//span[@class='date']").SplitIndex("/", 2).Before("("),
-		OpenTimeQuerier:  *htmlquerier.Q("//dl[@class='schedule-content__openstart']//p").Before("／"),
-		StartTimeQuerier: *htmlquerier.Q("//dl[@class='schedule-content__openstart']//p").After("／"),
+var ShibuyaCycloneFetcher = fetchers.CreateCycloneFetcher(
+	"http://www.cyclone1997.com/",
+	"http://www.cyclone1997.com/schedule/20%dschedule_%d.html",
+	"tokyo",
+	"shibuya",
+	"shibuya-cyclone",
+	"cyclone_day",
+	fetchers.TestInfo{
+		NumberOfLives:         34,
+		FirstLiveTitle:        "SWD Japan Proudly pre. EMMURE JAPAN TOUR 2024",
+		FirstLiveArtists:      []string{"EMMURE", "DVRK", "Sailing Before The Wind", "VICTIMOFDECEPTION", "HAILROSE"},
+		FirstLivePrice:        "ADV ¥7000 | DOOR TBA (+1D)",
+		FirstLivePriceEnglish: "ADV ¥7000 | DOOR TBA (+1D)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.cyclone1997.com/schedule/20%dschedule_%d.html",
 	},
-
-	PrefectureName: "tokyo",
-	AreaName:       "shibuya",
-	VenueID:        "shibuya-cyclone",
-
-	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         29,
-		FirstLiveTitle:        "“Stormy Wednesday”",
-		FirstLiveArtists:      []string{"王将&The Guv’nor Brothers", "Weiyao Band", "前後のカルマ"},
-		FirstLivePrice:        "ADV.￥3,000／DOOR.￥3,400 [1D別]",
-		FirstLivePriceEnglish: "ADV.￥3,000／DOOR.￥3,400 [1 Drink purchase required]",
-		FirstLiveOpenTime:     time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://clubque.net/schedule/2202/",
-	},
-}
+)
 
 var ShibuyaEggmanDayFetcher = fetchers.CreateEggmanFetcher(
 	"http://eggman.jp/",
@@ -83,6 +70,25 @@ var ShibuyaEggmanNightFetcher = fetchers.CreateEggmanFetcher(
 		FirstLiveOpenTime:     time.Date(2023, 11, 9, 23, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 10, 0, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://eggman.jp/schedule/reraise-house-1on1-battle-season4-vol-10/",
+	},
+)
+
+var ShibuyaGarretFetcher = fetchers.CreateCycloneFetcher(
+	"http://www.cyclone1997.com/",
+	"http://www.cyclone1997.com/garret/g_schedule/garret_20%dschedule_%d.html",
+	"tokyo",
+	"shibuya",
+	"shibuya-garret",
+	"garret_day",
+	fetchers.TestInfo{
+		NumberOfLives:         30,
+		FirstLiveTitle:        "T.M.Music pre. Ten56. Japan Tour Tokyo Show",
+		FirstLiveArtists:      []string{"Ten56.(France)", "Suggestions", "Evilgloom", "Nimbus", "DIVINITIST"},
+		FirstLivePrice:        "ADV ¥6900 | DOOR ¥7900 (+1D)",
+		FirstLivePriceEnglish: "ADV ¥6900 | DOOR ¥7900 (+1D)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 3, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 3, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.cyclone1997.com/garret/g_schedule/garret_20%dschedule_%d.html",
 	},
 )
 
@@ -501,7 +507,7 @@ var Shimokitazawa440Fetcher = fetchers.Simple{
 		FirstLivePriceEnglish: "ADV.￥3,000／DOOR.￥3,400 [1 Drink purchase required]",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://clubque.net/schedule/2202/",
+		FirstLiveURL:          "http://440.tokyo/events/231101/",
 	},
 }
 

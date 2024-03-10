@@ -8,8 +8,10 @@ import (
 type ConnectorsType map[string]fetchers.Simple
 
 var Connectors = ConnectorsType{
+	"ShibuyaCyclone":              connectors.ShibuyaCycloneFetcher,
 	"ShibuyaEggmanDay":            connectors.ShibuyaEggmanDayFetcher,
 	"ShibuyaEggmanNight":          connectors.ShibuyaEggmanNightFetcher,
+	"ShibuyaGarret":               connectors.ShibuyaGarretFetcher,
 	"ShibuyaOCrest":               connectors.ShibuyaOCrestFetcher,
 	"ShibuyaOEast":                connectors.ShibuyaOEastFetcher,
 	"ShibuyaONest":                connectors.ShibuyaONestFetcher,
