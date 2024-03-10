@@ -349,6 +349,40 @@ var ShinsaibashiJanusFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiKanonFetcher = fetchers.Simple{
+	BaseURL:              "https://kanon-art.jp/",
+	InitialURL:           "https://kanon-art.jp/wp-admin/admin-ajax.php?action=get_events_ajax&security=716cfa2777",
+	LiveSelector:         "//div[@id='event_archive_list']/article",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//h2[@id='event_title']"),
+	ArtistsQuerier:       *htmlquerier.Q("//div[@id='spec_field']//text()[contains(., '出演： ')]").After("出演： ").Split("、"),
+	DetailQuerier:        *htmlquerier.Q("//div[@id='spec_field']"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//span[@class='year']"),
+		MonthQuerier: *htmlquerier.Q("//span[@class='month_label']"),
+		DayQuerier:   *htmlquerier.Q("//span[@class='date']"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-kanon",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         11,
+		FirstLiveTitle:        "三浦コースケ、鹿音のまこと、Yu",
+		FirstLiveArtists:      []string{"三浦コースケ", "鹿音のまこと", "Yu"},
+		FirstLivePrice:        "ADV/DOOR ￥2,500",
+		FirstLivePriceEnglish: "ADV/DOOR ￥2,500",
+		FirstLiveOpenTime:     time.Date(2024, 3, 16, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 16, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://kanon-art.jp/schedule/20240316/",
+	},
+}
+
 var ShinsaibashiKingCobraFetcher = fetchers.Simple{
 	BaseURL:              "http://king-cobra.net/",
 	ShortYearIterableURL: "http://king-cobra.net/schedule/20%d_%d.html",

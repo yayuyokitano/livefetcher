@@ -353,7 +353,17 @@ func FindTime(s string, prefix string) string {
 	if len(arr) < 2 {
 		return findNthTime(s, prefixToN(prefix))
 	}
-	str := strings.TrimSpace(arr[1])[0:5]
+	var str string
+	if strings.HasSuffix(strings.TrimSpace(arr[0]), "/") {
+		tmp := strings.Split(arr[1], "/")
+		if len(tmp) < 2 {
+			return findNthTime(s, prefixToN(prefix))
+		}
+		str = strings.TrimSpace(tmp[1])[0:5]
+	} else {
+		str = strings.TrimSpace(arr[1])[0:5]
+	}
+
 	re, err := regexp.Compile(`\d{2}:\d{2}`)
 	if err != nil {
 		return findNthTime(s, prefixToN(prefix))
@@ -365,7 +375,7 @@ func FindTime(s string, prefix string) string {
 }
 
 func FindPrice(arr []string) string {
-	re, err := regexp.Compile(`[^\s]*\s?(?:(?:¥[\d,]+)|(?:[\d,]+円))(?:\s*\+\d(?:(?:D)|(?:ドリンク)))?`)
+	re, err := regexp.Compile(`[^\s]*\s?(?:(?:[¥￥][\d,]+)|(?:[\d,]+円))(?:\s*\+\d(?:(?:D)|(?:ドリンク)))?`)
 	if err != nil {
 		return ""
 	}
