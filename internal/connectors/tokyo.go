@@ -37,6 +37,42 @@ var ShibuyaCycloneFetcher = fetchers.CreateCycloneFetcher(
 	},
 )
 
+var ShibuyaDiveFetcher = fetchers.Simple{
+	BaseURL:              "https://shibuya-dive.com/",
+	ShortYearIterableURL: "https://shibuya-dive.com/schedule/?date=20%d-%02d",
+	LiveSelector:         "//article",
+	DetailsLinkSelector:  "//a",
+	TitleQuerier:         *htmlquerier.Q("//h3"),
+	ArtistsQuerier:       *htmlquerier.Q("//th[.='ACT']/following-sibling::td").Split("/"),
+	PriceQuerier:         *htmlquerier.QAll("//th[.='ADV' or .='DOOR']/following-sibling::td").Join("、DOOR: ").Prefix("ADV: "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@class='schedule-date']"),
+		MonthQuerier:     *htmlquerier.Q("//p[@class='schedule-date']").After("."),
+		DayQuerier:       *htmlquerier.Q("//p[@class='schedule-date']").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//th[.='OPEN']/following-sibling::td"),
+		StartTimeQuerier: *htmlquerier.Q("//th[.='START']/following-sibling::td"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-dive",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         3,
+		FirstLiveTitle:        "HEY! BIRTHDAY LIVE & PARTY! ～ゆーりーとあーいーの秘密の花園～ 秋元悠里　作島藍　生誕イベント開催！！！",
+		FirstLiveArtists:      []string{"Hey!Mommy!"},
+		FirstLivePrice:        "ADV: VIPチケット：¥6,000 / 一般チケット：¥2,000 各+D代別、DOOR: 一般チケット：¥3,000 +D代別",
+		FirstLivePriceEnglish: "ADV: VIP Ticket：¥6,000 / Ordinary Ticket Ticket：¥2,000 各+Drink must be purchased separately、DOOR: Ordinary Ticket Ticket：¥3,000 +Drink must be purchased separately",
+		FirstLiveOpenTime:     time.Date(2024, 3, 20, 11, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 20, 12, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://shibuya-dive.com/schedule/hey-birthday-live-party-%%ef%%bd%%9e%%e3%%82%%86%%e3%%83%%bc%%e3%%82%%8a%%e3%%83%%bc%%e3%%81%%a8%%e3%%81%%82%%e3%%83%%bc%%e3%%81%%84%%e3%%83%%bc%%e3%%81%%ae%%e7%%a7%%98%%e5%%af%%86%%e3%%81%%ae%%e8%%8a%%b1%%e5%%9c%%92%%ef%%bd%%9e-%%e7%%a7%%8b%%e5%%85%%83/",
+	},
+}
+
 var ShibuyaEggmanDayFetcher = fetchers.CreateEggmanFetcher(
 	"http://eggman.jp/",
 	"http://eggman.jp/schedule-cat/daytime/?syear=20%d&smonth=%02d",

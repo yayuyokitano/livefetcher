@@ -60,19 +60,22 @@ func (s *Simple) Test(t *testing.T) {
 	}
 
 	if s.InitialURL != "" && s.NextSelector != "" {
+		err = s.testStaticLive(n, s.InitialURL, nil)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
 		err = s.testHasNextURL(n)
 		if err != nil {
 			t.Error(err)
 			return
 		}
+
 		err = s.testRemoteInitialNext()
 		if err != nil {
 			t.Error(err)
 			return
-		}
-		err = s.testStaticLive(n, s.InitialURL, nil)
-		if err != nil {
-			t.Error(err)
 		}
 		return
 	}
@@ -80,12 +83,13 @@ func (s *Simple) Test(t *testing.T) {
 	if s.ShortYearIterableURL != "" || s.ShortYearReverseIterableURL != "" {
 		url := s.getCurrentShortURL()
 
-		err = s.testRemoteShortYearIterable(url)
+		err = s.testStaticLive(n, url, nil)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		err = s.testStaticLive(n, url, nil)
+
+		err = s.testRemoteShortYearIterable(url)
 		if err != nil {
 			t.Error(err)
 		}
@@ -93,12 +97,13 @@ func (s *Simple) Test(t *testing.T) {
 	}
 
 	if s.InitialURL != "" {
-		err = s.testRemoteShortYearIterable(s.InitialURL)
+		err = s.testStaticLive(n, s.InitialURL, nil)
 		if err != nil {
 			t.Error(err)
 			return
 		}
-		err = s.testStaticLive(n, s.InitialURL, nil)
+
+		err = s.testRemoteShortYearIterable(s.InitialURL)
 		if err != nil {
 			t.Error(err)
 		}
@@ -106,13 +111,13 @@ func (s *Simple) Test(t *testing.T) {
 	}
 
 	if s.LiveHTMLFetcher != nil {
-		err = s.testNotEmpty(nil, s.BaseURL)
+		err = s.testStaticLive(nil, s.BaseURL, testDocument)
 		if err != nil {
 			t.Error(err)
 			return
 		}
 
-		err = s.testStaticLive(nil, s.BaseURL, testDocument)
+		err = s.testNotEmpty(nil, s.BaseURL)
 		if err != nil {
 			t.Error(err)
 		}

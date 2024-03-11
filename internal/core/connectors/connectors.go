@@ -9,6 +9,7 @@ type ConnectorsType map[string]fetchers.Simple
 
 var Connectors = ConnectorsType{
 	"ShibuyaCyclone":              connectors.ShibuyaCycloneFetcher,
+	"ShibuyaDive":                 connectors.ShibuyaDiveFetcher,
 	"ShibuyaEggmanDay":            connectors.ShibuyaEggmanDayFetcher,
 	"ShibuyaEggmanNight":          connectors.ShibuyaEggmanNightFetcher,
 	"ShibuyaGarret":               connectors.ShibuyaGarretFetcher,
