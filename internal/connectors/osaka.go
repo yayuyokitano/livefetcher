@@ -1,6 +1,9 @@
 package connectors
 
 import (
+	"fmt"
+	"io"
+	"net/http"
 	"regexp"
 	"strings"
 	"time"
@@ -383,9 +386,34 @@ var ShinsaibashiJanusFetcher = fetchers.Simple{
 	},
 }
 
+func shinsaibashiKanonGetSecurity() string {
+	client := &http.Client{Timeout: 10 * time.Second}
+	r, err := client.Get("https://kanon-art.jp/schedule/")
+	if err != nil {
+		return ""
+	}
+	defer r.Body.Close()
+
+	s, err := io.ReadAll(r.Body)
+	if err != nil {
+		return ""
+	}
+
+	re, err := regexp.Compile(`"nonce":"(.*?)"`)
+	if err != nil {
+		return ""
+	}
+
+	match := re.FindStringSubmatch(string(s))
+	if len(match) < 2 {
+		return ""
+	}
+	return match[1]
+}
+
 var ShinsaibashiKanonFetcher = fetchers.Simple{
 	BaseURL:              "https://kanon-art.jp/",
-	InitialURL:           "https://kanon-art.jp/wp-admin/admin-ajax.php?action=get_events_ajax&security=716cfa2777",
+	InitialURL:           fmt.Sprintf("https://kanon-art.jp/wp-admin/admin-ajax.php?action=get_events_ajax&security=%s", shinsaibashiKanonGetSecurity()),
 	LiveSelector:         "//div[@id='event_archive_list']/article",
 	ExpandedLiveSelector: "//a",
 	TitleQuerier:         *htmlquerier.Q("//h2[@id='event_title']"),
