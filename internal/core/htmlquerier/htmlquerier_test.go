@@ -281,6 +281,13 @@ func TestKeepIndex(t *testing.T) {
 		t.Error(err2)
 	}
 	testStringSliceEquals(t, []string{""}, arr2)
+
+	q3, n := createQuerier(t, "//p[@id='splitter']")
+	arr3, err3 := q3.Split(" - ").KeepIndex(-1).Execute(n)
+	if err3 != nil {
+		t.Error(err)
+	}
+	testStringSliceEquals(t, []string{"three"}, arr3)
 }
 
 func TestJoin(t *testing.T) {

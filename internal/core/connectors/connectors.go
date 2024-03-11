@@ -17,6 +17,7 @@ var Connectors = ConnectorsType{
 	"ShibuyaONest":                connectors.ShibuyaONestFetcher,
 	"ShibuyaOWest":                connectors.ShibuyaOWestFetcher,
 	"ShibuyaTokioTokyo":           connectors.ShibuyaTokioTokyoFetcher,
+	"ShibuyaVeats":                connectors.ShibuyaVeatsFetcher,
 	"ShibuyaWWW":                  connectors.ShibuyaWWWFetcher,
 	"ShibuyaWWWX":                 connectors.ShibuyaWWWXFetcher,
 	"ShibuyaWWWBeta":              connectors.ShibuyaWWWBetaFetcher,

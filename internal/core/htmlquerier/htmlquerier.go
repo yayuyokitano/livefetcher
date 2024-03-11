@@ -380,9 +380,15 @@ func (q *Querier) DeleteUntil(s string) *Querier {
 	})
 }
 
-// KeepIndex keeps only the element at specific index, or empty string if does not exist
+// KeepIndex keeps only the element at specific index, or empty string if does not exist. Negative index will get index starting from last index.
 func (q *Querier) KeepIndex(i int) *Querier {
 	return q.AddComplexFilter(func(old []string) []string {
+		if i < 0 {
+			if len(old) >= -i {
+				return []string{old[len(old)+i]}
+			}
+			return []string{""}
+		}
 		if len(old) > i {
 			return []string{old[i]}
 		}

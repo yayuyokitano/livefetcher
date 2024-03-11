@@ -287,6 +287,40 @@ var ShibuyaTokioTokyoFetcher = fetchers.Simple{
 	},
 }
 
+var ShibuyaVeatsFetcher = fetchers.Simple{
+	BaseURL:              "https://veats.jp/",
+	ShortYearIterableURL: "https://veats.jp/schedule/?param=20%d%02d",
+	LiveSelector:         "//div[@class='today-contents']/a",
+	ExpandedLiveSelector: ".",
+	TitleQuerier:         *htmlquerier.QAll("//p[@class='ttl']//text()[1]").KeepIndex(-1),
+	ArtistsQuerier:       *htmlquerier.Q("//dt[.='LINE UP']/following-sibling::dd").SplitIgnoreWithin("/", '(', ')'),
+	PriceQuerier:         *htmlquerier.Q("//dt[.='ADV /  DOOR']/following-sibling::dd"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@class='year']"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='head']/p"),
+		DayQuerier:       *htmlquerier.Q("//div[@class='head']/p").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//dt[.='OPEN / START']/following-sibling::dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dt[.='OPEN / START']/following-sibling::dd").After("/"),
+		IsMonthInLive:    true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-veats",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         23,
+		FirstLiveTitle:        "BLACK IRIS WEEKLY LIVE",
+		FirstLiveArtists:      []string{"BLACK IRIS"},
+		FirstLivePrice:        "前方エリア¥4,000・後方エリア¥1,000 / 前方エリア¥4,500・後方エリア¥1,000 (D代別)",
+		FirstLivePriceEnglish: "Front area¥4,000・Rear area¥1,000 / Front area¥4,500・Rear area¥1,000 (Drink must be purchased separately)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://veats.jp/schedule/5667/",
+	},
+}
+
 var ShibuyaWWWFetcher = fetchers.CreateWWWFetcher(
 	"@data-place='www' or @data-place='wwwxwww'",
 	"shibuya-www",
@@ -339,13 +373,13 @@ var ShibuyaWWWXFetcher = fetchers.CreateWWWFetcher(
  *******************/
 
 var ShimokitazawaArtistFetcher = fetchers.Simple{
-	BaseURL:        "http://www.c-artist.com/",
-	InitialURL:     util.InsertYearMonth("http://www.c-artist.com/schedule/list/%d%d.txt"),
-	LiveSelector:   "//div[@class='sche']",
-	TitleQuerier:   *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[1]"),
-	ArtistsQuerier: *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[last()]").Split("\u00A0").Before("』〜").TrimPrefix("『"),
-	PriceQuerier:   *htmlquerier.Q("//p[@class='ex']").After(" / "),
-	DetailsLink:    "http://www.c-artist.com/schedule/",
+	BaseURL:              "http://www.c-artist.com/",
+	ShortYearIterableURL: "http://www.c-artist.com/schedule/list/20%d%d.txt",
+	LiveSelector:         "//div[@class='sche']",
+	TitleQuerier:         *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[1]"),
+	ArtistsQuerier:       *htmlquerier.Q("//p[contains(@class, 'guestname')]/text()[last()]").Split("\u00A0").Before("』〜").TrimPrefix("『"),
+	PriceQuerier:         *htmlquerier.Q("//p[@class='ex']").After(" / "),
+	DetailsLink:          "http://www.c-artist.com/schedule/",
 
 	TimeHandler: fetchers.TimeHandler{
 		MonthQuerier:    *htmlquerier.Q("//p[@class='day']").Before("/"),
