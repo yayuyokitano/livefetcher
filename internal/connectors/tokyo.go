@@ -20,6 +20,39 @@ import (
  *           *
  *************/
 
+var ShibuyaClubQuattroFetcher = fetchers.Simple{
+	BaseURL:              "https://www.club-quattro.com/shibuya/schedule/",
+	ShortYearIterableURL: "https://www.club-quattro.com/shibuya/schedule/?ym=20%d%02d",
+	LiveSelector:         "//div[@class='schedule-list']/div",
+	DetailsLinkSelector:  "//a",
+	TitleQuerier:         *htmlquerier.QAll("//p[@class='event-text' or @class='event-ttl']").FilterTitle(`[/\n]`, 1),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='event-text' or @class='event-ttl']").FilterArtist(`[/\n]`, 0).SplitRegex(`[/\n]`),
+	PriceQuerier:         *htmlquerier.Q("//div[contains(./text(), '料金：')]").After("料金："),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//section[@id='schedule-list-top']/p[@class='ttl']"),
+		MonthQuerier:     *htmlquerier.Q("//li[@class='schedule-text slick-current']/p[@class='date']"),
+		DayQuerier:       *htmlquerier.Q("//p[@class='date']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//div[contains(./text(), 'Open:')]").After("Open:"),
+		StartTimeQuerier: *htmlquerier.Q("//div[contains(./text(), 'Start:')]").After("Start:"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-clubquattro",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         27,
+		FirstLiveTitle:        "Rei Release Tour 2024 “VOICE MESSAGE”",
+		FirstLiveArtists:      []string{"Rei", "澤村一平(dr)", "真船勝博(ba)", "TAIHEI(kb)", "須原杏(violin)"},
+		FirstLivePrice:        "前売 ￥5,500",
+		FirstLivePriceEnglish: "Reservation ￥5,500",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.club-quattro.com/shibuya/schedule/detail.php?id=15380",
+	},
+}
+
 var ShibuyaCycloneFetcher = fetchers.CreateCycloneFetcher(
 	"http://www.cyclone1997.com/",
 	"http://www.cyclone1997.com/schedule/20%dschedule_%d.html",

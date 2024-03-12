@@ -380,6 +380,95 @@ func (q *Querier) DeleteUntil(s string) *Querier {
 	})
 }
 
+func stringHasTitleIndicator(s string) bool {
+	indicators := []string{
+		"album",
+		"presents",
+		"live",
+		"one man",
+		"oneman",
+		"tour",
+	}
+	lower := strings.ToLower(s)
+	for _, indicator := range indicators {
+		if strings.Contains(lower, indicator) {
+			return true
+		}
+	}
+	return false
+}
+
+func getArtistIndex(a []string, exp string, i int) int {
+	if stringHasTitleIndicator(a[0]) {
+		return 1
+	}
+	if stringHasTitleIndicator(a[1]) {
+		return 0
+	}
+
+	re, err := regexp.Compile(exp)
+	if err != nil {
+		return i
+	}
+	if re.MatchString(a[0]) {
+		return 0
+	}
+	if re.MatchString(a[1]) {
+		return 1
+	}
+	if strings.Contains(a[0], strings.TrimSpace(a[1])) {
+		return 1
+	}
+	if strings.Contains(a[1], strings.TrimSpace(a[0])) {
+		return 0
+	}
+	return i
+}
+
+func getTitle(a []string, exp string, i int) string {
+	if len(a) == 0 {
+		return ""
+	}
+	if len(a) == 1 {
+		return a[0]
+	}
+	return a[1-getArtistIndex(a, exp, i)]
+}
+
+func getArtist(a []string, exp string, i int) string {
+	if len(a) == 0 {
+		return ""
+	}
+	if len(a) == 1 {
+		return a[0]
+	}
+	return a[getArtistIndex(a, exp, i)]
+}
+
+// FilterTitle is meant to be run on a querier that has fetched title and artist, without knowing which.
+// It will then try to return only the title to the best of its ability.
+//
+// exp is expected separator regex for artists
+//
+// i is the most common index for title to have (fallback)
+func (q *Querier) FilterTitle(exp string, i int) *Querier {
+	return q.AddComplexFilter(func(old []string) []string {
+		return []string{getTitle(old, exp, 1-i)}
+	})
+}
+
+// FilterArtist is meant to be run on a querier that has fetched title and artist, without knowing which.
+// It will then try to return only the artist to the best of its ability.
+//
+// exp is expected separator regex (FilterArtist will NOT split, you must do that separately after)
+//
+// i is the most common index for artist to have (fallback)
+func (q *Querier) FilterArtist(exp string, i int) *Querier {
+	return q.AddComplexFilter(func(old []string) []string {
+		return []string{getArtist(old, exp, i)}
+	})
+}
+
 // KeepIndex keeps only the element at specific index, or empty string if does not exist. Negative index will get index starting from last index.
 func (q *Querier) KeepIndex(i int) *Querier {
 	return q.AddComplexFilter(func(old []string) []string {
