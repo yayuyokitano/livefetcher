@@ -128,6 +128,38 @@ var ShibuyaGarretFetcher = fetchers.CreateCycloneFetcher(
 	},
 )
 
+var ShibuyaLaDonnaFetcher = fetchers.Simple{
+	BaseURL:              "https://www.la-donna.jp/",
+	ShortYearIterableURL: "https://www.la-donna.jp/schedules/?ym=20%d-%02d",
+	LiveSelector:         "//div[@class='sec01']/div[.//dd[@class='bigTxt'][.!='電話受付' and .!='店舗休業日' and .!='企業様イベントご利用']]",
+	TitleQuerier:         *htmlquerier.Q("//dd[@class='bigTxt']"),
+	ArtistsQuerier:       *htmlquerier.QAll("//dt[.='出演アーティスト']/following-sibling::dd/text()").SplitIgnoreWithin("・", '【', '】'),
+	PriceQuerier:         *htmlquerier.Q("//dt[.='前売り / 当日']/parent::*").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div[@class='monthly']/div[@class='date']"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='monthly']/div[@class='date']/span"),
+		DayQuerier:       *htmlquerier.Q("//div[@class='date']").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//dt[.='OPEN / START']/following-sibling::dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dt[.='OPEN / START']/following-sibling::dd").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-ladonna",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         26,
+		FirstLiveTitle:        "【5/9へ延期】Thank You for All of You !!　〜村瀬由衣2nd Album「幸せのスケッチ」Complete Live〜",
+		FirstLiveArtists:      []string{"村瀬由衣(Vo)", "鈴木雄大(Gt&Cho)", "浜田美樹(Cho)", "安部潤(Key)", "鎌田清(Dr)", "山口克彦(Gt)", "遠山陽介(Ba)", "杉真理"},
+		FirstLivePrice:        "前売り / 当日 6,000円 / 6,500円",
+		FirstLivePriceEnglish: "Reservation / Door 6,000円 / 6,500円",
+		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.la-donna.jp/schedules/?ym=20%d-%02d",
+	},
+}
+
 var ShibuyaOCrestFetcher = fetchers.CreateOFetcher(
 	"https://shibuya-o.com/",
 	"https://shibuya-o.com/crest/schedule/",

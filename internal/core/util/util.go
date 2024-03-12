@@ -204,6 +204,9 @@ var removable = []string{
 	"( GUEST ACT )",
 	"GUEST DJ : ",
 	"DJ：",
+	"スペシャルゲスト：",
+	"GUEST：",
+	"【ゲスト】",
 }
 
 var prefixes = []string{
