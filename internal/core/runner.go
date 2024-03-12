@@ -16,7 +16,7 @@ func RunConnector(connectorID string) (err error) {
 	}
 	fetcher := coreconnectors.Connectors[connectorID]
 	err = fetcher.Fetch()
-	if err != nil {
+	if len(fetcher.Lives) == 0 {
 		fmt.Println(err)
 		return
 	}
