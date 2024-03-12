@@ -163,6 +163,43 @@ var ShibuyaGarretFetcher = fetchers.CreateCycloneFetcher(
 	},
 )
 
+var ShibuyaGeeGeFetcher = fetchers.Simple{
+	BaseURL:                   "http://www.gee-ge.net/",
+	ShortYearIterableURL:      "http://www.gee-ge.net/schedule/20%d/%02d/",
+	LiveSelector:              "//div[contains(@class, 'sche_box')]//img/parent::a",
+	ExpandedLiveSelector:      ".",
+	ExpandedLiveGroupSelector: "//div[@class='box']/div[contains(@class, 'sche_box')]",
+	TitleQuerier:              *htmlquerier.Q("//strong").ReplaceAll("\n", "").Trim().CutWrapper("『", "』").CutWrapper("【", "】").CutWrapper("「", "」"), // lol
+	ArtistsQuerier:            *htmlquerier.Q("//img[contains(@src, 'artist_sche_ttl.gif')]/parent::td/following-sibling::td").SplitIgnoreWithin("[\n、/]", '(', ')').After("◎").After("・"),
+	PriceQuerier:              *htmlquerier.Q("//img[contains(@src, 'sche_adv_ttl.gif')]/parent::td/following-sibling::td").ReplaceAllRegex(`\s+`, " "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//img[contains(@src, 'sche_date_ttl.gif')]/parent::td/following-sibling::td"),
+		MonthQuerier:     *htmlquerier.Q("//img[contains(@src, 'sche_date_ttl.gif')]/parent::td/following-sibling::td").After("/"),
+		DayQuerier:       *htmlquerier.Q("//img[contains(@src, 'sche_date_ttl.gif')]/parent::td/following-sibling::td").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//img[contains(@src, 'sche_detail_ttl.gif')]/parent::td/following-sibling::td"),
+		StartTimeQuerier: *htmlquerier.Q("//img[contains(@src, 'sche_detail_ttl.gif')]/parent::td/following-sibling::td").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-geege",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         32,
+		FirstLiveTitle:        "ウダガワガールズコレクション vol.770",
+		FirstLiveArtists:      []string{"衿衣", "ナカノユウキ", "sanoha", "杏珠", "菜々姫", "鈴木里咲"},
+		FirstLivePrice:        "ADV ¥2800 / DOOR ¥3300 + 1DRINK ¥700",
+		FirstLivePriceEnglish: "ADV ¥2800 / DOOR ¥3300 + 1DRINK ¥700",
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 11, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 12, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.gee-ge.net/detail/2024/03/02/#6131",
+	},
+}
+
 var ShibuyaLaDonnaFetcher = fetchers.Simple{
 	BaseURL:              "https://www.la-donna.jp/",
 	ShortYearIterableURL: "https://www.la-donna.jp/schedules/?ym=20%d-%02d",

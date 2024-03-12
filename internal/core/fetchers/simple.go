@@ -138,6 +138,11 @@ type Simple struct {
 	// 3. href of ExpandedLiveSelector element is navigated to, and all live-context detail queriers executed within that page.
 	ExpandedLiveSelector string
 
+	// In some rare cases ExpandedLiveSelector might lead to an article containing multiple lives.
+	//
+	// ExpandedLiveGroupSelector returns all those individual lives for further use.
+	ExpandedLiveGroupSelector string
+
 	// ShortYearIterableURL is a URL with two %d formatters specifying year and month in that order.
 	//
 	// year and motnh are given without leading zero, if leading zero is needed, provide this yourself using %02d.
@@ -426,10 +431,24 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 		}
 		wg.Wait()
 		for _, liveDetails := range res {
-			lives = append(lives, LiveContext{
-				n:   liveDetails.res,
-				url: liveDetails.url,
-			})
+			if s.ExpandedLiveGroupSelector == "" {
+				lives = append(lives, LiveContext{
+					n:   liveDetails.res,
+					url: liveDetails.url,
+				})
+			} else {
+				var liveNodes []*html.Node
+				liveNodes, err = htmlquery.QueryAll(liveDetails.res, s.ExpandedLiveGroupSelector)
+				if err != nil || len(liveNodes) == 0 {
+					continue
+				}
+				for _, liveNode := range liveNodes {
+					lives = append(lives, LiveContext{
+						n:   liveNode,
+						url: liveDetails.url,
+					})
+				}
+			}
 		}
 	} else if s.LiveSelector != "" {
 		var rawLives []*html.Node
