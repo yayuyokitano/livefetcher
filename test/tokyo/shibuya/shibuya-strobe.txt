@@ -1,0 +1,521 @@
+{
+    "pre_btn": {
+        "year": "2024",
+        "month": "02"
+    },
+    "ne_btn": {
+        "year": "2024",
+        "month": "04"
+    },
+    "schedule": {
+        "year": "2024",
+        "month": "03",
+        "list": {
+            "1": {
+                "w_name": "金",
+                "w": "5",
+                "holiday_class": "",
+                "event": []
+            },
+            "2": {
+                "w_name": "土",
+                "w": "6",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "古川本舗FC限定ライブ　昼公演【re:ROLE】",
+                        "thumbnail": "/img/20240302.png",
+                        "charge": "前売 4500円 / 当日 5500円 (各+1drink order)",
+                        "artist": "古川本舗",
+                        "opentime": "OPEN 13:00 / START 13:30",
+                        "soldout": "1",
+                        "full_house": "0",
+                        "id": "3128",
+                        "status": "2"
+                    },
+                    {
+                        "title": "古川本舗FC限定ライブ　夜公演【re:PLAY】",
+                        "thumbnail": "/img/20240302.png",
+                        "charge": "前売 4500円 / 当日 5500円 (各+1drink order)",
+                        "artist": "古川本舗",
+                        "opentime": "OPEN 18:00 / START 18:30",
+                        "soldout": "1",
+                        "full_house": "0",
+                        "id": "3159",
+                        "status": "2"
+                    }
+                ]
+            },
+            "3": {
+                "w_name": "日",
+                "w": "0",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "SCREEN -vol.11-",
+                        "thumbnail": "/img/20240303.jpeg",
+                        "charge": "0円 + 1drink order",
+                        "artist": "ゼロニウム / archive",
+                        "opentime": "OPEN 17:30 / START 18:00",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3164",
+                        "status": "2"
+                    }
+                ]
+            },
+            "4": {
+                "w_name": "月",
+                "w": "1",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "5": {
+                "w_name": "火",
+                "w": "2",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "6": {
+                "w_name": "水",
+                "w": "3",
+                "holiday_class": "",
+                "event": []
+            },
+            "7": {
+                "w_name": "木",
+                "w": "4",
+                "holiday_class": "",
+                "event": []
+            },
+            "8": {
+                "w_name": "金",
+                "w": "5",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "9": {
+                "w_name": "土",
+                "w": "6",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "mol-74 presents「cohesion room」",
+                        "thumbnail": "/img/20240309.jpeg",
+                        "charge": "4000円 + 1drink order",
+                        "artist": "mol-74",
+                        "opentime": "OPEN 16:00 / START 16:30",
+                        "soldout": "1",
+                        "full_house": "0",
+                        "id": "3144",
+                        "status": "2"
+                    }
+                ]
+            },
+            "10": {
+                "w_name": "日",
+                "w": "0",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "KYOYAMA YOSHUN 30TH BIRTHDAY EVENT【1部】",
+                        "thumbnail": "/img/20240310.jpeg",
+                        "charge": "6000円 + 1drink order",
+                        "artist": "京山陽春",
+                        "opentime": "OPEN 12:00 / START 13:00",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3156",
+                        "status": "2"
+                    },
+                    {
+                        "title": "KYOYAMA YOSHUN 30TH BIRTHDAY EVENT【2部】",
+                        "thumbnail": "/img/20240310.jpeg",
+                        "charge": "6000円 + 1drink order",
+                        "artist": "京山陽春",
+                        "opentime": "OPEN 16:30 / START 17:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3177",
+                        "status": "2"
+                    }
+                ]
+            },
+            "11": {
+                "w_name": "月",
+                "w": "1",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "店休日",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "12": {
+                "w_name": "火",
+                "w": "2",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "13": {
+                "w_name": "水",
+                "w": "3",
+                "holiday_class": "",
+                "event": []
+            },
+            "14": {
+                "w_name": "木",
+                "w": "4",
+                "holiday_class": "",
+                "event": []
+            },
+            "15": {
+                "w_name": "金",
+                "w": "5",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "SCREEN -vol.13-",
+                        "thumbnail": "/img/20240315.jpeg",
+                        "charge": "前売 0円 / 当日 1500円 (各+1drink order)",
+                        "artist": "archive / ゼロニウム",
+                        "opentime": "OPEN 18:00 / START 18:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3170",
+                        "status": "2"
+                    }
+                ]
+            },
+            "16": {
+                "w_name": "土",
+                "w": "6",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "Fresh Farewell 〜The New Chapter of Blooming Girls〜",
+                        "thumbnail": "/img/20240316.jpg",
+                        "charge": "※チケット代の詳細はこちらをクリックください",
+                        "artist": "伊藤美波 / 綾瀬まる / 小日向らら / 高岡奈々葉",
+                        "opentime": "OPEN 17:00 / START 18:00",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3148",
+                        "status": "2"
+                    }
+                ]
+            },
+            "17": {
+                "w_name": "日",
+                "w": "0",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "Scallop All Stars LIVE! Vol.13【昼の部】",
+                        "thumbnail": "/img/20240317.jpg",
+                        "charge": "4000円 (1ドリンク代込)【昼夜通し券】7000円(2ドリンク代込)",
+                        "artist": "【昼夜通し】庄最愛夏(圧ねぇ) / 桜川シュウ / (MC)ちぃたん【昼】MAyb TU'sday / 寺門真吾 / NORIE / Anna calla / 和田勇輝",
+                        "opentime": "OPEN 12:30 / START 13:00",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3149",
+                        "status": "2"
+                    },
+                    {
+                        "title": "Scallop All Stars LIVE! Vol.13【夜の部】",
+                        "thumbnail": "/img/20240317.jpg",
+                        "charge": "4000円 (1ドリンク代込)【昼夜通し券】7000円(2ドリンク代込)",
+                        "artist": "【昼夜通し】庄最愛夏(圧ねぇ) / 桜川シュウ / (MC)ちぃたん 【夜】acco / 浅場佳苗 / だしおさん / ウクレレえいじ / musa",
+                        "opentime": "OPEN 18:00 / START 18:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3178",
+                        "status": "2"
+                    }
+                ]
+            },
+            "18": {
+                "w_name": "月",
+                "w": "1",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "Xris 1st Anniversary Oneman Live",
+                        "thumbnail": "/img/20240318.JPG",
+                        "charge": "前売 3000円 / 当日 3500円 (各+1drink order)",
+                        "artist": "Xris",
+                        "opentime": "OPEN 17:50 / START 18:20",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3186",
+                        "status": "2"
+                    }
+                ]
+            },
+            "19": {
+                "w_name": "火",
+                "w": "2",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "20": {
+                "w_name": "水",
+                "w": "3",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "tonun Acoustic One-Man Show【昼追加公演】",
+                        "thumbnail": "/img/20240320a.jpg",
+                        "charge": "4200円 + 1drink order",
+                        "artist": "tonun",
+                        "opentime": "OPEN 15:00 / START 15:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3087",
+                        "status": "2"
+                    },
+                    {
+                        "title": "tonun Acoustic One-Man Show【夜公演】",
+                        "thumbnail": "/img/20240320a.jpg",
+                        "charge": "4200円 + 1drink order",
+                        "artist": "tonun",
+                        "opentime": "OPEN 18:00 / START 18:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3142",
+                        "status": "2"
+                    }
+                ]
+            },
+            "21": {
+                "w_name": "木",
+                "w": "4",
+                "holiday_class": "",
+                "event": []
+            },
+            "22": {
+                "w_name": "金",
+                "w": "5",
+                "holiday_class": "",
+                "event": []
+            },
+            "23": {
+                "w_name": "土",
+                "w": "6",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "青木瞭 バースデー＆ファンイベント2024【1部】",
+                        "thumbnail": "/img/20240323.JPG",
+                        "charge": "5000円 + 1drink order",
+                        "artist": "青木瞭 ",
+                        "opentime": "OPEN 12:30 / START 13:00",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3163",
+                        "status": "2"
+                    },
+                    {
+                        "title": "青木瞭 バースデー＆ファンイベント2024【2部】",
+                        "thumbnail": "/img/20240323.JPG",
+                        "charge": "5000円 + 1drink order",
+                        "artist": "青木瞭 ",
+                        "opentime": "OPEN 17:00 / START 17:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3168",
+                        "status": "2"
+                    }
+                ]
+            },
+            "24": {
+                "w_name": "日",
+                "w": "0",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "服部奈緒バースデイライヴ「 勝ち犬のハミング 」",
+                        "thumbnail": "/img/20240324.jpeg",
+                        "charge": "3400円 + 1drink order",
+                        "artist": "服部奈緒(バンドセット) gt. カワコウ(from GET BILL MONKEYS) ba. 友重 悠 dr. 伴藤 陸 key. ノロナオキ(from GET BILL MONKEYS)",
+                        "opentime": "OPEN 11:30 / START 12:30",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "3137",
+                        "status": "2"
+                    }
+                ]
+            },
+            "25": {
+                "w_name": "月",
+                "w": "1",
+                "holiday_class": "",
+                "event": []
+            },
+            "26": {
+                "w_name": "火",
+                "w": "2",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "27": {
+                "w_name": "水",
+                "w": "3",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "28": {
+                "w_name": "木",
+                "w": "4",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "スタジオ利用",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "29": {
+                "w_name": "金",
+                "w": "5",
+                "holiday_class": "",
+                "event": []
+            },
+            "30": {
+                "w_name": "土",
+                "w": "6",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "PRIVATE RENTAL",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            },
+            "31": {
+                "w_name": "日",
+                "w": "0",
+                "holiday_class": "",
+                "event": [
+                    {
+                        "title": "イベント",
+                        "thumbnail": "",
+                        "charge": "",
+                        "artist": "",
+                        "opentime": "",
+                        "soldout": "0",
+                        "full_house": "0",
+                        "id": "",
+                        "status": "2"
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -3,6 +3,8 @@ package connectors
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
+	"strconv"
 	"strings"
 	"time"
 
@@ -231,6 +233,163 @@ var ShibuyaOWestFetcher = fetchers.CreateOFetcher(
 		FirstLiveURL:          "https://shibuya-o.com/west/schedule/%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad-10th-anniversary%e3%80%8c%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad%e3%81%a7%e3%81%99%e3%81%8c%e3%81%aa%e3%81%ab%e3%81%8b%e3%80%8d%e3%83%84%e3%82%a2/",
 	},
 )
+
+type shibuyaStrobeListResponse struct {
+	Schedule struct {
+		Year  string `json:"year"`
+		Month string `json:"month"`
+		List  map[string]struct {
+			Event []struct {
+				Artist   string `json:"artist"`
+				Charge   string `json:"charge"`
+				Id       string `json:"id"`
+				OpenTime string `json:"opentime"`
+				Title    string `json:"title"`
+			} `json:"event"`
+		} `json:"list"`
+	} `json:"schedule"`
+}
+
+type shibuyaStrobeFlatElement struct {
+	Year   string
+	Month  string
+	Day    string
+	Time   string
+	Artist string
+	Price  string
+	Id     string
+	Title  string
+}
+
+func appendFlattenedStrobeList(a *[]shibuyaStrobeFlatElement, listResponse shibuyaStrobeListResponse) {
+	keyInts := make([]int, 0)
+	keys := make([]string, 0)
+	for i := range listResponse.Schedule.List {
+		n, err := strconv.Atoi(i)
+		if err != nil {
+			continue
+		}
+		keyInts = append(keyInts, n)
+	}
+	slices.Sort(keyInts)
+	for i := range keyInts {
+		keys = append(keys, strconv.Itoa(i))
+	}
+
+	for _, day := range keys {
+		content := listResponse.Schedule.List[day]
+		for _, event := range content.Event {
+			if event.Id == "" {
+				continue
+			}
+			*a = append(*a, shibuyaStrobeFlatElement{
+				Year:   listResponse.Schedule.Year,
+				Month:  listResponse.Schedule.Month,
+				Day:    day,
+				Time:   event.OpenTime,
+				Artist: event.Artist,
+				Price:  event.Charge,
+				Id:     event.Id,
+				Title:  event.Title,
+			})
+		}
+	}
+}
+
+func getShibuyaStrobeLiveList(testDocument []byte) (list []shibuyaStrobeFlatElement) {
+	list = make([]shibuyaStrobeFlatElement, 0)
+	if testDocument != nil {
+		var res shibuyaStrobeListResponse
+		if err := json.Unmarshal(testDocument, &res); err != nil {
+			return
+		}
+		appendFlattenedStrobeList(&list, res)
+	} else {
+		t := time.Now()
+		year := t.Year() % 100
+		month := int(t.Month())
+		prevLength := -1
+
+		for len(list) != prevLength {
+			prevLength = len(list)
+			var res shibuyaStrobeListResponse
+			if err := util.GetJSON(
+				fmt.Sprintf("https://www.strobe-cafe.com/schedule/get-data-schedule.php?y=20%d&m=%02d", year, month),
+				&res,
+			); err != nil {
+				break
+			}
+			appendFlattenedStrobeList(&list, res)
+
+			month++
+			if month > 12 {
+				month = 1
+				year++
+			}
+		}
+	}
+	return
+}
+
+func createShibuyaStrobeHtml(live shibuyaStrobeFlatElement) string {
+	content := "<body>"
+	content += fmt.Sprintf(`<a href="https://www.strobe-cafe.com/schedule/%s/%s/%s.html"></a>`, live.Year, live.Month, live.Id)
+	content += fmt.Sprintf(`<p id="date">%s/%s/%s</p>`, live.Year, live.Month, live.Day)
+	content += fmt.Sprintf(`<p id="artist">%s</p>`, live.Artist)
+	content += fmt.Sprintf(`<p id="price">%s</p>`, live.Price)
+	content += fmt.Sprintf(`<p id="title">%s</p>`, live.Title)
+	content += fmt.Sprintf(`<p id="time">%s</p>`, live.Time)
+	content += "</body>"
+	return content
+}
+
+var ShibuyaStrobeFetcher = fetchers.Simple{
+	BaseURL: "https://www.strobe-cafe.com/",
+	LiveHTMLFetcher: func(testDocument []byte) (nodes []*html.Node, err error) {
+		nodes = make([]*html.Node, 0)
+		list := getShibuyaStrobeLiveList(testDocument)
+		for _, live := range list {
+			node, err := html.Parse(strings.NewReader(
+				createShibuyaStrobeHtml(live),
+			))
+			if err != nil || node == nil {
+				continue
+			}
+			nodes = append(nodes, node)
+		}
+		return
+	},
+	DetailsLinkSelector: "//a",
+	TitleQuerier:        *htmlquerier.Q("//p[@id='title']"),
+	ArtistsQuerier:      *htmlquerier.Q("//p[@id='artist']").SplitIgnoreWithin("/|(【.*?】)", '(', ')'),
+	PriceQuerier:        *htmlquerier.Q("//p[@id='price']"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@id='date']"),
+		MonthQuerier:     *htmlquerier.Q("//p[@id='date']").After("/"),
+		DayQuerier:       *htmlquerier.Q("//p[@id='date']").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[@id='time']"),
+		StartTimeQuerier: *htmlquerier.Q("//p[@id='time']").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-strobe",
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         16,
+		FirstLiveTitle:        "古川本舗FC限定ライブ　昼公演【re:ROLE】",
+		FirstLiveArtists:      []string{"古川本舗"},
+		FirstLivePrice:        "前売 4500円 / 当日 5500円 (各+1drink order)",
+		FirstLivePriceEnglish: "Reservation 4500円 / Door 5500円 (各+1drink order)",
+		FirstLiveOpenTime:     time.Date(2024, 3, 2, 13, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 3, 2, 13, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.strobe-cafe.com/schedule/2024/03/3128.html",
+	},
+}
 
 type shibuyaTokioTokyoListResponse []struct {
 	Document struct {
