@@ -11,6 +11,7 @@ To run containerized, run `make run`
 See wiki.
 
 The relevant code to connector development is also pretty heavily documented.
+Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into being implemented
 
 ## Release roadmap
 ### Immediate plans
