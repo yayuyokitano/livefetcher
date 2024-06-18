@@ -172,7 +172,7 @@ var ShinsaibashiClapperFetcher = fetchers.Simple{
 		FirstLivePriceEnglish: "Reservation¥5,000-(1 Drink purchase required)　Door¥0-(1 Drink purchase required)",
 		FirstLiveOpenTime:     time.Date(2024, 3, 7, 17, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 7, 18, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://clapper.jp/data/category/2024-03/",
+		FirstLiveURL:          "https://clapper.jp/data/category/20%d-%02d/",
 	},
 }
 
@@ -306,14 +306,14 @@ var ShinsaibashiHillsPanFetcher = fetchers.Simple{
 	VenueID:        "shinsaibashi-hillspan",
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         13,
-		FirstLiveTitle:        "寺尾祭り〜hillsパン工場21周年おめでとう〜",
-		FirstLiveArtists:      []string{"寺尾広", "AKI", "葛原豊", "北川加奈"},
-		FirstLivePrice:        "🔳TICKET:前売り:¥3,500(税込､全自由席､別途1D¥600、当日:¥4,000",
-		FirstLivePriceEnglish: "🔳TICKET:Reservation:¥3,500(Incl. Tax､全自由席､Separately1D¥600、Door:¥4,000",
-		FirstLiveOpenTime:     time.Date(2024, 3, 23, 16, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 3, 23, 17, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "http://livehillspankojyo.com/detail.cgi?code=7aKjFLxI",
+		NumberOfLives:         15,
+		FirstLiveTitle:        "2024 Ueda Marie Major debut, 10 YEAR kinen Live　きらめきとためいき REHEARSAL NIGHT",
+		FirstLiveArtists:      []string{"植田真梨恵", "BAND 車谷啓介(Dr.)", "麻井寛史(Ba.)", "西村広文(Key.)", "渡邊剣太(Gt.)"},
+		FirstLivePrice:        "adv¥5000、*1Dr代¥600",
+		FirstLivePriceEnglish: "adv¥5000、*1Dr代¥600",
+		FirstLiveOpenTime:     time.Date(2024, 6, 14, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 6, 14, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://livehillspankojyo.com/detail.cgi?code=naPZtnvX",
 	},
 }
 
@@ -567,7 +567,7 @@ var ShinsaibashiKnaveFetcher = fetchers.Simple{
 		FirstLivePriceEnglish: "ADV ￥2,500DOOR ￥3,000(+1D）",
 		FirstLiveOpenTime:     time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "http://www.knave.co.jp/schedule/s_2024_03.html",
+		FirstLiveURL:          "http://www.knave.co.jp/schedule/s_20%d_%02d.html",
 	},
 }
 

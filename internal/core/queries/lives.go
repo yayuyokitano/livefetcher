@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"slices"
+	"time"
 
 	"github.com/go-playground/form"
 	"github.com/jackc/pgx/v4"
@@ -12,7 +14,170 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
-func PostLives(ctx context.Context, lives []util.Live) (n int64, err error) {
+func isSameLive(live util.Live, oldLive util.LiveWithID, oldLives []util.LiveWithID) bool {
+	if live.StartTime == oldLive.StartTime {
+		return true
+	}
+	if live.Title == oldLive.Title {
+		closest := live.StartTime.Sub(oldLive.StartTime).Abs()
+		closestIndex := 0
+		for i, l := range oldLives {
+			cur := live.StartTime.Sub(l.StartTime).Abs()
+			if closest < cur {
+				continue
+			}
+			closestIndex = i
+			closest = cur
+		}
+		if oldLives[closestIndex].ID == oldLive.ID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func deleteLives(tx pgx.Tx, ctx context.Context, liveIDs []int64) (deleted int64, err error) {
+	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE id=ANY($1)", liveIDs)
+	if err != nil {
+		return
+	}
+	deleted = cmd.RowsAffected()
+	return
+}
+
+func addLive(tx pgx.Tx, ctx context.Context, live util.Live, artists *map[string]bool, liveartists *[][]interface{}) (added int64, err error) {
+	var liveid int64
+	err = tx.QueryRow(
+		ctx,
+		"INSERT INTO lives (title, opentime, starttime, url, price, price_en, livehouses_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+		live.Title,
+		live.OpenTime,
+		live.StartTime,
+		live.URL,
+		live.Price,
+		live.PriceEnglish,
+		live.Venue.ID,
+	).Scan(&liveid)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	added++
+	liveartistmap := make(map[string]bool)
+	for _, artist := range live.Artists {
+		liveartistmap[artist] = true
+		(*artists)[artist] = true
+	}
+	for k := range liveartistmap {
+		*liveartists = append(*liveartists, []interface{}{liveid, k})
+	}
+	return
+}
+
+func arraysHaveSameItems(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	slices.Sort(a)
+	slices.Sort(b)
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func shouldUpdateLive(live util.Live, oldLive util.LiveWithID) bool {
+	if live.Title != oldLive.Title {
+		return true
+	}
+	if live.OpenTime != oldLive.OpenTime {
+		return true
+	}
+	if live.StartTime != oldLive.StartTime {
+		return true
+	}
+	if !arraysHaveSameItems(live.Artists, oldLive.Artists) {
+		return true
+	}
+	if live.Price != oldLive.Price {
+		return true
+	}
+	if live.PriceEnglish != oldLive.PriceEnglish {
+		return true
+	}
+	if live.URL != oldLive.URL {
+		return true
+	}
+	if live.Venue.ID != oldLive.Venue.ID {
+		return true
+	}
+	return false
+}
+
+func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.LiveWithID, artists *map[string]bool, liveartists *[][]interface{}) (modified int64, err error) {
+	if !shouldUpdateLive(live, oldLive) {
+		return
+	}
+
+	cmd, err := tx.Exec(ctx, "UPDATE lives SET (title, opentime, starttime, url, price, price_en, livehouses_id) = ($1, $2, $3, $4, $5, $6, $7) WHERE id=$8", live.Title, live.OpenTime, live.StartTime, live.URL, live.Price, live.PriceEnglish, live.Venue.ID, oldLive.ID)
+	if err != nil {
+		return
+	}
+	modified = cmd.RowsAffected()
+
+	liveartistmap := make(map[string]bool)
+	for _, artist := range live.Artists {
+		liveartistmap[artist] = true
+		(*artists)[artist] = true
+	}
+	for k := range liveartistmap {
+		*liveartists = append(*liveartists, []interface{}{oldLive.ID, k})
+	}
+	return
+}
+
+func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLives []util.LiveWithID) (artists map[string]bool, liveartists [][]interface{}, added int64, modified int64, deleted int64, err error) {
+	oldLiveFoundIndices := make(map[int]bool)
+	liveartists = make([][]interface{}, 0)
+	artists = make(map[string]bool)
+
+	for _, live := range lives {
+		foundLive := false
+		for oldLiveIndex, oldLive := range oldLives {
+			if !isSameLive(live, oldLive, oldLives) {
+				continue
+			}
+			foundLive = true
+			oldLiveFoundIndices[oldLiveIndex] = true
+			m, err := tryUpdateLive(tx, ctx, live, oldLive, &artists, &liveartists)
+			if err == nil {
+				modified += m
+			}
+			break
+		}
+		if foundLive {
+			continue
+		}
+		a, err := addLive(tx, ctx, live, &artists, &liveartists)
+		if err == nil {
+			added += a
+		}
+	}
+	oldLivesToDelete := make([]int64, 0)
+	for i, oldLive := range oldLives {
+		if !oldLiveFoundIndices[i] {
+			oldLivesToDelete = append(oldLivesToDelete, oldLive.ID)
+		}
+	}
+	deleted, err = deleteLives(tx, ctx, oldLivesToDelete)
+
+	return
+}
+
+func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int64, modified int64, addedArtists int64, err error) {
 
 	tx, err := counters.FetchTransaction()
 	defer counters.RollbackTransaction(tx)
@@ -31,49 +196,44 @@ func PostLives(ctx context.Context, lives []util.Live) (n int64, err error) {
 	}
 	logging.AddLiveHouses(newlivehouses)
 
-	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1)", util.GetUniqueVenueIDs(venues))
+	livehouses := util.GetUniqueVenueIDs(venues)
+	var firstLive, lastLive time.Time
+	for _, live := range lives {
+		if firstLive.IsZero() {
+			firstLive = live.StartTime
+			lastLive = live.StartTime
+			continue
+		}
+		if live.StartTime.Before(firstLive) {
+			firstLive = live.StartTime
+		}
+		if live.StartTime.After(lastLive) {
+			lastLive = live.StartTime
+		}
+	}
+	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1) AND starttime NOT BETWEEN $2 AND $3", util.GetUniqueVenueIDs(venues), firstLive, lastLive)
 	if err != nil {
 		return
 	}
-	n -= cmd.RowsAffected()
+	deleted += cmd.RowsAffected()
 
-	liveartists := make([][]interface{}, 0)
-	artists := make(map[string]bool)
-	// this is slow, but I can't think of a better way to do it while getting the generated ids
-	for _, live := range lives {
-		var liveid int64
-		err = tx.QueryRow(
-			ctx,
-			"INSERT INTO lives (title, opentime, starttime, url, price, price_en, livehouses_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
-			live.Title,
-			live.OpenTime,
-			live.StartTime,
-			live.URL,
-			live.Price,
-			live.PriceEnglish,
-			live.Venue.ID,
-		).Scan(&liveid)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		n++
-		liveartistmap := make(map[string]bool)
-		for _, artist := range live.Artists {
-			liveartistmap[artist] = true
-			artists[artist] = true
-		}
-		for k := range liveartistmap {
-			liveartists = append(liveartists, []interface{}{liveid, k})
-		}
+	oldLives, err := getLiveHouseLives(tx, livehouses)
+	if err != nil {
+		return
 	}
+
+	artists, liveartists, added, modified, d, err := updateAndAddLives(tx, ctx, lives, oldLives)
+	if err != nil {
+		return
+	}
+	deleted += d
 
 	newartists := 0
 	artistSlice := make([]string, 0)
 	for artist := range artists {
 		artistSlice = append(artistSlice, artist)
 	}
-	n, err = PostArtists(ctx, artistSlice)
+	addedArtists, err = PostArtists(ctx, artistSlice)
 	if err != nil {
 		return
 	}
@@ -81,19 +241,32 @@ func PostLives(ctx context.Context, lives []util.Live) (n int64, err error) {
 
 	fmt.Println(liveartists)
 
-	o, err := tx.CopyFrom(
+	_, err = tx.Exec(ctx, "CREATE TEMP TABLE tmp_liveartists (LIKE liveartists INCLUDING DEFAULTS) ON COMMIT DROP")
+	if err != nil {
+		return
+	}
+
+	_, err = tx.CopyFrom(
 		ctx,
-		pgx.Identifier{"liveartists"},
+		pgx.Identifier{"tmp_liveartists"},
 		[]string{"lives_id", "artists_name"},
 		pgx.CopyFromRows(liveartists),
 	)
 	if err != nil {
 		return
 	}
-	n += o
-	logging.AddLives(int(n))
+
+	_, err = tx.Exec(ctx, "INSERT INTO liveartists SELECT * FROM tmp_liveartists ON CONFLICT DO NOTHING")
+	if err != nil {
+		return
+	}
 
 	err = counters.CommitTransaction(tx)
+	if err != nil {
+		return
+	}
+
+	logging.AddLives(int(added - deleted))
 	return
 }
 
@@ -167,5 +340,34 @@ func GetLives(values url.Values) (lives []util.Live, err error) {
 		lives = append(lives, l)
 	}
 	err = counters.CommitTransaction(tx)
+	return
+}
+
+func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.LiveWithID, err error) {
+	queryStr := `WITH queriedlives AS (
+		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
+		FROM lives AS live
+		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
+		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
+		INNER JOIN areas area ON (area.id = livehouse.areas_id)
+		WHERE livehouses_id=ANY($1)
+	)
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	FROM queriedlives
+	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
+	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	ORDER BY starttime`
+	rows, err := tx.Query(context.Background(), queryStr, livehouses)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var l util.LiveWithID
+		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		if err != nil {
+			return
+		}
+		lives = append(lives, l)
+	}
 	return
 }

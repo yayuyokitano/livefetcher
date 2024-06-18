@@ -168,7 +168,7 @@ var ShibuyaGeeGeFetcher = fetchers.Simple{
 	ShortYearIterableURL:      "http://www.gee-ge.net/schedule/20%d/%02d/",
 	LiveSelector:              "//div[contains(@class, 'sche_box')]//img/parent::a",
 	ExpandedLiveSelector:      ".",
-	ExpandedLiveGroupSelector: "//div[@class='box']/div[contains(@class, 'sche_box')]",
+	ExpandedLiveGroupSelector: "//div[@class='box']/div[contains(@class, 'sche_box') and child::table]",
 	TitleQuerier:              *htmlquerier.Q("//strong").ReplaceAll("\n", "").Trim().CutWrapper("『", "』").CutWrapper("【", "】").CutWrapper("「", "」"), // lol
 	ArtistsQuerier:            *htmlquerier.Q("//img[contains(@src, 'artist_sche_ttl.gif')]/parent::td/following-sibling::td").SplitIgnoreWithin("[\n、/]", '(', ')').After("◎").After("・"),
 	PriceQuerier:              *htmlquerier.Q("//img[contains(@src, 'sche_adv_ttl.gif')]/parent::td/following-sibling::td").ReplaceAllRegex(`\s+`, " "),
@@ -189,7 +189,7 @@ var ShibuyaGeeGeFetcher = fetchers.Simple{
 	VenueID:        "shibuya-geege",
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         32,
+		NumberOfLives:         34,
 		FirstLiveTitle:        "ウダガワガールズコレクション vol.770",
 		FirstLiveArtists:      []string{"衿衣", "ナカノユウキ", "sanoha", "杏珠", "菜々姫", "鈴木里咲"},
 		FirstLivePrice:        "ADV ¥2800 / DOOR ¥3300 + 1DRINK ¥700",

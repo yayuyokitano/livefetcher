@@ -8,6 +8,9 @@ default:
 watch:
 	gow -e=go,mod,html,css,toml run ./cmd/livefetcher start
 
+runlocal:
+	go run ./cmd/livefetcher start
+
 migrate:
 	go run ./cmd/livefetcher migrate
 

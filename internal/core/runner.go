@@ -21,12 +21,12 @@ func RunConnector(connectorID string) (err error) {
 		return
 	}
 
-	n, err := queries.PostLives(context.Background(), fetcher.Lives)
+	deleted, added, modified, addedArtists, err := queries.PostLives(context.Background(), fetcher.Lives)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("Inserted", n, "lives")
+	fmt.Printf("Lives: deleted %d, added %d, modified %d, added %d artists\n", deleted, added, modified, addedArtists)
 	return
 }
 
@@ -37,7 +37,7 @@ func RunConnectorTest(connectorID string) (err error) {
 	}
 	fetcher := coreconnectors.Connectors[connectorID]
 	err = fetcher.Fetch()
-	if err != nil {
+	if len(fetcher.Lives) == 0 {
 		fmt.Println(err)
 		return
 	}

@@ -17,6 +17,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/api/endpoints"
 	"github.com/yayuyokitano/livefetcher/internal/api/router"
 	runner "github.com/yayuyokitano/livefetcher/internal/core"
+	coreconnectors "github.com/yayuyokitano/livefetcher/internal/core/connectors"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
@@ -108,18 +109,20 @@ func performMigration(firstTime bool) {
 func startServer() {
 	fs := http.FileServer(http.Dir("./web/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	/*for livehouse := range coreconnectors.Connectors {
+	for livehouse := range coreconnectors.Connectors {
+		fmt.Println("running " + livehouse)
 		err := runner.RunConnector(livehouse)
 		fmt.Println(err)
-	}*/
-	/*err := runner.RunConnector("ShimokitazawaMosaic")
-	fmt.Println(err)
-	err = runner.RunConnector("ShimokitazawaShelter")
-	fmt.Println(err)
-	err = runner.RunConnector("ShinjukuLoft")
-	fmt.Println(err)
-	err = runner.RunConnector("ShinsaibashiBronze")
-	fmt.Println(err)*/
+	}
+	/*
+		err := runner.RunConnector("ShimokitazawaMosaic")
+		fmt.Println(err)
+		err = runner.RunConnector("ShimokitazawaShelter")
+		fmt.Println(err)
+			err = runner.RunConnector("ShinjukuLoft")
+			fmt.Println(err)
+			err = runner.RunConnector("ShinsaibashiBronze")
+			fmt.Println(err)*/
 
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,

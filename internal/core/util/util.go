@@ -369,9 +369,12 @@ func FindTime(s string, prefix string) string {
 		if len(tmp) < 2 {
 			return findNthTime(s, prefixToN(prefix))
 		}
-		str = strings.TrimSpace(tmp[1])[0:5]
+		str = strings.TrimSpace(tmp[1])
 	} else {
-		str = strings.TrimSpace(arr[1])[0:5]
+		str = strings.TrimSpace(arr[1])
+	}
+	if len(str) > 5 {
+		str = str[0:5]
 	}
 
 	re, err := regexp.Compile(`\d{2}:\d{2}`)

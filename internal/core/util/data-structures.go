@@ -13,6 +13,11 @@ type Live struct {
 	URL          string
 }
 
+type LiveWithID struct {
+	ID int64
+	Live
+}
+
 type Area struct {
 	ID         int    `db:"id"`
 	Prefecture string `db:"prefecture"`
