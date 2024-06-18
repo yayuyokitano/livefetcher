@@ -8,6 +8,38 @@ To run containerized, run `make run`
 
 ## Connector development
 
-See wiki once I finish writing it.
+See wiki.
 
 The relevant code to connector development is also pretty heavily documented.
+
+## Release roadmap
+### Immediate plans
+- [ ] add coordinates to live houses (these must be added to every existing live house too, it would be good to get this done before backlog is too large)
+- [ ] create design documents
+- [ ] complete same live recognition for update functionality (currently about 95%+ accurate, but should be very close to 100% as many functions would rely on it)
+
+### Relatively near future
+- [ ] implement proper frontend
+- [ ] pagination of SELECT query
+
+### Search improvements
+- [ ] implement search within distance from point
+- [ ] implement saved searches with notification functionality
+- [ ] add live to calendar (google calendar, maybe more)
+- [ ] bookmark lives
+
+### Artist digest
+- [ ] improve artist recognition to make artist names more uniform (this will likely imply creating two columns for artists - one with any extra info, and one without)
+- [ ] create artist info repo
+- [ ] create github bot to commit changes to artists
+
+### Independent, but necessary
+- [ ] implement 300 live houses in tokyo (primarily shimokitazawa, shibuya, shinjuku)
+- [ ] improve docker containers, improve database resiliency
+
+### If possible
+- [ ] refactor the core router
+- [ ] improve logging (It would probably be good to improve the core router in order to do this)
+
+### Post-release
+- [ ] create recommendation engine based on user data
