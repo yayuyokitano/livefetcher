@@ -3,7 +3,7 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 )

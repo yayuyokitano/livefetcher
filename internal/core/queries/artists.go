@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/gojp/kana"
-	"github.com/jackc/pgconn"
-	"github.com/shogo82148/go-mecab"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
 func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
@@ -22,14 +22,8 @@ func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
 		if err != nil {
 			return
 		}
-		var tagger mecab.MeCab
-		tagger, err = mecab.New(map[string]string{"output-format-type": "yomi"})
-		if err != nil {
-			return
-		}
-		defer tagger.Destroy()
 		var katakana string
-		katakana, err = tagger.ParseToString(artist)
+		katakana, err = util.Mecab(artist)
 		if err != nil {
 			return
 		}

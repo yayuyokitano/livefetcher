@@ -40,6 +40,8 @@ var ShibuyaClubQuattroFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-clubquattro",
+	Longitude:      139.697563,
+	Latitude:       35.661062,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         27,
@@ -95,6 +97,8 @@ var ShibuyaDiveFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-dive",
+	Latitude:       35.653937,
+	Longitude:      139.708562,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         3,
@@ -187,6 +191,8 @@ var ShibuyaGeeGeFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-geege",
+	Latitude:       35.662463,
+	Longitude:      139.698734,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         34,
@@ -200,6 +206,7 @@ var ShibuyaGeeGeFetcher = fetchers.Simple{
 	},
 }
 
+// TODO: this is in harajuku
 var ShibuyaLaDonnaFetcher = fetchers.Simple{
 	BaseURL:              "https://www.la-donna.jp/",
 	ShortYearIterableURL: "https://www.la-donna.jp/schedules/?ym=20%d-%02d",
@@ -219,6 +226,8 @@ var ShibuyaLaDonnaFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-ladonna",
+	Latitude:       35.669163,
+	Longitude:      139.706891,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         26,
@@ -248,6 +257,8 @@ var ShibuyaOCrestFetcher = fetchers.CreateOFetcher(
 		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/crest/schedule/iiiiiiidiom_23-11-1/",
 	},
+	35.658687,
+	139.695562,
 )
 
 var ShibuyaOEastFetcher = fetchers.CreateOFetcher(
@@ -266,6 +277,8 @@ var ShibuyaOEastFetcher = fetchers.CreateOFetcher(
 		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 18, 45, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/east/schedule/the-dead-daisies/",
 	},
+	35.658713,
+	139.695609,
 )
 
 var ShibuyaONestFetcher = fetchers.CreateOFetcher(
@@ -284,6 +297,8 @@ var ShibuyaONestFetcher = fetchers.CreateOFetcher(
 		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/nest/schedule/may-in-film%e4%b8%bb%e5%82%acmayday-%e6%98%9f%e3%81%ae%e9%99%8d%e3%82%8b%e3%83%8d%e3%82%b9%e3%83%88%e3%81%a7-day1/",
 	},
+	35.658563,
+	139.695313,
 )
 
 var ShibuyaOWestFetcher = fetchers.CreateOFetcher(
@@ -302,6 +317,8 @@ var ShibuyaOWestFetcher = fetchers.CreateOFetcher(
 		FirstLiveStartTime:    time.Date(util.GetRelevantYear(11), 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-o.com/west/schedule/%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad-10th-anniversary%e3%80%8c%e6%84%9f%e8%a6%9a%e3%83%94%e3%82%a8%e3%83%ad%e3%81%a7%e3%81%99%e3%81%8c%e3%81%aa%e3%81%ab%e3%81%8b%e3%80%8d%e3%83%84%e3%82%a2/",
 	},
+	35.658488,
+	139.695297,
 )
 
 type shibuyaStrobeListResponse struct {
@@ -413,6 +430,7 @@ func createShibuyaStrobeHtml(live shibuyaStrobeFlatElement) string {
 	return content
 }
 
+// TODO: this is in harajuku
 var ShibuyaStrobeFetcher = fetchers.Simple{
 	BaseURL: "https://www.strobe-cafe.com/",
 	LiveHTMLFetcher: func(testDocument []byte) (nodes []*html.Node, err error) {
@@ -448,6 +466,8 @@ var ShibuyaStrobeFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-strobe",
+	Latitude:       35.671563,
+	Longitude:      139.704437,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         16,
@@ -571,6 +591,8 @@ var ShibuyaTokioTokyoFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-tokiotokyo",
+	Latitude:       35.662562,
+	Longitude:      139.698937,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         17,
@@ -605,6 +627,8 @@ var ShibuyaVeatsFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shibuya",
 	VenueID:        "shibuya-veats",
+	Latitude:       35.660613,
+	Longitude:      139.697641,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         23,
@@ -689,6 +713,8 @@ var ShimokitazawaArtistFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-artist",
+	Latitude:       35.663562,
+	Longitude:      139.668609,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         17,
@@ -741,6 +767,8 @@ var ShimokitazawaChikamatsuFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-chikamatsu",
+	Latitude:       35.656813,
+	Longitude:      139.667562,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         26,
@@ -793,6 +821,8 @@ var ShimokitazawaClub251Fetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-club251",
+	Latitude:       35.658313,
+	Longitude:      139.667312,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         28,
@@ -829,6 +859,8 @@ var Shimokitazawa440Fetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-440",
+	Latitude:       35.658313,
+	Longitude:      139.667391,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         29,
@@ -865,6 +897,8 @@ var ShimokitazawaClubQueFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-clubque",
+	Latitude:       35.660938,
+	Longitude:      139.668813,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         29,
@@ -916,6 +950,8 @@ var ShimokitazawaDyCubeFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-dycube",
+	Latitude:       35.662037,
+	Longitude:      139.666609,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         34,
@@ -950,6 +986,8 @@ var ShimokitazawaEraFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-era",
+	Latitude:       35.663313,
+	Longitude:      139.668313,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         38,
@@ -979,6 +1017,8 @@ var ShimokitazawaFlowersLoftFetcher = fetchers.CreateLoftFetcher(
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/flowersloft/267929",
 	},
+	35.662188,
+	139.667937,
 )
 
 var ShimokitazawaLagunaFetcher = fetchers.CreateDaisyBarFetcher(
@@ -1019,6 +1059,8 @@ var ShimokitazawaLiveHausFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-livehaus",
+	Latitude:       35.659562,
+	Longitude:      139.667562,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         19,
@@ -1054,6 +1096,8 @@ var ShimokitazawaLiveHolicFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-liveholic",
+	Latitude:       35.661412,
+	Longitude:      139.669078,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         52,
@@ -1090,6 +1134,8 @@ var ShimokitazawaMonaRecordsFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-monarecords",
+	Latitude:       35.660463,
+	Longitude:      139.667516,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         30,
@@ -1125,6 +1171,8 @@ var ShimokitazawaMosaicFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-mosaic",
+	Latitude:       35.659688,
+	Longitude:      139.668563,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         31,
@@ -1177,6 +1225,8 @@ var ShimokitazawaRegFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-reg",
+	Latitude:       35.658187,
+	Longitude:      139.667937,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         27,
@@ -1210,6 +1260,8 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-shangrila",
+	Latitude:       35.660488,
+	Longitude:      139.668516,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         5,
@@ -1239,6 +1291,8 @@ var ShimokitazawaShelterFetcher = fetchers.CreateLoftFetcher(
 		FirstLiveStartTime:    time.Date(2023, 6, 1, 19, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/shelter/247893",
 	},
+	35.661488,
+	139.669453,
 )
 
 var ShimokitazawaSpreadFetcher = fetchers.Simple{
@@ -1263,6 +1317,8 @@ var ShimokitazawaSpreadFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-spread",
+	Latitude:       35.660838,
+	Longitude:      139.667734,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         99,
@@ -1316,6 +1372,8 @@ var ShimokitazawaWaverFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shimokitazawa",
 	VenueID:        "shimokitazawa-waver",
+	Latitude:       35.660187,
+	Longitude:      139.667937,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         49,
@@ -1357,6 +1415,8 @@ var ShindaitaFeverFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "setagaya",
 	VenueID:        "shindaita-fever",
+	Latitude:       35.662813,
+	Longitude:      139.660062,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         32,
@@ -1392,6 +1452,8 @@ var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 		FirstLiveStartTime:    time.Date(2023, 6, 1, 19, 10, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/loft/252531",
 	},
+	35.695538,
+	139.702578,
 )
 
 var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
@@ -1410,4 +1472,6 @@ var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://zirco-tokyo.jp/schedule/detail/31777",
 	},
+	35.693763,
+	139.703859,
 )

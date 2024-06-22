@@ -11,7 +11,7 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "github.com/jackc/pgx/v4/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	migrate "github.com/rubenv/sql-migrate"
 	"github.com/yayuyokitano/livefetcher/internal/api/endpoints"
@@ -36,7 +36,7 @@ func main() {
 	switch os.Args[len(os.Args)-1] {
 	case "migrate":
 		fmt.Println("Performing migration...")
-		performMigration(true)
+		performMigration()
 		fmt.Println("Migration complete!")
 		return
 	case "test":
@@ -65,7 +65,7 @@ func main() {
 	startServer()
 }
 
-func performMigration(firstTime bool) {
+func performMigration() {
 	migrations := &migrate.FileMigrationSource{
 		Dir: "./migrations",
 	}

@@ -35,6 +35,8 @@ func CreateWWWFetcher(
 		PrefectureName: "tokyo",
 		AreaName:       "shibuya",
 		VenueID:        venue,
+		Latitude:       35.661537,
+		Longitude:      139.698734,
 
 		TestInfo: testInfo,
 	}
@@ -47,6 +49,8 @@ func CreateOFetcher(
 	area string,
 	venue string,
 	testInfo TestInfo,
+	latitude float64,
+	longitude float64,
 ) Simple {
 	return Simple{
 		BaseURL:              baseURL,
@@ -71,6 +75,8 @@ func CreateOFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
+		Latitude:       latitude,
+		Longitude:      longitude,
 
 		TestInfo: testInfo,
 	}
@@ -104,6 +110,8 @@ func CreateEggmanFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
+		Latitude:       35.664363,
+		Longitude:      139.699203,
 
 		TestInfo: testInfo,
 	}
@@ -139,6 +147,8 @@ func CreateToosFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
+		Latitude:       35.656838,
+		Longitude:      139.667547,
 
 		TestInfo: testInfo,
 	}
@@ -174,6 +184,8 @@ func CreateChikamichiFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
+		Latitude:       35.664563,
+		Longitude:      139.666938,
 
 		TestInfo: testInfo,
 	}
@@ -208,6 +220,8 @@ func CreateDaisyBarFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
+		Latitude:       35.659562,
+		Longitude:      139.668063,
 
 		TestInfo: testInfo,
 	}
@@ -221,6 +235,8 @@ func CreateBassOnTopFetcher(
 	area string,
 	venueID string,
 	testInfo TestInfo,
+	latitude float64,
+	longitude float64,
 ) Simple {
 	return Simple{
 		BaseURL:              baseURL,
@@ -245,6 +261,8 @@ func CreateBassOnTopFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venueID,
+		Latitude:       latitude,
+		Longitude:      longitude,
 
 		TestInfo: testInfo,
 	}
@@ -279,6 +297,8 @@ func CreateCycloneFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venueID,
+		Longitude:      139.698562,
+		Latitude:       35.661563,
 
 		TestInfo: testInfo,
 	}
@@ -291,6 +311,8 @@ func CreateLoftFetcher(
 	area string,
 	venue string,
 	testInfo TestInfo,
+	latitude float64,
+	longitude float64,
 ) Simple {
 	return Simple{
 		BaseURL:              baseUrl,
@@ -313,6 +335,9 @@ func CreateLoftFetcher(
 		PrefectureName: prefecture,
 		AreaName:       area,
 		VenueID:        venue,
-		TestInfo:       testInfo,
+		Latitude:       latitude,
+		Longitude:      longitude,
+
+		TestInfo: testInfo,
 	}
 }

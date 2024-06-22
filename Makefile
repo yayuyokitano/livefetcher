@@ -11,8 +11,12 @@ watch:
 runlocal:
 	go run ./cmd/livefetcher start
 
+migrate-on-docker:
+	DOCKERFILE=Dockerfile-migrate docker-compose up --build --force-recreate
+
 migrate:
-	go run ./cmd/livefetcher migrate
+	set -e
+	CONTAINERIZED=true ./livefetcher migrate
 
 runtest:
 	go test -v ./... -timeout 120s
@@ -23,8 +27,11 @@ testconnector:
 runconnector:
 	CONNECTOR_ID=$(c) go run ./cmd/livefetcher test
 
+run-on-docker:
+	DOCKERFILE=Dockerfile docker-compose up --build --force-recreate
+
 run:
 	set -e
-	CONTAINERIZED=true ./livefetcher migrate
+	# CONTAINERIZED=true ./livefetcher migrate
 	# TESTING=true CONTAINERIZED=true go test -v ./... -timeout 120s
 	TESTING=false CONTAINERIZED=true ./livefetcher start

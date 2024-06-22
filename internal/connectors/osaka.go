@@ -42,6 +42,8 @@ var ShinsaibashiAnimaFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-anima",
+	Latitude:       34.671188,
+	Longitude:      135.498438,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         36,
@@ -71,6 +73,8 @@ var ShinsaibashiBeyondFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://beyond-osaka.jp/schedule/detail/29388",
 	},
+	34.671937,
+	135.497563,
 )
 
 var ShinsaibashiBigcatFetcher = fetchers.Simple{
@@ -93,6 +97,8 @@ var ShinsaibashiBigcatFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-bigcat",
+	Latitude:       34.672337,
+	Longitude:      135.498859,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         23,
@@ -128,6 +134,8 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-bronze",
+	Latitude:       34.671313,
+	Longitude:      135.498078,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         27,
@@ -163,6 +171,8 @@ var ShinsaibashiClapperFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-clapper",
+	Latitude:       34.674638,
+	Longitude:      135.503422,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         23,
@@ -192,6 +202,8 @@ var ShinsaibashiClubVijonFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://vijon.jp/schedule/detail/33505",
 	},
+	34.673838,
+	135.493859,
 )
 
 var ShinsaibashiConpassFetcher = fetchers.Simple{
@@ -217,6 +229,8 @@ var ShinsaibashiConpassFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-conpass",
+	Latitude:       34.674688,
+	Longitude:      135.503859,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         16,
@@ -246,6 +260,8 @@ var ShinsaibashiDropFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 17, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://clubdrop.jp/schedule/detail/32308",
 	},
+	34.671937,
+	135.497563,
 )
 
 var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
@@ -270,6 +286,8 @@ var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-fanjtwice",
+	Latitude:       34.671662,
+	Longitude:      135.497672,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         12,
@@ -304,6 +322,8 @@ var ShinsaibashiHillsPanFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-hillspan",
+	Latitude:       34.673238,
+	Longitude:      135.496141,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         15,
@@ -339,6 +359,8 @@ var ShinsaibashiHokageFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-hokage",
+	Latitude:       34.671063,
+	Longitude:      135.499188,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         24,
@@ -373,6 +395,8 @@ var ShinsaibashiJanusFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-janus",
+	Latitude:       34.671688,
+	Longitude:      135.505063,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         28,
@@ -432,6 +456,8 @@ var ShinsaibashiKanonFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-kanon",
+	Latitude:       34.671937,
+	Longitude:      135.496688,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         11,
@@ -466,6 +492,8 @@ var ShinsaibashiKingCobraFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-kingcobra",
+	Latitude:       34.671712,
+	Longitude:      135.497672,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         10,
@@ -558,6 +586,8 @@ var ShinsaibashiKnaveFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-knave",
+	Latitude:       34.672562,
+	Longitude:      135.489188,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         36,
@@ -594,6 +624,8 @@ var ShinsaibashiKurageFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-kurage",
+	Latitude:       34.674088,
+	Longitude:      135.504297,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         10,
@@ -623,6 +655,8 @@ var ShinsaibashiLoftPlusOneWestFetcher = fetchers.CreateLoftFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 2, 12, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/west/277016",
 	},
+	34.670088,
+	135.505141,
 )
 
 var ShinsaibashiMuseFetcher = fetchers.Simple{
@@ -646,6 +680,8 @@ var ShinsaibashiMuseFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-muse",
+	Latitude:       34.672263,
+	Longitude:      135.502109,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         28,
@@ -680,6 +716,8 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-pangea",
+	Latitude:       34.671863,
+	Longitude:      135.498922,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         69,
@@ -716,6 +754,8 @@ var ShinsaibashiSocoreFactoryFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-socorefactory",
+	Latitude:       34.672663,
+	Longitude:      135.491047,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         25,
@@ -730,7 +770,7 @@ var ShinsaibashiSocoreFactoryFetcher = fetchers.Simple{
 }
 
 var ShinsaibashiSomaFetcher = fetchers.Simple{
-	BaseURL:              "https://bigcat-live.com/",
+	BaseURL:              "http://www.will-music.net/",
 	ShortYearIterableURL: "http://www.will-music.net/soma/liveschedule/date/20%d/%02d/",
 	LiveSelector:         "//div[@class='archive_wrap wow fadeInUp'][not(contains(.//span[@style='font-size: 20px;'], 'RENTAL'))]",
 	TitleQuerier:         *htmlquerier.QAll("//span[@style='font-size: 20px;']").Join(" "),
@@ -770,6 +810,8 @@ var ShinsaibashiSomaFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-soma",
+	Latitude:       34.671163,
+	Longitude:      135.505578,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         18,
@@ -806,6 +848,8 @@ var ShinsaibashiQupeFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-qupe",
+	Latitude:       34.671312,
+	Longitude:      135.495938,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         2,
@@ -844,6 +888,8 @@ var ShinsaibashiUtausakanaFetcher = fetchers.Simple{
 	PrefectureName: "osaka",
 	AreaName:       "shinsaibashi",
 	VenueID:        "shinsaibashi-utausakana",
+	Latitude:       34.671188,
+	Longitude:      135.503188,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         37,
@@ -873,4 +919,6 @@ var ShinsaibashiVaronFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://osaka-varon.jp/schedule/detail/31089",
 	},
+	34.675388,
+	135.499734,
 )

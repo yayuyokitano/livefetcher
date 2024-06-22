@@ -3,8 +3,8 @@ package queries
 import (
 	"context"
 
-	"github.com/jackc/pgconn"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func PushAliases(ctx context.Context, tx pgx.Tx, artist string, aliases []string) (n int64, err error) {

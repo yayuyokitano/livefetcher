@@ -1,6 +1,8 @@
 package util
 
-import "time"
+import (
+	"time"
+)
 
 type Live struct {
 	Title        string
@@ -25,8 +27,10 @@ type Area struct {
 }
 
 type LiveHouse struct {
-	ID          string `db:"id"`
-	Url         string `db:"url"`
-	Description string `db:"description"`
-	Area        Area   `db:"areas_id"`
+	ID          string  `db:"id"`
+	Url         string  `db:"url"`
+	Description string  `db:"description"`
+	Area        Area    `db:"areas_id"`
+	Longitude   float64 `db:"longitude"`
+	Latitude    float64 `db:"latitude"`
 }

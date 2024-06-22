@@ -310,7 +310,32 @@ func (s *Simple) testNotEmpty(n *html.Node, path string) (err error) {
 	}
 
 	if l[0].Venue.ID != s.VenueID {
-		err = fmt.Errorf("benueID is wrong, expected %s, got %s", s.VenueID, l[0].Venue.ID)
+		err = fmt.Errorf("venueID is wrong, expected %s, got %s", s.VenueID, l[0].Venue.ID)
+		return
+	}
+
+	if s.VenueID == "" {
+		err = errors.New("no VenueID supplied")
+		return
+	}
+
+	if s.AreaName == "" {
+		err = errors.New("no AreaName supplied")
+		return
+	}
+
+	if s.PrefectureName == "" {
+		err = errors.New("no PrefectureName supplied")
+		return
+	}
+
+	if s.Latitude == 0 {
+		err = errors.New("no latitude supplied")
+		return
+	}
+
+	if s.Longitude == 0 {
+		err = errors.New("no longitude supplied")
 		return
 	}
 

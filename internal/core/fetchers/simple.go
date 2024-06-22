@@ -216,6 +216,12 @@ type Simple struct {
 	// A venue renaming is in itself not reason to change VenueID, only change locales files in this case.
 	VenueID string
 
+	// Longitude is the east/west longitude coordinate of livehouse, -180/180
+	Longitude float64
+
+	// Latitude is the north/south latitude coordinate of livehouse, -90/90
+	Latitude float64
+
 	// TestInfo is a struct specifying expected values for some tests for the connector.
 	// See TestInfo documentation for details.
 	TestInfo TestInfo
@@ -640,6 +646,8 @@ func (s *Simple) fetchDetails(live *html.Node, overviewURL *url.URL, year string
 				Prefecture: s.PrefectureName,
 				Area:       s.AreaName,
 			},
+			Latitude:  s.Latitude,
+			Longitude: s.Longitude,
 		},
 		URL: detailsURL,
 	}

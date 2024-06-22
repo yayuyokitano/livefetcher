@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var Pool *pgxpool.Pool
@@ -26,7 +26,8 @@ func Start() (err error) {
 
 	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?pool_max_conns=100",
 		os.Getenv("POSTGRES_USER"), url.QueryEscape(os.Getenv("POSTGRES_PASSWORD")), domain, os.Getenv("POSTGRES_DB"))
-	Pool, err = pgxpool.Connect(context.Background(), connectionString)
+
+	Pool, err = pgxpool.New(context.Background(), connectionString)
 	if err != nil {
 		return
 	}

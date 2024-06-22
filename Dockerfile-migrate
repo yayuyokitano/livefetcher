@@ -10,4 +10,4 @@ COPY . .
 RUN go mod download
 RUN go build ./cmd/livefetcher
 
-CMD ["make", "run"]
+CMD ["make", "migrate"]
