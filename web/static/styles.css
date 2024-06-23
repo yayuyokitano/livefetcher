@@ -20,14 +20,18 @@ body {
 }
 
 .nav-search-wrapper button {
-	background-color: var(--always-dark);
+	background-color: var(--always-light);
 	border: none;
-	padding: 0 1rem;
+	padding: 0 0.5rem;
 	border-radius: 0 0.5rem 0.5rem 0;
+	cursor: pointer;
 }
 
 .nav-search-wrapper svg {
-	fill: var(--always-light);
+	fill: var(--brand);
+	width: 28px;
+	height: 28px;
+
 }
 
 .nav-search-wrapper {
