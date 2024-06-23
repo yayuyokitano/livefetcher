@@ -2,6 +2,7 @@
 artists = "Artists"
 results = "Results"
 searchfilters = "Search Filters"
+searchplaceholder = "Search by Artist"
 
 [label]
 artist = "Participating Artist"

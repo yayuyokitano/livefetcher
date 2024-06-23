@@ -2,6 +2,9 @@ html {
 	--text: #222;
 	--bg: #fff;
 	--bg2: #fff2f7;
+	--brand: #EF6C00;
+	--always-light: #fff;
+	--always-dark: #222;
 	--neuomorphic: 5px 5px 20px #bbb,-5px -5px 20px #fff9f9;
 	--accent: #ffd9e5;
 	--accent2: #ffafcc;

@@ -14,6 +14,9 @@ runlocal:
 migrate-on-docker:
 	DOCKERFILE=Dockerfile-migrate docker-compose up --build --force-recreate
 
+migrate-local:
+	go run ./cmd/livefetcher/main.go migrate
+
 migrate:
 	set -e
 	CONTAINERIZED=true ./livefetcher migrate

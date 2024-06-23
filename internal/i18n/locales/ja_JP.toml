@@ -2,6 +2,7 @@
 artists = "アーティスト"
 results = "検索結果"
 searchfilters = "絞り込み"
+searchplaceholder = "アーティストで検索"
 
 [label]
 artist = "参加アーティスト"
