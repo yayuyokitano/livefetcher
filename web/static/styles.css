@@ -39,6 +39,27 @@ body {
 	padding: 0.15rem;
 }
 
+.nav-button {
+	color: var(--always-light);
+	background: none;
+	border: none;
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	padding: 0 1rem;
+	cursor: pointer;
+}
+
+.nav-button svg {
+	fill: var(--always-light);
+}
+
+.nav-button svg,
+.nav-button img {
+	height: 2.5rem;
+	width: 2.5rem;
+}
+
 .desktop-nav .nav-search {
 	font-size: 1.5rem;
 	padding: 0 0.5rem;

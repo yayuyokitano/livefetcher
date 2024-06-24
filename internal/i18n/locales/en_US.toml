@@ -3,6 +3,8 @@ artists = "Artists"
 results = "Results"
 searchfilters = "Search Filters"
 searchplaceholder = "Search by Artist"
+search-show-map = "Show Map"
+search-by-area = "Search by Area"
 
 [label]
 artist = "Participating Artist"

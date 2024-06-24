@@ -3,6 +3,8 @@ artists = "アーティスト"
 results = "検索結果"
 searchfilters = "絞り込み"
 searchplaceholder = "アーティストで検索"
+search-show-map = "地図を表示"
+search-by-area = "エリアで検索"
 
 [label]
 artist = "参加アーティスト"
