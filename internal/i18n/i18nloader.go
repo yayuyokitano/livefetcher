@@ -129,7 +129,7 @@ func GetMainLanguage(w io.Writer, r *http.Request) string {
 	return tag.String()
 }
 
-func GetLocalizer(w io.Writer, r *http.Request) SimplifiedLocalizer {
+func GetLocalizer(r *http.Request) SimplifiedLocalizer {
 	lang := r.FormValue("lang")
 	accept := r.Header.Get("Accept-Language")
 	return SimplifiedLocalizer{i18n.NewLocalizer(bundle, lang, accept)}

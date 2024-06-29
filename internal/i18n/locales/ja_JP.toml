@@ -5,6 +5,8 @@ searchfilters = "絞り込み"
 searchplaceholder = "アーティストで検索"
 search-show-map = "地図を表示"
 search-by-area = "エリアで検索"
+main-title = "LiveRadar"
+search-artist-title = "{{.Artist}}のライブ | LiveRadar"
 
 [label]
 artist = "参加アーティスト"

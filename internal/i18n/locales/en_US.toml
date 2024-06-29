@@ -5,6 +5,8 @@ searchfilters = "Search Filters"
 searchplaceholder = "Search by Artist"
 search-show-map = "Show Map"
 search-by-area = "Search by Area"
+main-title = "LiveRadar"
+search-artist-title = "Find concerts for {{.Artist}} | LiveRadar"
 
 [label]
 artist = "Participating Artist"

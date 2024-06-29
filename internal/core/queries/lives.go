@@ -3,11 +3,9 @@ package queries
 import (
 	"context"
 	"fmt"
-	"net/url"
 	"slices"
 	"time"
 
-	"github.com/go-playground/form"
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
@@ -275,7 +273,7 @@ type LiveQuery struct {
 	Artist string
 }
 
-func GetLives(values url.Values) (lives []util.Live, err error) {
+func GetLives(query LiveQuery) (lives []util.Live, err error) {
 	tx, err := counters.FetchTransaction()
 	defer counters.RollbackTransaction(tx)
 	if err != nil {
@@ -291,13 +289,6 @@ func GetLives(values url.Values) (lives []util.Live, err error) {
 		INNER JOIN artistaliases alias ON (alias.artists_name = liveartists.artists_name)
 		WHERE starttime > NOW()`
 	args := []any{}
-
-	decoder := form.NewDecoder()
-	var query LiveQuery
-	err = decoder.Decode(&query, values)
-	if err != nil {
-		return
-	}
 
 	index := 0
 	incIndex := func() int {

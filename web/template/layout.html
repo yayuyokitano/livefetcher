@@ -26,20 +26,20 @@
 <body>
 	<nav class="desktop-nav">
 		<img class="nav-logo" src="/static/icons/logo/livefetcher_text_white.svg"></svg>
-		<div class="nav-search-wrapper">
-			<input class="nav-search" type="text" placeholder="{{T "general.searchplaceholder"}}">
+		<form class="nav-search-wrapper" action="/search">
+			<input class="nav-search" name="Artist" type="text" placeholder="{{T "general.searchplaceholder"}}">
 			<button type="submit">
 				{{template "searchIcon"}}
 			</button>
-		</div>
-		<button class="nav-button">
+		</form>
+		<a class="nav-button" href="/search/map">
 			{{template "mapIcon"}}
 			<span>{{T "general.search-show-map"}}</span>
-		</button>
-		<button class="nav-button">
+		</a>
+		<a class="nav-button" href="/search/area">
 			<img src="/static/icons/japan_white.svg" />
 			<span>{{T "general.search-by-area"}}</span>
-		</button>
+		</a>
 		
 	</nav>
 	{{template "body" .}}

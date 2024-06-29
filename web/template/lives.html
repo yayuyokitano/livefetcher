@@ -1,4 +1,6 @@
-{{define "lives"}}
+{{define "title"}}{{SearchTitle}}{{end}}
+
+{{define "body"}}
 <h2>{{T "general.results"}}</h2>
 <ul class="live-list non-bullet-list">
   {{range $live := .}}

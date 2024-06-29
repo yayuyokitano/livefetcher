@@ -126,6 +126,9 @@ func startServer() {
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})
+	router.Handle("/search", router.Methods{
+		GET: endpoints.GetLives,
+	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,
 	})
@@ -151,7 +154,7 @@ func serveTemplate(w io.Writer, r *http.Request) *logging.StatusError {
 	}
 
 	tmpl, err := template.New("layout").Funcs(template.FuncMap{
-		"T":    i18nloader.GetLocalizer(w, r).Localize,
+		"T":    i18nloader.GetLocalizer(r).Localize,
 		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
 	}).ParseFiles(lp, fp)
 	if err != nil {
