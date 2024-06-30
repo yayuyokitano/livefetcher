@@ -7,6 +7,8 @@ search-show-map = "Show Map"
 search-by-area = "Search by Area"
 main-title = "LiveRadar"
 search-artist-title = "Find concerts for {{.Artist}} | LiveRadar"
+main-header = "Search results"
+search-artist-header = "Search results for \"{{.Artist}}\""
 
 [label]
 artist = "Participating Artist"

@@ -9,6 +9,12 @@ body {
 	margin: 0;
 }
 
+h2 {
+	text-align: center;
+	font-size: 2rem;
+	margin: 1rem 0;
+}
+
 #desktop-nav {
 	background-color: var(--brand);
 	padding: 0.5rem;
@@ -88,25 +94,40 @@ body {
 }
 
 .live-list {
-	border-radius: 1rem;
-	border: 1px solid var(--text);
-	overflow: hidden;
+	width: 90%;
+	max-width: 2000px;
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	margin: 0 auto;
 }
 
 .live-entry {
+	display: flex;
+	flex-direction: column;
 	padding: 1rem;
+	border-radius: 1rem;
+	border: 1px solid var(--text);
 }
 
-.live-entry:not(:last-child) {
-	border-bottom: 1px solid var(--text);
-}
-
-.live-entry:hover {
-	background-color: var(--bg2);
+.live-entry p {
+	margin: 0.1rem 0;
 }
 
 .live-entry h3 {
 	margin: 0;
+}
+
+.live-artist-list {
+	margin-bottom: 1rem;
+}
+
+.live-details {
+	margin-top: auto;
+}
+
+.live-details .live-livehouse {
+	margin-top: 1rem;
 }
 
 .location-wrapper {
@@ -139,7 +160,23 @@ body {
 	flex-grow: 1;
 }
 
+@media only screen and (width < 2000px) {
+	.live-list {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
+}
+
+@media only screen and (width < 1400px) {
+	.live-list {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
 @media only screen and (width < 1000px) {
+	.live-list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
 	#desktop-nav {
 		display: none;
 	}
@@ -180,6 +217,10 @@ body {
 }
 
 @media only screen and (width < 600px) {
+	.live-list {
+		grid-template-columns: repeat(1, minmax(0, 1fr));
+	}
+
 	.logo-wide {
 		display: none;
 	}

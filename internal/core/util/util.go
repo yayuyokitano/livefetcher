@@ -110,7 +110,9 @@ func GetYearMonthDay(ymd []rune, sep1 rune, sep2 rune) (year string, month strin
 var bannedArtists = map[string]bool{
 	"":                true,
 	"…and more!!!":    true,
-	"and more...":     true,
+	"and more…":       true,
+	"and more・・・":     true,
+	"and more":        true,
 	"w/":              true,
 	"live:":           true,
 	"【guest band】":    true,
@@ -190,6 +192,7 @@ var bannedSubstrings = []string{
 	"food:",
 	"【food】",
 	"出演者",
+	"and more.",
 }
 
 var bannedRegexes = []string{

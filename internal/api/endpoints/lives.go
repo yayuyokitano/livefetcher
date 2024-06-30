@@ -13,11 +13,11 @@ import (
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
-func searchTitle(query queries.LiveQuery, r *http.Request) string {
+func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
 	if query.Artist != "" {
-		return i18nloader.GetLocalizer(r).Localize("general.search-artist-title", "Artist", query.Artist)
+		return i18nloader.GetLocalizer(r).Localize("general.search-artist-"+suffix, "Artist", query.Artist)
 	}
-	return i18nloader.GetLocalizer(r).Localize("general.main-title")
+	return i18nloader.GetLocalizer(r).Localize("general.main-" + suffix)
 }
 
 func GetLives(w io.Writer, r *http.Request) *logging.StatusError {
@@ -47,7 +47,10 @@ func GetLives(w io.Writer, r *http.Request) *logging.StatusError {
 		},
 		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
 		"SearchTitle": func() string {
-			return searchTitle(query, r)
+			return searchTitle(query, r, "title")
+		},
+		"SearchHeader": func() string {
+			return searchTitle(query, r, "header")
 		},
 	}).ParseFiles(lp, fp)
 	if err != nil {

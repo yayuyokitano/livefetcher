@@ -7,6 +7,8 @@ search-show-map = "地図を表示"
 search-by-area = "エリアで検索"
 main-title = "LiveRadar"
 search-artist-title = "{{.Artist}}のライブ | LiveRadar"
+main-header = "ライブサーチ結果"
+search-artist-header = "「{{.Artist}}」のライブサーチ結果"
 
 [label]
 artist = "参加アーティスト"
