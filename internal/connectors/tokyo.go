@@ -914,7 +914,7 @@ var ShimokitazawaClubQueFetcher = fetchers.Simple{
 
 var ShimokitazawaDaisyBarFetcher = fetchers.CreateDaisyBarFetcher(
 	"https://daisybar.jp/",
-	"https://daisybar.jp/events/event/",
+	"https://daisybar.jp/events/event/on/20%d/%02d/",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-daisybar",
@@ -927,7 +927,7 @@ var ShimokitazawaDaisyBarFetcher = fetchers.CreateDaisyBarFetcher(
 		FirstLivePriceEnglish: "Reservation 2500円(Drinks sold separately)／Door 3000円(Drinks sold separately)",
 		FirstLiveOpenTime:     time.Date(2023, 11, 2, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 2, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://daisybar.jp/events/event/",
+		FirstLiveURL:          "https://daisybar.jp/events/event/on/20%d/%02d/",
 	},
 )
 
@@ -1023,7 +1023,7 @@ var ShimokitazawaFlowersLoftFetcher = fetchers.CreateLoftFetcher(
 
 var ShimokitazawaLagunaFetcher = fetchers.CreateDaisyBarFetcher(
 	"https://s-laguna.jp/",
-	"https://s-laguna.jp/events/event/",
+	"https://s-laguna.jp/events/event/on/20%d/%02d/",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-laguna",
@@ -1036,7 +1036,7 @@ var ShimokitazawaLagunaFetcher = fetchers.CreateDaisyBarFetcher(
 		FirstLivePriceEnglish: "Reservation 3000円(Drinks sold separately) Door 3500円(Drinks sold separately)",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://s-laguna.jp/events/event/",
+		FirstLiveURL:          "https://s-laguna.jp/events/event/on/20%d/%02d/",
 	},
 )
 

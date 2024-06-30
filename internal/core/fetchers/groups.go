@@ -193,7 +193,7 @@ func CreateChikamichiFetcher(
 
 func CreateDaisyBarFetcher(
 	baseUrl string,
-	initialURL string,
+	shortYearIterableURL string,
 	prefecture string,
 	area string,
 	venue string,
@@ -201,12 +201,12 @@ func CreateDaisyBarFetcher(
 	testInfo TestInfo,
 ) Simple {
 	return Simple{
-		BaseURL:        baseUrl,
-		InitialURL:     initialURL,
-		LiveSelector:   "//article[@class='single-article']",
-		TitleQuerier:   *htmlquerier.Q("//p[contains(@class, 'h4')]"),
-		ArtistsQuerier: *htmlquerier.Q("//div[contains(@class, 'artist')]").Split("／").Before("【ONE MAN】"),
-		PriceQuerier:   *htmlquerier.Q("//div[contains(@class, 'liveinfo')]/p/span[2]"),
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: shortYearIterableURL,
+		LiveSelector:         "//article[@class='single-article']",
+		TitleQuerier:         *htmlquerier.Q("//p[contains(@class, 'h4')]"),
+		ArtistsQuerier:       *htmlquerier.Q("//div[contains(@class, 'artist')]").Split("／").Before("【ONE MAN】"),
+		PriceQuerier:         *htmlquerier.Q("//div[contains(@class, 'liveinfo')]/p/span[2]"),
 
 		TimeHandler: TimeHandler{
 			YearQuerier:      *htmlquerier.Q(fmt.Sprintf("//p[contains(@class, 'h4 %s')]", yearColor)),

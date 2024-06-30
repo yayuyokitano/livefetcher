@@ -10,6 +10,7 @@
 	<script src="/static/htmx.min.js" defer></script>
 	<script src="/static/alpinejs.min.js" defer></script>
 	<script src="/static/util.js" defer></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" type="text/css" href="/static/themes.css" />
 	<link rel="stylesheet" type="text/css" href="/static/styles.css" />
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -23,15 +24,21 @@
 		}
 	</style>
 </head>
-<body>
-	<nav class="desktop-nav">
-		<img class="nav-logo" src="/static/icons/logo/livefetcher_text_white.svg"></svg>
-		<form class="nav-search-wrapper" action="/search">
-			<input class="nav-search" name="Artist" type="text" placeholder="{{T "general.searchplaceholder"}}">
-			<button type="submit">
-				{{template "searchIcon"}}
-			</button>
-		</form>
+<body hx-boost="true">
+	{{template "desktopNav" .}}
+	{{template "mobileNav" .}}
+	{{template "body" .}}
+</body>
+</html>
+{{end}}
+
+{{define "mobileNav"}}
+<nav id="mobile-nav" hx-preserve="true">
+	<div class="button-container">
+		<a class="nav-logo-anchor" href="/">
+			<img class="nav-logo logo-wide" src="/static/icons/logo/livefetcher_text_white.svg"></svg>
+			<img class="nav-logo logo-narrow" src="/static/icons/logo/livefetcher_text_below_white.svg"></svg>
+		</a>
 		<a class="nav-button" href="/search/map">
 			{{template "mapIcon"}}
 			<span>{{T "general.search-show-map"}}</span>
@@ -40,11 +47,36 @@
 			<img src="/static/icons/japan_white.svg" />
 			<span>{{T "general.search-by-area"}}</span>
 		</a>
-		
-	</nav>
-	{{template "body" .}}
-</body>
-</html>
+	</div>
+	<form class="nav-search-wrapper" action="/search">
+		<input class="nav-search" name="Artist" type="text" placeholder="{{T "general.searchplaceholder"}}">
+		<button type="submit">
+			{{template "searchIcon"}}
+		</button>
+	</form>
+</nav>
+{{end}}
+
+{{define "desktopNav"}}
+<nav id="desktop-nav" hx-preserve="true">
+	<a class="nav-logo-anchor" href="/">
+		<img class="nav-logo" src="/static/icons/logo/livefetcher_text_white.svg"></svg>
+	</a>
+	<form class="nav-search-wrapper" action="/search">
+		<input class="nav-search" name="Artist" type="text" placeholder="{{T "general.searchplaceholder"}}">
+		<button type="submit">
+			{{template "searchIcon"}}
+		</button>
+	</form>
+	<a class="nav-button" href="/search/map">
+		{{template "mapIcon"}}
+		<span>{{T "general.search-show-map"}}</span>
+	</a>
+	<a class="nav-button" href="/search/area">
+		<img src="/static/icons/japan_white.svg" />
+		<span>{{T "general.search-by-area"}}</span>
+	</a>
+</nav>
 {{end}}
 
 {{define "searchIcon"}}

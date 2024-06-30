@@ -9,14 +9,22 @@ body {
 	margin: 0;
 }
 
-.desktop-nav {
+#desktop-nav {
 	background-color: var(--brand);
 	padding: 0.5rem;
 	display: flex;
 }
 
-.desktop-nav .nav-logo {
-	height: 48px;
+#mobile-nav {
+	display: none;
+}
+
+.nav-logo {
+	height: 51px;
+}
+
+.logo-narrow {
+	display: none;
 }
 
 .nav-search-wrapper button {
@@ -61,7 +69,7 @@ body {
 	width: 2.5rem;
 }
 
-.desktop-nav .nav-search {
+.nav-search {
 	font-size: 1.5rem;
 	padding: 0 0.5rem;
 	border-radius: 0.5rem 0 0 0.5rem;
@@ -131,6 +139,34 @@ body {
 	flex-grow: 1;
 }
 
+@media only screen and (width < 1000px) {
+	#desktop-nav {
+		display: none;
+	}
+
+	#mobile-nav {
+		background-color: var(--brand);
+		padding: 0.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	#mobile-nav .button-container {
+		display: flex;
+		justify-content: flex-end;
+		text-align: center;
+	}
+
+	#mobile-nav .nav-logo-anchor {
+		margin-right: auto;
+	}
+
+	#mobile-nav .nav-search {
+		width: 100%;
+	}
+}
+
 @media only screen and (width < 700px) {
 	#search-container {
 		flex-direction: column;
@@ -140,5 +176,14 @@ body {
 	#search-filters {
 		position: static;
 		align-self: stretch;
+	}
+}
+
+@media only screen and (width < 600px) {
+	.logo-wide {
+		display: none;
+	}
+	.logo-narrow {
+		display: inline-block;
 	}
 }
