@@ -5,22 +5,24 @@
 <ul class="live-list non-bullet-list">
   {{range $live := .}}
 		<li class="live-entry">
-      <h3>{{$live.Title}}</h3>
-      <h4>{{T "general.artists"}}</h4>
-			<ul class="live-artist-list non-bullet-list">
-				{{range $artist := $live.Artists}}
-					<li class="live-artist">{{$artist}}</li>
-				{{end}}
-			</ul>
-			<div class="live-details">
-				<p>{{T "util.open" "Open" (ParseDate $live.OpenTime)}}</p>
-				<p>{{T "util.start" "Start" (ParseDate $live.StartTime)}}</p>
-				<p class="live-livehouse">{{T (printf "livehouse.%s" $live.Venue.ID)}}</p>
-				<div class="location-wrapper">
-					{{template "locationOn"}}
-					<span>{{T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" $live.Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" $live.Venue.Area.Prefecture $live.Venue.Area.Area))}}</span>
+			<a class="live-main" href="{{$live.URL}}" target="_blank">
+				<h3>{{$live.Title}}</h3>
+				<h4>{{T "general.artists"}}</h4>
+				<ul class="live-artist-list non-bullet-list">
+					{{range $artist := $live.Artists}}
+						<li class="live-artist">{{$artist}}</li>
+					{{end}}
+				</ul>
+				<div class="live-details">
+					<p>{{T "util.open" "Open" (ParseDate $live.OpenTime)}}</p>
+					<p>{{T "util.start" "Start" (ParseDate $live.StartTime)}}</p>
+					<p class="live-livehouse">{{T (printf "livehouse.%s" $live.Venue.ID)}}</p>
+					<div class="location-wrapper">
+						{{template "locationOn"}}
+						<span>{{T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" $live.Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" $live.Venue.Area.Prefecture $live.Venue.Area.Area))}}</span>
+					</div>
 				</div>
-			</div>
+			</a>
 		</li>
 	{{end}}
 </ul>

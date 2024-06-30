@@ -80,8 +80,8 @@ h2 {
 	padding: 0 0.5rem;
 	border-radius: 0.5rem 0 0 0.5rem;
 	border: none;
-	background-color: var(--bg);
-	color: var(--text);
+	background-color: var(--always-light);
+	color: var(--always-dark);
 }
 
 .padded-non-bullet-list,
@@ -104,10 +104,22 @@ h2 {
 
 .live-entry {
 	display: flex;
-	flex-direction: column;
-	padding: 1rem;
 	border-radius: 1rem;
 	border: 1px solid var(--text);
+	overflow: hidden;
+}
+
+.live-main {
+	display: flex;
+	width: 100%;
+	flex-direction: column;
+	padding: 1rem;
+	text-decoration: none;
+	color: var(--text);
+}
+
+.live-main:hover {
+	background-color: var(--bg2);
 }
 
 .live-entry p {
