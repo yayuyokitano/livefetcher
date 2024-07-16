@@ -1,0 +1,18 @@
+{{define "title"}}{{T "general.login-title"}}{{end}}
+
+{{define "body"}}
+<h1>{{T "login.login"}}</h1>
+<form action="/api/login" method="post">
+	<label for="username">{{T "login.username-or-email"}}</label>
+	<input id="username" name="username" type="text" required placeholder="{{T "login.username-or-email"}}" />
+	<br />
+
+	<label for="password">{{T "login.password"}}</label>
+	<input id="password" name="password" type="password" required placeholder="{{T "login.password"}}" />
+	<br />
+
+	<button type="submit">{{T "login.login"}}</button>
+	<p>{{T "login.no-account"}}</p>
+	<a href="/register">{{T "login.register"}}</a>
+</form>
+{{end}}

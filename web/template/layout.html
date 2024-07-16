@@ -48,6 +48,7 @@
 			<img src="/static/icons/japan_white.svg" />
 			<span>{{T "general.search-by-area"}}</span>
 		</a>
+		{{template "navUser" GetUser}}
 	</div>
 	<form class="nav-search-wrapper" action="/search">
 		<input class="nav-search" name="Artist" type="text" placeholder="{{T "general.searchplaceholder"}}">
@@ -77,7 +78,16 @@
 		<img src="/static/icons/japan_white.svg" />
 		<span>{{T "general.search-by-area"}}</span>
 	</a>
+	{{template "navUser" GetUser}}
 </nav>
+{{end}}
+
+{{define "navUser"}}
+	{{if .Username}}
+		<span>logged in as {{.Username}}</span>
+	{{else}}
+		<a href="/login">{{T "login.login"}}</a>
+	{{end}}
 {{end}}
 
 {{define "searchIcon"}}

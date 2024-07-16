@@ -41,6 +41,10 @@ var (
 		Name: "livefetcher_artist_count",
 		Help: "The number of cached artists",
 	})
+	userCount = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "livefetcher_user_count",
+		Help: "The number of cached users",
+	})
 )
 
 func setCounts() {
@@ -72,6 +76,13 @@ func setCounts() {
 		return
 	}
 	artistCount.Set(float64(curArtistCount))
+
+	curUserCount, err := counters.GetUserCount(ctx)
+	if err != nil {
+		metricError("userCount", err)
+		return
+	}
+	userCount.Set(float64(curUserCount))
 }
 
 var isContainerized bool

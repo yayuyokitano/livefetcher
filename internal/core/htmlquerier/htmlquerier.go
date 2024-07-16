@@ -388,6 +388,9 @@ func stringHasTitleIndicator(s string) bool {
 		"one man",
 		"oneman",
 		"tour",
+		"ツアー",
+		"ワンマン",
+		"ツーマン",
 	}
 	lower := strings.ToLower(s)
 	for _, indicator := range indicators {

@@ -1,0 +1,9 @@
+{{define "title"}}Profile{{end}}
+
+{{define "body"}}
+	{{template "profile" GetUser}}
+{{end}}
+
+{{define "profile"}}
+	<h1>Profile of {{.Username}}</h1>
+{{end}}

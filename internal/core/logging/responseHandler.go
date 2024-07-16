@@ -26,7 +26,7 @@ func HandleError(bubbledErr StatusError, r *http.Request, t time.Time) {
 	if isContainerized {
 		opsRequestsErrored.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(bubbledErr.Code)).Inc()
 	}
-	logger.Error().Err(bubbledErr.Err).
+	logger.Error().Stack().Err(bubbledErr.Err).
 		Str("method", r.Method).
 		Str("path", r.URL.Path).
 		Str("query", r.URL.Query().Encode()).
@@ -90,5 +90,11 @@ func AddLives(count int) {
 func AddArtists(count int) {
 	if isContainerized {
 		artistCount.Add(float64(count))
+	}
+}
+
+func IncrementUsers() {
+	if isContainerized {
+		userCount.Inc()
 	}
 }

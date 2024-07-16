@@ -20,7 +20,7 @@ func init() {
 		MaxAge:     28, // days
 	})
 	mw := io.MultiWriter(writers...)
-	logger = zerolog.New(mw).With().Timestamp().Logger()
+	logger = zerolog.New(mw).With().Stack().Logger()
 
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix

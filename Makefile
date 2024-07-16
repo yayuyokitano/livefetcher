@@ -11,6 +11,9 @@ watch:
 runlocal:
 	go run ./cmd/livefetcher start
 
+generate-keys:
+	go run ./cmd/livefetcher/main.go generatekeys
+
 migrate-on-docker:
 	DOCKERFILE=Dockerfile-migrate docker-compose up --build --force-recreate
 

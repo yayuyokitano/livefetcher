@@ -21,6 +21,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services"
+	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
 func main() {
@@ -37,6 +38,11 @@ func main() {
 		fmt.Println("Performing migration...")
 		performMigration()
 		fmt.Println("Migration complete!")
+		return
+	case "generatekeys":
+		fmt.Println("Generating keys...")
+		services.GenerateKeys()
+		fmt.Println("Finished generating!")
 		return
 	case "test":
 		err := runner.RunConnectorTest(os.Getenv("CONNECTOR_ID"))
@@ -129,6 +135,12 @@ func startServer() {
 	router.Handle("/search", router.Methods{
 		GET: endpoints.GetLives,
 	})
+	router.Handle("/api/login", router.Methods{
+		POST: endpoints.Login,
+	})
+	router.Handle("/api/register", router.Methods{
+		POST: endpoints.Register,
+	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,
 	})
@@ -136,7 +148,7 @@ func startServer() {
 	http.ListenAndServe(":9999", nil)
 }
 
-func serveTemplate(w io.Writer, r *http.Request) *logging.StatusError {
+func serveTemplate(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	lp := filepath.Join("web", "template", "layout.html")
 	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.html")
 
@@ -156,6 +168,9 @@ func serveTemplate(w io.Writer, r *http.Request) *logging.StatusError {
 	tmpl, err := template.New("layout").Funcs(template.FuncMap{
 		"T":    i18nloader.GetLocalizer(r).Localize,
 		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+		"GetUser": func() auth.AuthUser {
+			return user
+		},
 	}).ParseFiles(lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)

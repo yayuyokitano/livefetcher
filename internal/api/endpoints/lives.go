@@ -1,16 +1,17 @@
 package endpoints
 
 import (
+	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
-	"text/template"
 	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
+	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
@@ -20,7 +21,7 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 	return i18nloader.GetLocalizer(r).Localize("general.main-" + suffix)
 }
 
-func GetLives(w io.Writer, r *http.Request) *logging.StatusError {
+func GetLives(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	err := r.ParseForm()
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -51,6 +52,9 @@ func GetLives(w io.Writer, r *http.Request) *logging.StatusError {
 		},
 		"SearchHeader": func() string {
 			return searchTitle(query, r, "header")
+		},
+		"GetUser": func() auth.AuthUser {
+			return user
 		},
 	}).ParseFiles(lp, fp)
 	if err != nil {

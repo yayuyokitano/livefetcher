@@ -1,0 +1,57 @@
+{{define "title"}}{{T "general.register-title"}}{{end}}
+
+{{define "body"}}
+<h1>{{T "login.register"}}</h1>
+<form action="/api/register" method="post">
+	<label for="username">{{T "login.username"}}</label>
+	<input id="username" name="username" type="text" required placeholder="{{T "login.username"}}" />
+	<br />
+
+	<label for="email">{{T "login.email"}}</label>
+	<input id="email" name="email" type="email" required placeholder="{{T "login.email"}}" />
+	<br />
+
+	<label for="confirm-email">{{T "login.confirm-email"}}</label>
+	<input id="confirm-email" type="email" required placeholder="{{T "login.confirm-email"}}" />
+	<br />
+
+	<label for="password">{{T "login.password"}}</label>
+	<input id="password" name="password" type="password" required placeholder="{{T "login.password"}}" />
+	<br />
+
+	<label for="confirm-password">{{T "login.confirm-password"}}</label>
+	<input id="confirm-password" type="password" required placeholder="{{T "login.confirm-password"}}" />
+	<br />
+
+	<button type="submit">{{T "login.register-button-label"}}</button>
+	<p>{{T "login.have-account"}}</p>
+	<a href="/login">{{T "login.login"}}</a>
+</form>
+<script>
+	const passwordEl = document.getElementById("password")
+	const confirmPasswordEl = document.getElementById("confirm-password")
+	passwordEl.addEventListener("change", checkPasswordEqual)
+	confirmPasswordEl.addEventListener("change", checkPasswordEqual)
+
+	function checkPasswordEqual() {
+		if (confirmPasswordEl.value !== "" || passwordEl.value === confirmPasswordEl.value) {
+			confirmPasswordEl.setCustomValidity("")
+		} else {
+			confirmPasswordEl.setCustomValidity('{{T "login.password-dont-match"}}')
+		}
+	}
+
+	const emailEl = document.getElementById("email")
+	const confirmEmailEl = document.getElementById("confirm-email")
+	emailEl.addEventListener("change", checkPasswordEqual)
+	confirmEmailEl.addEventListener("change", checkEmailEqual)
+
+	function checkEmailEqual() {
+		if (confirmEmailEl.value !== "" || emailEl.value === confirmEmailEl.value) {
+			confirmEmailEl.setCustomValidity("")
+		} else {
+			confirmEmailEl.setCustomValidity('{{T "login.mail-dont-match"}}')
+		}
+	}
+</script>
+{{end}}

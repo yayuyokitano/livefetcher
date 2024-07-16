@@ -8,9 +8,10 @@ import (
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
+	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-type HTTPImplementer = func(io.Writer, *http.Request) *logging.StatusError
+type HTTPImplementer = func(auth.AuthUser, io.Writer, *http.Request, http.ResponseWriter) *logging.StatusError
 type WebSocketEstablisher = func(http.ResponseWriter, *http.Request) *logging.StatusError
 
 type Methods struct {
@@ -49,6 +50,8 @@ func Handle(endpoint string, m Methods) {
 		switch r.Method {
 		case "GET":
 			method = m.GET
+		case "POST":
+			method = m.POST
 		case "OPTIONS": // CORS preflight request
 			method = HandleCORSPreflight
 		default:
@@ -66,7 +69,9 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 
 	var log bytes.Buffer
 	mw := io.MultiWriter(w, &log)
-	se := m(mw, r)
+
+	user := auth.GetUser(w, r)
+	se := m(user, mw, r, w)
 	if se != nil {
 		logging.HandleError(*se, r, t)
 		http.Error(w, se.Err.Error(), se.Code)
@@ -75,11 +80,11 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 	logging.LogRequestCompletion(log, r, t)
 }
 
-func HandleCORSPreflight(w io.Writer, r *http.Request) *logging.StatusError {
+func HandleCORSPreflight(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	return nil
 }
 
-func ReturnMethodNotAllowed(w io.Writer, r *http.Request) *logging.StatusError {
+func ReturnMethodNotAllowed(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	return logging.SE(http.StatusMethodNotAllowed, fmt.Errorf("method %s is not allowed", r.Method))
 }
 

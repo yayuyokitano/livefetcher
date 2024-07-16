@@ -17,10 +17,11 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 ## Release roadmap
 ### Immediate plans
 - [x] add coordinates to live houses (these must be added to every existing live house too, it would be good to get this done before backlog is too large)
-- [ ] create design documents
+- [x] create design documents
 - [ ] complete same live recognition for update functionality (currently about 95%+ accurate, but should be very close to 100% as many functions would rely on it)
 
 ### Relatively near future
+- [x] add user auth system (required for many future features)
 - [ ] implement proper frontend
 - [ ] pagination of SELECT query
 

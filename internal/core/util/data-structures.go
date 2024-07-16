@@ -4,6 +4,18 @@ import (
 	"time"
 )
 
+type User struct {
+	ID           int64
+	Email        string
+	Username     string
+	Nickname     string
+	PasswordHash string
+	Bio          string
+	Location     string
+	IsVerified   bool
+	Avatar       string
+}
+
 type Live struct {
 	Title        string
 	Artists      []string
@@ -13,6 +25,8 @@ type Live struct {
 	PriceEnglish string
 	Venue        LiveHouse
 	URL          string
+	IsBookmarked bool
+	Bookmarks    int
 }
 
 type LiveWithID struct {

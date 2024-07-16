@@ -69,3 +69,20 @@ func GetAreaCount(ctx context.Context) (n int64, err error) {
 	err = CommitTransaction(tx)
 	return
 }
+
+func GetUserCount(ctx context.Context) (n int64, err error) {
+	tx, err := FetchTransaction()
+	defer RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+	err = tx.QueryRow(
+		ctx,
+		"SELECT COUNT(*) FROM users",
+	).Scan(&n)
+	if err != nil {
+		return
+	}
+	err = CommitTransaction(tx)
+	return
+}
