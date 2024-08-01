@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
@@ -54,6 +55,75 @@ func PostUser(ctx context.Context, user util.User) (err error) {
 	}
 	if cmd.RowsAffected() == 1 {
 		logging.IncrementUsers()
+	}
+
+	err = counters.CommitTransaction(tx)
+	return
+}
+
+func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid int64) (isFavorited bool, favoriteCount int64, err error) {
+	row := tx.QueryRow(ctx, "SELECT count(*) FROM userfavorites WHERE lives_id=$1", liveid)
+	err = row.Scan(&favoriteCount)
+	if err != nil || favoriteCount == 0 || userid == 0 {
+		return
+	}
+
+	var selfCount int64
+	selfRow := tx.QueryRow(ctx, "SELECT count(*) FROM userfavorites WHERE lives_id=$1 AND users_id=$2", liveid, userid)
+	err = selfRow.Scan(&selfCount)
+	if err != nil {
+		return
+	}
+	if selfCount > 0 {
+		isFavorited = true
+	}
+	return
+}
+
+func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec(ctx, "INSERT INTO userfavorites (users_id, lives_id) VALUES ($1, $2)", userid, liveid)
+	if err != nil {
+		return
+	}
+	isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, userid, liveid)
+	if err != nil {
+		return
+	}
+	favoriteButtonInfo = util.FavoriteButtonInfo{
+		IsFavorited:   isFavorited,
+		FavoriteCount: int(favoriteCount),
+		Id:            int(liveid),
+	}
+
+	err = counters.CommitTransaction(tx)
+	return
+}
+
+func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec(ctx, "DELETE FROM userfavorites WHERE users_id=$1 AND lives_id=$2", userid, liveid)
+	if err != nil {
+		return
+	}
+	isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, userid, liveid)
+	if err != nil {
+		return
+	}
+	favoriteButtonInfo = util.FavoriteButtonInfo{
+		IsFavorited:   isFavorited,
+		FavoriteCount: int(favoriteCount),
+		Id:            int(liveid),
 	}
 
 	err = counters.CommitTransaction(tx)

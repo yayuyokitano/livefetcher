@@ -48,18 +48,9 @@ var refreshTokenDuration = time.Hour * 24 * 30
 
 var recipient = "https://example.com"
 
-type AuthUser struct {
-	ID         int64  `json:"id"`
-	Email      string `json:"email"`
-	Username   string `json:"username"`
-	Nickname   string `json:"nickname"`
-	IsVerified bool   `json:"is_verified"`
-	Avatar     string `json:"avatar"`
-}
-
 type claims struct {
 	jwt.RegisteredClaims
-	User AuthUser `json:"user"`
+	User util.AuthUser `json:"user"`
 }
 
 type refreshClaims struct {
@@ -119,7 +110,7 @@ func CreateNewSession(ctx context.Context, username, password string) (authToken
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(authTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
-		AuthUser{
+		util.AuthUser{
 			ID:         user.ID,
 			Email:      user.Email,
 			Username:   user.Username,
@@ -157,7 +148,7 @@ func CreateNewSession(ctx context.Context, username, password string) (authToken
 	return
 }
 
-func verifyAuthToken(authToken string) (user AuthUser, err error) {
+func verifyAuthToken(authToken string) (user util.AuthUser, err error) {
 	parsedToken, err := jwt.ParseWithClaims(authToken, &claims{}, func(token *jwt.Token) (interface{}, error) {
 		return services.PublicKey, nil
 	})
@@ -206,7 +197,7 @@ func RefreshSession(ctx context.Context, oldRefreshToken string) (authToken, ref
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(authTokenDuration)),
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 			},
-			AuthUser{
+			util.AuthUser{
 				ID:         user.ID,
 				Email:      user.Email,
 				Username:   user.Username,

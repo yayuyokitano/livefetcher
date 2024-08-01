@@ -12,7 +12,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-func Register(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	ctx := context.Background()
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
@@ -62,7 +62,7 @@ func Register(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 	return nil
 }
 
-func Login(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Login(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	ctx := context.Background()
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
@@ -107,7 +107,7 @@ func Login(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.Res
 	return nil
 }
 
-func Logout(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Logout(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	ctx := context.Background()
 
 	http.SetCookie(httpWriter, &http.Cookie{

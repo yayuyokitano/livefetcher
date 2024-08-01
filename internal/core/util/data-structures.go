@@ -16,17 +16,27 @@ type User struct {
 	Avatar       string
 }
 
+type AuthUser struct {
+	ID         int64  `json:"id"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Nickname   string `json:"nickname"`
+	IsVerified bool   `json:"is_verified"`
+	Avatar     string `json:"avatar"`
+}
+
 type Live struct {
-	Title        string
-	Artists      []string
-	OpenTime     time.Time
-	StartTime    time.Time
-	Price        string
-	PriceEnglish string
-	Venue        LiveHouse
-	URL          string
-	IsBookmarked bool
-	Bookmarks    int
+	Id            int64
+	Title         string
+	Artists       []string
+	OpenTime      time.Time
+	StartTime     time.Time
+	Price         string
+	PriceEnglish  string
+	Venue         LiveHouse
+	URL           string
+	IsFavorited   bool
+	FavoriteCount int
 }
 
 type LiveWithID struct {
@@ -47,4 +57,10 @@ type LiveHouse struct {
 	Area        Area    `db:"areas_id"`
 	Longitude   float64 `db:"longitude"`
 	Latitude    float64 `db:"latitude"`
+}
+
+type FavoriteButtonInfo struct {
+	Id            int
+	IsFavorited   bool
+	FavoriteCount int
 }

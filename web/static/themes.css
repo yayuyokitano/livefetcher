@@ -2,6 +2,7 @@ html {
 	--text: #222;
 	--bg: #fff;
 	--bg2: #fff3e0;
+	--shadow: #bbb;
 	--brand: #EF6C00;
 	--brand-focus: #F57C00;
 	--always-light: #fff;
@@ -15,6 +16,7 @@ html.dark {
 	--text: #fff;
 	--bg: #222;
 	--bg2: #333;
+	--shadow: #111;
 	--neuomorphic: 5px 5px 20px #111, -5px -5px 20px #333;
 	--accent: #ffafcc;
 	--accent2: #ffc8dd;

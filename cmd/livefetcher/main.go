@@ -19,9 +19,9 @@ import (
 	runner "github.com/yayuyokitano/livefetcher/internal/core"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services"
-	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
 func main() {
@@ -144,6 +144,12 @@ func startServer() {
 	router.Handle("/api/logout", router.Methods{
 		POST: endpoints.Logout,
 	})
+	router.Handle("/api/favorite", router.Methods{
+		POST: endpoints.Favorite,
+	})
+	router.Handle("/api/unfavorite", router.Methods{
+		POST: endpoints.Unfavorite,
+	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,
 	})
@@ -151,7 +157,7 @@ func startServer() {
 	http.ListenAndServe(":9999", nil)
 }
 
-func serveTemplate(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func serveTemplate(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	lp := filepath.Join("web", "template", "layout.html")
 	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.html")
 
@@ -171,7 +177,7 @@ func serveTemplate(user auth.AuthUser, w io.Writer, r *http.Request, _ http.Resp
 	tmpl, err := template.New("layout").Funcs(template.FuncMap{
 		"T":    i18nloader.GetLocalizer(r).Localize,
 		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() auth.AuthUser {
+		"GetUser": func() util.AuthUser {
 			return user
 		},
 	}).ParseFiles(lp, fp)

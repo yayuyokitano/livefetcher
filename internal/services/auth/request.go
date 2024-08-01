@@ -3,9 +3,11 @@ package auth
 import (
 	"context"
 	"net/http"
+
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
-func GetUser(w http.ResponseWriter, r *http.Request) (user AuthUser) {
+func GetUser(w http.ResponseWriter, r *http.Request) (user util.AuthUser) {
 	ctx := context.Background()
 	c, err := r.Cookie("authToken")
 	if err != nil {

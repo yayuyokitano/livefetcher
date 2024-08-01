@@ -29,7 +29,7 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 - [ ] implement search within distance from point
 - [ ] implement saved searches with notification functionality
 - [ ] add live to calendar (google calendar, maybe more)
-- [ ] bookmark lives
+- [x] bookmark lives
 
 ### Artist digest
 - [ ] improve artist recognition to make artist names more uniform (this will likely imply creating two columns for artists - one with any extra info, and one without)

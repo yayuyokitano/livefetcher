@@ -150,6 +150,7 @@ h2 {
 
 .live-entry {
 	display: flex;
+	flex-direction: column;
 	border-radius: 1rem;
 	border: 1px solid var(--text);
 	overflow: hidden;
@@ -162,6 +163,7 @@ h2 {
 	padding: 1rem;
 	text-decoration: none;
 	color: var(--text);
+	flex: 1;
 }
 
 .live-main:hover {
@@ -191,6 +193,34 @@ h2 {
 .location-wrapper {
 	display: flex;
 	align-items: center;
+}
+
+.live-button-wrapper {
+	display: flex;
+	box-shadow: 0 0 4px var(--shadow);
+}
+
+.live-button {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	appearance: none;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.5rem 0;
+}
+
+.live-button:hover {
+	background-color: var(--bg2);
+}
+
+.live-button svg,
+.live-button span {
+	fill: var(--brand);
+	color: var(--brand);
 }
 
 #search-container {

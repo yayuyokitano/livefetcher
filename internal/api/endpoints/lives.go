@@ -1,6 +1,8 @@
 package endpoints
 
 import (
+	"context"
+	"errors"
 	"html/template"
 	"io"
 	"net/http"
@@ -10,8 +12,8 @@ import (
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
-	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
@@ -21,7 +23,7 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 	return i18nloader.GetLocalizer(r).Localize("general.main-" + suffix)
 }
 
-func GetLives(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	err := r.ParseForm()
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -34,13 +36,14 @@ func GetLives(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	lives, err := queries.GetLives(query)
+	lives, err := queries.GetLives(query, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
 	lp := filepath.Join("web", "template", "layout.html")
 	fp := filepath.Join("web", "template", "lives.html")
+	partial := filepath.Join("web", "template", "partials", "favoriteButton.html")
 	templ, err := template.New("layout").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"ParseDate": func(t time.Time) string {
@@ -53,14 +56,86 @@ func GetLives(user auth.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		"SearchHeader": func() string {
 			return searchTitle(query, r, "header")
 		},
-		"GetUser": func() auth.AuthUser {
+		"GetUser": func() util.AuthUser {
 			return user
 		},
-	}).ParseFiles(lp, fp)
+	}).ParseFiles(lp, fp, partial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 	err = templ.ExecuteTemplate(w, "layout", lives)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	return nil
+}
+
+type favoriteRequest struct {
+	Liveid int64
+}
+
+func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	decoder := form.NewDecoder()
+	var req favoriteRequest
+	err = decoder.Decode(&req, r.Form)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	favoriteButtonInfo, err := queries.FavoriteLive(context.Background(), user.ID, req.Liveid)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	fp := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	templ, err := template.New("favoriteButton").ParseFiles(fp)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	err = templ.ExecuteTemplate(w, "favoriteButton", favoriteButtonInfo)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	return nil
+}
+
+func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	decoder := form.NewDecoder()
+	var req favoriteRequest
+	err = decoder.Decode(&req, r.Form)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	favoriteButtonInfo, err := queries.UnfavoriteLive(context.Background(), user.ID, req.Liveid)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	fp := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	templ, err := template.New("favoriteButton").ParseFiles(fp)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	err = templ.ExecuteTemplate(w, "favoriteButton", favoriteButtonInfo)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

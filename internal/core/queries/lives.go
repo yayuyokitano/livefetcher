@@ -273,9 +273,14 @@ type LiveQuery struct {
 	Artist string
 }
 
-func GetLives(query LiveQuery) (lives []util.Live, err error) {
+func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error) {
 	tx, err := counters.FetchTransaction()
 	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+	favoriteTx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(favoriteTx)
 	if err != nil {
 		return
 	}
@@ -313,21 +318,28 @@ func GetLives(query LiveQuery) (lives []util.Live, err error) {
 	}
 
 	queryStr += `)
-	SELECT array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	FROM queriedlives
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	ORDER BY starttime`
-	rows, err := tx.Query(context.Background(), queryStr, args...)
+	ctx := context.Background()
+	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
 		return
 	}
 	for rows.Next() {
 		var l util.Live
-		err = rows.Scan(&l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		err = rows.Scan(&l.Id, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
 		}
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, user.ID, l.Id)
+		if err == nil {
+			l.FavoriteCount = int(favoriteCount)
+			l.IsFavorited = isFavorited
+		}
+		err = nil
 		lives = append(lives, l)
 	}
 	err = counters.CommitTransaction(tx)
