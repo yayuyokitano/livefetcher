@@ -48,6 +48,11 @@ h2 {
 
 }
 
+#desktop-nav .button-container {
+	margin-left: auto;
+	display: flex;
+}
+
 .nav-search-wrapper {
 	display: flex;
 	padding: 0.15rem;

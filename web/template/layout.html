@@ -72,15 +72,17 @@
 			{{template "searchIcon"}}
 		</button>
 	</form>
-	<a class="nav-button" href="/search/map">
-		{{template "mapIcon"}}
-		<span>{{T "general.search-show-map"}}</span>
-	</a>
-	<a class="nav-button" href="/search/area">
-		<img src="/static/icons/japan_white.svg" />
-		<span>{{T "general.search-by-area"}}</span>
-	</a>
-	{{template "navUser" GetUser}}
+	<div class="button-container">
+		<a class="nav-button" href="/search/map">
+			{{template "mapIcon"}}
+			<span>{{T "general.search-show-map"}}</span>
+		</a>
+		<a class="nav-button" href="/search/area">
+			<img src="/static/icons/japan_white.svg" />
+			<span>{{T "general.search-by-area"}}</span>
+		</a>
+		{{template "navUser" GetUser}}
+	</div>
 </nav>
 {{end}}
 
