@@ -11,6 +11,8 @@ register-title = "Register | LiveRadar"
 search-artist-title = "Find concerts for {{.Artist}} | LiveRadar"
 main-header = "Search results"
 search-artist-header = "Search results for \"{{.Artist}}\""
+user = "User"
+profile = "Profile"
 
 [login]
 username = "Username"
@@ -26,6 +28,7 @@ have-account = "Already have an account?"
 register-button-label = "Register"
 mail-dont-match = "Email addresses don't match"
 password-dont-match = "Passwords don't match"
+sign-out = "Sign Out"
 
 [label]
 artist = "Participating Artist"

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
@@ -57,7 +58,7 @@ func Register(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
-	http.Redirect(httpWriter, r, "/profile", http.StatusFound)
+	httpWriter.Header().Add("HX-Redirect", "/profile")
 	return nil
 }
 
@@ -101,6 +102,42 @@ func Login(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.Res
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
-	http.Redirect(httpWriter, r, "/profile", http.StatusFound)
+
+	httpWriter.Header().Add("HX-Redirect", "/profile")
+	return nil
+}
+
+func Logout(user auth.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+	ctx := context.Background()
+
+	http.SetCookie(httpWriter, &http.Cookie{
+		Name:     "authToken",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+	http.SetCookie(httpWriter, &http.Cookie{
+		Name:     "refreshToken",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+	})
+
+	refreshToken, err := r.Cookie("refreshToken")
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+	err = auth.DisableRefreshToken(ctx, refreshToken.Value)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	httpWriter.Header().Add("HX-Redirect", "/")
 	return nil
 }

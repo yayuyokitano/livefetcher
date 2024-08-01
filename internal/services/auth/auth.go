@@ -67,6 +67,21 @@ type refreshClaims struct {
 	UseCount int `json:"use_count"`
 }
 
+func DisableRefreshToken(ctx context.Context, refreshToken string) (err error) {
+	parsedToken, err := jwt.ParseWithClaims(refreshToken, &refreshClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return services.PublicKey, nil
+	})
+	if err != nil {
+		return
+	}
+	if rc, ok := parsedToken.Claims.(*refreshClaims); ok {
+		err = deleteRefreshToken(ctx, rc.ID)
+	} else {
+		err = ErrUnknownClaimsType
+	}
+	return
+}
+
 func CreateNewUser(ctx context.Context, user util.User, password string) (authToken, refreshToken string, err error) {
 	hash, err := generateFromPassword(password)
 	if err != nil {

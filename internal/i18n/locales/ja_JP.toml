@@ -11,6 +11,8 @@ register-title = "アカウント登録 | LiveRadar"
 search-artist-title = "{{.Artist}}のライブ | LiveRadar"
 main-header = "ライブサーチ結果"
 search-artist-header = "「{{.Artist}}」のライブサーチ結果"
+user = "ユーザー"
+profile = "プロフィール"
 
 [login]
 username = "ユーザー名"
@@ -26,6 +28,7 @@ have-account = "アカウントをお持ちである方"
 register-button-label = "登録する"
 mail-dont-match = "メールアドレスと確認用メールアドレスが一致しません"
 password-dont-match = "パスワードと確認用パスワードが一致しません"
+sign-out = "ログアウト"
 
 [label]
 artist = "参加アーティスト"

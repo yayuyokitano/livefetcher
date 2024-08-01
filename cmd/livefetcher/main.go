@@ -141,6 +141,9 @@ func startServer() {
 	router.Handle("/api/register", router.Methods{
 		POST: endpoints.Register,
 	})
+	router.Handle("/api/logout", router.Methods{
+		POST: endpoints.Logout,
+	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,
 	})
