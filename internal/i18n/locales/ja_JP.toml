@@ -13,6 +13,8 @@ main-header = "ライブサーチ結果"
 search-artist-header = "「{{.Artist}}」のライブサーチ結果"
 user = "ユーザー"
 profile = "プロフィール"
+favorite-lives-header = "お気に入りライブ"
+favorite-lives-title = "お気に入りライブ | LiveRadar"
 
 [login]
 username = "ユーザー名"

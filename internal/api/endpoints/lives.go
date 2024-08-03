@@ -142,3 +142,38 @@ func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.Respons
 	}
 	return nil
 }
+
+func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	err := r.ParseForm()
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	lives, err := queries.GetUserFavoriteLives(context.Background(), user.ID)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	lp := filepath.Join("web", "template", "layout.html")
+	fp := filepath.Join("web", "template", "favoritelives.html")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.html")
+	templ, err := template.New("layout").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+		"ParseDate": func(t time.Time) string {
+			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
+		},
+		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+		"GetUser": func() util.AuthUser {
+			return user
+		},
+	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	err = templ.ExecuteTemplate(w, "layout", lives)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	return nil
+}

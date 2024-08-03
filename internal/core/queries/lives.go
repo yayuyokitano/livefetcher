@@ -12,7 +12,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
-func isSameLive(live util.Live, oldLive util.LiveWithID, oldLives []util.LiveWithID) bool {
+func isSameLive(live util.Live, oldLive util.Live, oldLives []util.Live) bool {
 	if live.StartTime == oldLive.StartTime {
 		return true
 	}
@@ -87,7 +87,7 @@ func arraysHaveSameItems(a, b []string) bool {
 	return true
 }
 
-func shouldUpdateLive(live util.Live, oldLive util.LiveWithID) bool {
+func shouldUpdateLive(live util.Live, oldLive util.Live) bool {
 	if live.Title != oldLive.Title {
 		return true
 	}
@@ -115,7 +115,7 @@ func shouldUpdateLive(live util.Live, oldLive util.LiveWithID) bool {
 	return false
 }
 
-func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.LiveWithID, artists *map[string]bool, liveartists *[][]interface{}) (modified int64, err error) {
+func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.Live, artists *map[string]bool, liveartists *[][]interface{}) (modified int64, err error) {
 	if !shouldUpdateLive(live, oldLive) {
 		return
 	}
@@ -137,7 +137,7 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.
 	return
 }
 
-func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLives []util.LiveWithID) (artists map[string]bool, liveartists [][]interface{}, added int64, modified int64, deleted int64, err error) {
+func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLives []util.Live) (artists map[string]bool, liveartists [][]interface{}, added int64, modified int64, deleted int64, err error) {
 	oldLiveFoundIndices := make(map[int]bool)
 	liveartists = make([][]interface{}, 0)
 	artists = make(map[string]bool)
@@ -330,11 +330,11 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	}
 	for rows.Next() {
 		var l util.Live
-		err = rows.Scan(&l.Id, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, user.ID, l.Id)
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, user.ID, l.ID)
 		if err == nil {
 			l.FavoriteCount = int(favoriteCount)
 			l.IsFavorited = isFavorited
@@ -346,7 +346,7 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	return
 }
 
-func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.LiveWithID, err error) {
+func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.Live, err error) {
 	queryStr := `WITH queriedlives AS (
 		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
 		FROM lives AS live
@@ -365,12 +365,61 @@ func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.LiveWithID,
 		return
 	}
 	for rows.Next() {
-		var l util.LiveWithID
+		var l util.Live
 		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
 		}
 		lives = append(lives, l)
 	}
+	return
+}
+
+func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live, err error) {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+	favoriteTx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(favoriteTx)
+	if err != nil {
+		return
+	}
+
+	queryStr := `WITH queriedlives AS (
+		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
+		FROM lives AS live
+		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
+		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
+		INNER JOIN areas area ON (area.id = livehouse.areas_id)
+		INNER JOIN userfavorites uf ON (uf.lives_id = live.id)
+		WHERE uf.users_id=$1
+	)
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	FROM queriedlives
+	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
+	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	ORDER BY starttime`
+	rows, err := tx.Query(context.Background(), queryStr, userid)
+	if err != nil {
+		return
+	}
+	for rows.Next() {
+		var l util.Live
+		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		if err != nil {
+			return
+		}
+
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, userid, l.ID)
+		if err == nil {
+			l.FavoriteCount = int(favoriteCount)
+			l.IsFavorited = isFavorited
+		}
+		err = nil
+		lives = append(lives, l)
+	}
+	err = counters.CommitTransaction(tx)
 	return
 }

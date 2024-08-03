@@ -13,6 +13,8 @@ main-header = "Search results"
 search-artist-header = "Search results for \"{{.Artist}}\""
 user = "User"
 profile = "Profile"
+favorite-lives-header = "Favorite Lives"
+favorite-lives-title = "Favorite Lives | LiveRadar"
 
 [login]
 username = "Username"

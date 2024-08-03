@@ -98,7 +98,7 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 	favoriteButtonInfo = util.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
-		Id:            int(liveid),
+		ID:            int(liveid),
 	}
 
 	err = counters.CommitTransaction(tx)
@@ -123,7 +123,7 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 	favoriteButtonInfo = util.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
-		Id:            int(liveid),
+		ID:            int(liveid),
 	}
 
 	err = counters.CommitTransaction(tx)

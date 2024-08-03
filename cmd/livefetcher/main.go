@@ -135,6 +135,9 @@ func startServer() {
 	router.Handle("/search", router.Methods{
 		GET: endpoints.GetLives,
 	})
+	router.Handle("/favorites", router.Methods{
+		GET: endpoints.GetFavoriteLives,
+	})
 	router.Handle("/api/login", router.Methods{
 		POST: endpoints.Login,
 	})

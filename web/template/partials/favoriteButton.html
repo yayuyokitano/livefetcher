@@ -1,5 +1,5 @@
 {{define "favoriteButton"}}
-<button hx-swap="outerHTML" hx-post="/api/{{if .IsFavorited}}unfavorite{{else}}favorite{{end}}" class="live-button" name="Liveid" value="{{.Id}}">
+<button hx-swap="outerHTML" hx-post="/api/{{if .IsFavorited}}unfavorite{{else}}favorite{{end}}" class="live-button" name="Liveid" value="{{.ID}}">
 	{{if .IsFavorited}}
 		{{template "heartFilled"}}
 	{{else}}

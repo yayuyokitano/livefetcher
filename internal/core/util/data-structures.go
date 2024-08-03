@@ -26,7 +26,7 @@ type AuthUser struct {
 }
 
 type Live struct {
-	Id            int64
+	ID            int64
 	Title         string
 	Artists       []string
 	OpenTime      time.Time
@@ -37,11 +37,6 @@ type Live struct {
 	URL           string
 	IsFavorited   bool
 	FavoriteCount int
-}
-
-type LiveWithID struct {
-	ID int64
-	Live
 }
 
 type Area struct {
@@ -60,7 +55,7 @@ type LiveHouse struct {
 }
 
 type FavoriteButtonInfo struct {
-	Id            int
+	ID            int
 	IsFavorited   bool
 	FavoriteCount int
 }
