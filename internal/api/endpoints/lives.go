@@ -42,8 +42,9 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	}
 
 	lp := filepath.Join("web", "template", "layout.html")
-	fp := filepath.Join("web", "template", "lives.html")
-	partial := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	fp := filepath.Join("web", "template", "livesearch.html")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.html")
 	templ, err := template.New("layout").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"ParseDate": func(t time.Time) string {
@@ -59,7 +60,7 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		"GetUser": func() util.AuthUser {
 			return user
 		},
-	}).ParseFiles(lp, fp, partial)
+	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
