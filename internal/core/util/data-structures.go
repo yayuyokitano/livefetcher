@@ -59,3 +59,43 @@ type FavoriteButtonInfo struct {
 	IsFavorited   bool
 	FavoriteCount int
 }
+
+type LiveListWriteRequest struct {
+	ID     int64
+	UserID int64
+	Title  string
+	Desc   string
+}
+
+type LiveListLive struct {
+	ID   int64
+	Desc string
+	Live Live
+}
+
+type LiveList struct {
+	ID            int64
+	Title         string
+	Desc          string
+	LiveDesc      string
+	User          User
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Lives         []LiveListLive
+	IsFavorited   bool
+	FavoriteCount int
+}
+
+type AddToLiveListTemplateParams struct {
+	LiveID            int64
+	LiveLiveLists     []LiveList
+	PersonalLiveLists []LiveList
+}
+
+type AddToLiveListParameters struct {
+	LiveDesc           string
+	LiveID             int
+	ExistingLiveListID int    // specified if existing live
+	NewLiveListTitle   string // specified if new live
+	AdditionType       string
+}

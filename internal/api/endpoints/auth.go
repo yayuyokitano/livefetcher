@@ -58,7 +58,7 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 	})
-	httpWriter.Header().Add("HX-Redirect", "/profile")
+	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
 	return nil
 }
 
@@ -103,7 +103,7 @@ func Login(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.Res
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	httpWriter.Header().Add("HX-Redirect", "/profile")
+	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
 	return nil
 }
 
@@ -138,6 +138,6 @@ func Logout(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.Re
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	httpWriter.Header().Add("HX-Redirect", "/")
+	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
 	return nil
 }

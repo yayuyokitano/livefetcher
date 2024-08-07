@@ -24,12 +24,14 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 - [x] add user auth system (required for many future features)
 - [ ] implement proper frontend
 - [ ] pagination of SELECT query
+- [ ] batch live/livelist favorite SELECT queries
 
 ### Search improvements
 - [ ] implement search within distance from point
 - [ ] implement saved searches with notification functionality
 - [ ] add live to calendar (google calendar, maybe more)
 - [x] bookmark lives
+- [ ] add live lists
 
 ### Artist digest
 - [ ] improve artist recognition to make artist names more uniform (this will likely imply creating two columns for artists - one with any extra info, and one without)

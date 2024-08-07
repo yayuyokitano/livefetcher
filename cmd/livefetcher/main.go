@@ -132,11 +132,17 @@ func startServer() {
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})
+	router.Handle("/api/addToList", router.Methods{
+		POST: endpoints.AddToLiveList,
+	})
 	router.Handle("/search", router.Methods{
 		GET: endpoints.GetLives,
 	})
 	router.Handle("/favorites", router.Methods{
 		GET: endpoints.GetFavoriteLives,
+	})
+	router.Handle("/modal/livelist", router.Methods{
+		GET: endpoints.GetLiveLiveListModal,
 	})
 	router.Handle("/api/login", router.Methods{
 		POST: endpoints.Login,

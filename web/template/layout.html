@@ -31,6 +31,9 @@
 	<main>
 		{{template "body" .}}
 	</main>
+	<dialog x-ref="modal" id="main-modal">
+		<!-- This will be dynamically replaced by htmx before opening -->
+	</dialog>
 </body>
 </html>
 {{end}}
