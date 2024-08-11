@@ -15,6 +15,7 @@ user = "ユーザー"
 profile = "プロフィール"
 favorite-lives-header = "お気に入りライブ"
 favorite-lives-title = "お気に入りライブ | LiveRadar"
+livelist-title = "{{.LiveList}} | LiveRadar"
 
 [login]
 username = "ユーザー名"
@@ -31,6 +32,9 @@ register-button-label = "登録する"
 mail-dont-match = "メールアドレスと確認用メールアドレスが一致しません"
 password-dont-match = "パスワードと確認用パスワードが一致しません"
 sign-out = "ログアウト"
+
+[live]
+comment = "コメント"
 
 [label]
 artist = "参加アーティスト"

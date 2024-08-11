@@ -10,8 +10,10 @@
 
 {{define "liveListDialogItem"}}
 <li>
-	<h3>{{.Title}}</h3>
-	<p>{{.LiveDesc}}</p>
+	<a href="/list/{{.ID}}">
+		<h3>{{.Title}}</h3>
+		<p>{{.LiveDesc}}</p>
+	</a>
 </li>
 {{end}}
 

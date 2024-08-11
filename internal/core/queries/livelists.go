@@ -122,26 +122,28 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
 		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
 		INNER JOIN areas area ON (area.id = livehouse.areas_id)
-		INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id)
-		WHERE livelistlive.livelists_id=$1
+		INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id AND livelistlive.livelists_id=$1)
 	)
 	SELECT id, live_description, live_id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	FROM queriedlives
-	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
+	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.live_id)
 	GROUP BY id, live_description, live_id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	ORDER BY starttime`
 
 	rows, err := tx.Query(ctx, queryStr, liveList.ID)
+	if err != nil {
+		return
+	}
 	for rows.Next() {
-		var l util.LiveListLive
-		err = rows.Scan(&l.ID, &l.Desc, &l.Live.Artists, &l.Live.Title, &l.Live.OpenTime, &l.Live.StartTime, &l.Live.Price, &l.Live.PriceEnglish, &l.Live.Venue.ID, &l.Live.Venue.Url, &l.Live.Venue.Description, &l.Live.Venue.Area.ID, &l.Live.Venue.Area.Prefecture, &l.Live.Venue.Area.Area, &l.Live.URL)
+		var l util.Live
+		err = rows.Scan(&l.LiveListLiveID, &l.Desc, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, l.Live.ID)
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, l.ID)
 		if err == nil {
-			l.Live.FavoriteCount = int(favoriteCount)
-			l.Live.IsFavorited = isFavorited
+			l.FavoriteCount = int(favoriteCount)
+			l.IsFavorited = isFavorited
 		}
 		err = nil
 		liveList.Lives = append(liveList.Lives, l)

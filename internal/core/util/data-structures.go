@@ -37,6 +37,10 @@ type Live struct {
 	URL           string
 	IsFavorited   bool
 	FavoriteCount int
+
+	// only used for livelists
+	LiveListLiveID int64
+	Desc           string
 }
 
 type Area struct {
@@ -67,12 +71,6 @@ type LiveListWriteRequest struct {
 	Desc   string
 }
 
-type LiveListLive struct {
-	ID   int64
-	Desc string
-	Live Live
-}
-
 type LiveList struct {
 	ID            int64
 	Title         string
@@ -81,7 +79,7 @@ type LiveList struct {
 	User          User
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
-	Lives         []LiveListLive
+	Lives         []Live
 	IsFavorited   bool
 	FavoriteCount int
 }

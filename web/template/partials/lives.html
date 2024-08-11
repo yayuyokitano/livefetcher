@@ -9,6 +9,12 @@
 {{define "live"}}
 <li class="live-entry">
 	<a class="live-main" href="{{.URL}}" target="_blank">
+		{{if .Desc}}
+			<div class="live-comment">
+				<span>{{T "live.comment"}}</span>
+				<p>{{.Desc}}</p>
+			</div>
+		{{end}}
 		<h3>{{.Title}}</h3>
 		<h4>{{T "general.artists"}}</h4>
 		<ul class="live-artist-list non-bullet-list">

@@ -167,10 +167,26 @@ h2 {
 	text-decoration: none;
 	color: var(--text);
 	flex: 1;
+	box-sizing: border-box;
 }
 
 .live-main:hover {
 	background-color: var(--bg2);
+}
+
+.live-comment {
+	background-color: var(--bg2);
+	padding: 0.75rem;
+	border-radius: 0.75rem;
+	margin-bottom: 0.75rem;
+}
+
+.live-comment span {
+	font-size: 0.9em;
+}
+
+.live-comment p {
+	font-size: 1.2em;
 }
 
 .live-entry p {
@@ -245,6 +261,10 @@ h2 {
 	padding-right: 3rem;
 	background-color: var(--bg2);
 	box-shadow: var(--neuomorphic);
+}
+
+.livelist-header {
+	text-align: center;
 }
 
 #result-dump {

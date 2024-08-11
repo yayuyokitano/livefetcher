@@ -9,11 +9,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
 func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
@@ -106,4 +108,46 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 
 	httpWriter.Header().Add("HX-Location", r.Header.Get("HX-Current-Url"))
 	return nil
+}
+
+func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+	ctx := context.Background()
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	livelist, err := queries.GetLiveList(ctx, int64(id), user)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	lp := filepath.Join("web", "template", "layout.html")
+	fp := filepath.Join("web", "template", "livelist.html")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.html")
+	templ, err := template.New("layout").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+		"ParseDate": func(t time.Time) string {
+			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
+		},
+		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+		"GetUser": func() util.AuthUser {
+			return user
+		},
+		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
+	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	err = templ.ExecuteTemplate(w, "layout", livelist)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	return nil
+
+}
+
+func liveListTitle(title string, r *http.Request) string {
+	return i18nloader.GetLocalizer(r).Localize("general.livelist-title", "LiveList", title)
 }

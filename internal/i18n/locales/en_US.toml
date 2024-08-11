@@ -15,6 +15,7 @@ user = "User"
 profile = "Profile"
 favorite-lives-header = "Favorite Lives"
 favorite-lives-title = "Favorite Lives | LiveRadar"
+livelist-title = "{{.LiveList}} | LiveRadar"
 
 [login]
 username = "Username"
@@ -31,6 +32,9 @@ register-button-label = "Register"
 mail-dont-match = "Email addresses don't match"
 password-dont-match = "Passwords don't match"
 sign-out = "Sign Out"
+
+[live]
+comment = "Comment"
 
 [label]
 artist = "Participating Artist"

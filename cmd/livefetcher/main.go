@@ -129,6 +129,9 @@ func startServer() {
 			err = runner.RunConnector("ShinsaibashiBronze")
 			fmt.Println(err)*/
 
+	router.Handle("/list/{id}", router.Methods{
+		GET: endpoints.ShowLiveList,
+	})
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})
