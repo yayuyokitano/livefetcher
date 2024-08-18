@@ -39,6 +39,9 @@ run-on-docker:
 cloc:
 	tokei --exclude *.svg --sort code .
 
+prettier:
+	npm run prettier
+
 run:
 	set -e
 	# CONTAINERIZED=true ./livefetcher migrate
