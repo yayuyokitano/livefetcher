@@ -170,8 +170,8 @@ func startServer() {
 }
 
 func serveTemplate(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	lp := filepath.Join("web", "template", "layout.html")
-	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.html")
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.gohtml")
 
 	// Return a 404 if the template doesn't exist
 	info, err := os.Stat(fp)

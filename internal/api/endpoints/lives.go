@@ -41,10 +41,10 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	lp := filepath.Join("web", "template", "layout.html")
-	fp := filepath.Join("web", "template", "livesearch.html")
-	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.html")
-	livesPartial := filepath.Join("web", "template", "partials", "lives.html")
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", "livesearch.gohtml")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
 	templ, err := template.New("layout").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"ParseDate": func(t time.Time) string {
@@ -97,7 +97,7 @@ func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	fp := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	templ, err := template.New("favoriteButton").ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -131,7 +131,7 @@ func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.Respons
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	fp := filepath.Join("web", "template", "partials", "favoriteButton.html")
+	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	templ, err := template.New("favoriteButton").ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -154,10 +154,10 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	lp := filepath.Join("web", "template", "layout.html")
-	fp := filepath.Join("web", "template", "favoritelives.html")
-	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.html")
-	livesPartial := filepath.Join("web", "template", "partials", "lives.html")
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", "favoritelives.gohtml")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
 	templ, err := template.New("layout").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"ParseDate": func(t time.Time) string {
