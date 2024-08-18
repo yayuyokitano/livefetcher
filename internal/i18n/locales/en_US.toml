@@ -42,6 +42,7 @@ add = "Add"
 create-header = "Create New Live List"
 name-label = "Name"
 create = "Create"
+made-by = "by {{.Author}}"
 
 [label]
 artist = "Participating Artist"

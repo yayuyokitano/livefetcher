@@ -290,6 +290,26 @@ h2 {
   box-sizing: border-box;
 }
 
+.livelist-listing {
+	display: block;
+	border: 1px solid var(--text);
+	border-radius: 1rem;
+	text-decoration: none;
+	color: var(--text);
+	padding: 0 1rem;
+	margin-top: 1rem;
+}
+
+.livelist-listing:hover,
+.livelist-listing:focus-visible {
+	background-color: var(--bg2);
+}
+
+.livelist-listing .title {
+	margin-bottom: 0;
+	font-size: 1.5rem;
+}
+
 .add-to-live-list-section[open] {
   background-color: var(--bg2);
   border-radius: 1rem;

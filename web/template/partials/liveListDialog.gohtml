@@ -10,9 +10,10 @@
 
 {{ define "liveListDialogItem" }}
   <li>
-    <a href="/list/{{ .ID }}">
-      <h3>{{ .Title }}</h3>
-      <p>{{ .LiveDesc }}</p>
+    <a href="/list/{{ .ID }}" class="livelist-listing">
+      <h3 class="title">{{ .Title }}</h3>
+      <span class="author">{{ T "livelist.made-by" "Author" .User.Nickname }}</span>
+      <p class="description">{{ .LiveDesc }}</p>
     </a>
   </li>
 {{ end }}

@@ -42,6 +42,7 @@ add = "追加する"
 create-header = "新規ライブリスト"
 name-label = "ライブリスト名"
 create = "作成"
+made-by = "作者：{{.Author}}"
 
 [label]
 artist = "参加アーティスト"

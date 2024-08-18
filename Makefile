@@ -6,7 +6,7 @@ default:
 	@echo "Please specify an argument."
 
 watch:
-	gow -e=go,mod,html,css,toml,js run ./cmd/livefetcher start
+	gow -e=go,mod,gohtml,css,toml,js run ./cmd/livefetcher start
 
 runlocal:
 	go run ./cmd/livefetcher start
