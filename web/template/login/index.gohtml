@@ -1,0 +1,38 @@
+{{ define "title" }}{{ T "general.login-title" }}{{ end }}
+{{ define "styles" }}
+  <link rel="stylesheet" type="text/css" href="/static/login.css" />
+{{ end }}
+{{ define "body" }}
+  <form action="/api/login" method="post" class="login-form">
+    <h1>{{ T "login.login" }}</h1>
+
+    <div class="login-input-wrapper">
+      <label for="username">{{ T "login.username-or-email" }}</label>
+      <input
+        id="username"
+        name="username"
+        type="text"
+        required
+        placeholder="{{ T "login.username-or-email" }}"
+      />
+    </div>
+
+    <div class="login-input-wrapper">
+      <label for="password">{{ T "login.password" }}</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        required
+        placeholder="{{ T "login.password" }}"
+      />
+    </div>
+
+    <button type="submit" class="login-button">{{ T "login.login" }}</button>
+
+    <div class="login-prompt">
+      <p>{{ T "login.no-account" }}</p>
+      <a href="/register">{{ T "login.register" }}</a>
+    </div>
+  </form>
+{{ end }}

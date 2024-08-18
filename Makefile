@@ -37,7 +37,7 @@ run-on-docker:
 	DOCKERFILE=Dockerfile docker-compose up --build --force-recreate
 
 cloc:
-	cloc --exclude-dir=test --exclude-ext=svg --fullpath --not-match-d="web/static/vendor" .
+	tokei --exclude *.svg --sort code .
 
 run:
 	set -e
