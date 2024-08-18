@@ -1,34 +1,62 @@
-{{define "title"}}{{T "general.register-title"}}{{end}}
+{{ define "title" }}{{ T "general.register-title" }}{{ end }}
 
-{{define "styles"}}{{end}}
+{{ define "styles" }}{{ end }}
 
-{{define "body"}}
-<h1>{{T "login.register"}}</h1>
-<form action="/api/register" method="post">
-	<label for="username">{{T "login.username"}}</label>
-	<input id="username" name="username" type="text" required placeholder="{{T "login.username"}}" />
-	<br />
+{{ define "body" }}
+  <h1>{{ T "login.register" }}</h1>
+  <form action="/api/register" method="post">
+    <label for="username">{{ T "login.username" }}</label>
+    <input
+      id="username"
+      name="username"
+      type="text"
+      required
+      placeholder="{{ T "login.username" }}"
+    />
+    <br />
 
-	<label for="email">{{T "login.email"}}</label>
-	<input id="email" name="email" type="email" required placeholder="{{T "login.email"}}" />
-	<br />
+    <label for="email">{{ T "login.email" }}</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      required
+      placeholder="{{ T "login.email" }}"
+    />
+    <br />
 
-	<label for="confirm-email">{{T "login.confirm-email"}}</label>
-	<input id="confirm-email" type="email" required placeholder="{{T "login.confirm-email"}}" />
-	<br />
+    <label for="confirm-email">{{ T "login.confirm-email" }}</label>
+    <input
+      id="confirm-email"
+      type="email"
+      required
+      placeholder="{{ T "login.confirm-email" }}"
+    />
+    <br />
 
-	<label for="password">{{T "login.password"}}</label>
-	<input id="password" name="password" type="password" required placeholder="{{T "login.password"}}" />
-	<br />
+    <label for="password">{{ T "login.password" }}</label>
+    <input
+      id="password"
+      name="password"
+      type="password"
+      required
+      placeholder="{{ T "login.password" }}"
+    />
+    <br />
 
-	<label for="confirm-password">{{T "login.confirm-password"}}</label>
-	<input id="confirm-password" type="password" required placeholder="{{T "login.confirm-password"}}" />
-	<br />
+    <label for="confirm-password">{{ T "login.confirm-password" }}</label>
+    <input
+      id="confirm-password"
+      type="password"
+      required
+      placeholder="{{ T "login.confirm-password" }}"
+    />
+    <br />
 
-	<button type="submit">{{T "login.register-button-label"}}</button>
-	<p>{{T "login.have-account"}}</p>
-	<a href="/login">{{T "login.login"}}</a>
-</form>
+    <button type="submit">{{ T "login.register-button-label" }}</button>
+    <p>{{ T "login.have-account" }}</p>
+    <a href="/login">{{ T "login.login" }}</a>
+  </form>
 <script>
 	const passwordEl = document.getElementById("password")
 	const confirmPasswordEl = document.getElementById("confirm-password")
@@ -56,4 +84,4 @@
 		}
 	}
 </script>
-{{end}}
+{{ end }}

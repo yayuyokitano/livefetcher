@@ -1,0 +1,13 @@
+{
+  "name": "livefetcher",
+  "version": "1.0.0",
+  "description": "",
+  "author": "yayuyokitano",
+	"scripts": {
+		"prettier": "prettier ./web --write"
+	},
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-go-template": "^0.0.15"
+  }
+}

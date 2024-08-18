@@ -1,53 +1,65 @@
-{{define "lives"}}
-<ul class="live-list non-bullet-list">
-  {{range $live := .}}
-		{{template "live" $live}}
-	{{end}}
-</ul>
-{{end}}
+{{ define "lives" }}
+  <ul class="live-list non-bullet-list">
+    {{ range $live := . }}
+      {{ template "live" $live }}
+    {{ end }}
+  </ul>
+{{ end }}
 
-{{define "live"}}
-<li class="live-entry">
-	<a class="live-main" href="{{.URL}}" target="_blank">
-		{{if .Desc}}
-			<div class="live-comment">
-				<span>{{T "livelist.comment"}}</span>
-				<p>{{.Desc}}</p>
-			</div>
-		{{end}}
-		<h3>{{.Title}}</h3>
-		<h4>{{T "general.artists"}}</h4>
-		<ul class="live-artist-list non-bullet-list">
-			{{range $artist := .Artists}}
-				<li class="live-artist">{{$artist}}</li>
-			{{end}}
-		</ul>
-		<div class="live-details">
-			<p>{{T "util.open" "Open" (ParseDate .OpenTime)}}</p>
-			<p>{{T "util.start" "Start" (ParseDate .StartTime)}}</p>
-			<p class="live-livehouse">{{T (printf "livehouse.%s" .Venue.ID)}}</p>
-			<div class="location-wrapper">
-				{{template "locationOn"}}
-				<span>{{T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" .Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" .Venue.Area.Prefecture .Venue.Area.Area))}}</span>
-			</div>
-		</div>
-	</a>
-	<div class="live-button-wrapper">
-		{{template "favoriteButton" .}}
-		<button
-			hx-target="#main-modal"
-			hx-get="/modal/livelist"
-			@click="$refs.modal.innerHTML = ''; $refs.modal.showModal()"
-			class="live-button"
-			name="liveid"
-			value="{{.ID}}"
-		>
-			{{template "addToListIcon"}}
-		</button>
-	</div>
-</li>
-{{end}}
+{{ define "live" }}
+  <li class="live-entry">
+    <a class="live-main" href="{{ .URL }}" target="_blank">
+      {{ if .Desc }}
+        <div class="live-comment">
+          <span>{{ T "livelist.comment" }}</span>
+          <p>{{ .Desc }}</p>
+        </div>
+      {{ end }}
+      <h3>{{ .Title }}</h3>
+      <h4>{{ T "general.artists" }}</h4>
+      <ul class="live-artist-list non-bullet-list">
+        {{ range $artist := .Artists }}
+          <li class="live-artist">{{ $artist }}</li>
+        {{ end }}
+      </ul>
+      <div class="live-details">
+        <p>{{ T "util.open" "Open" (ParseDate .OpenTime) }}</p>
+        <p>{{ T "util.start" "Start" (ParseDate .StartTime) }}</p>
+        <p class="live-livehouse">{{ T (printf "livehouse.%s" .Venue.ID) }}</p>
+        <div class="location-wrapper">
+          {{ template "locationOn" }}
+          <span
+            >{{ T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" .Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" .Venue.Area.Prefecture .Venue.Area.Area)) }}</span
+          >
+        </div>
+      </div>
+    </a>
+    <div class="live-button-wrapper">
+      {{ template "favoriteButton" . }}
+      <button
+        hx-target="#main-modal"
+        hx-get="/modal/livelist"
+        @click="$refs.modal.innerHTML = ''; $refs.modal.showModal()"
+        class="live-button"
+        name="liveid"
+        value="{{ .ID }}"
+      >
+        {{ template "addToListIcon" }}
+      </button>
+    </div>
+  </li>
+{{ end }}
 
-{{define "addToListIcon"}}
-<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368"><path d="M130-330v-60h280v60H130Zm0-160v-60h440v60H130Zm0-160v-60h440v60H130Zm520 480v-160H490v-60h160v-160h60v160h160v60H710v160h-60Z"/></svg>
-{{end}}
+{{ define "addToListIcon" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#5f6368"
+  >
+    <path
+      d="M130-330v-60h280v60H130Zm0-160v-60h440v60H130Zm0-160v-60h440v60H130Zm520 480v-160H490v-60h160v-160h60v160h160v60H710v160h-60Z"
+    />
+  </svg>
+{{ end }}

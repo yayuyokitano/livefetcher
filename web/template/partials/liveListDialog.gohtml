@@ -1,49 +1,73 @@
-{{define "liveListDialog"}}
-<h2>{{T "livelist.header"}}</h2>
-{{template "addToLiveList" .}}
-<ul class="non-bullet-list">
-	{{range $live := .LiveLiveLists}}
-		{{template "liveListDialogItem" .}}
-	{{end}}
-</ul>
-{{end}}
+{{ define "liveListDialog" }}
+  <h2>{{ T "livelist.header" }}</h2>
+  {{ template "addToLiveList" . }}
+  <ul class="non-bullet-list">
+    {{ range $live := .LiveLiveLists }}
+      {{ template "liveListDialogItem" . }}
+    {{ end }}
+  </ul>
+{{ end }}
 
-{{define "liveListDialogItem"}}
-<li>
-	<a href="/list/{{.ID}}">
-		<h3>{{.Title}}</h3>
-		<p>{{.LiveDesc}}</p>
-	</a>
-</li>
-{{end}}
+{{ define "liveListDialogItem" }}
+  <li>
+    <a href="/list/{{ .ID }}">
+      <h3>{{ .Title }}</h3>
+      <p>{{ .LiveDesc }}</p>
+    </a>
+  </li>
+{{ end }}
 
-{{define "addToLiveList"}}
-<form action="/api/addToList" method="post" class="livelist-add-section">
-	<details class="expand-wrapper add-to-live-list-section">
-		<summary class="expand-button">{{T "livelist.add-header"}}</summary>
-		<h3>{{T "livelist.add-header"}}</h3>
-		<label for="livelist-add-comment">{{T "livelist.comment"}}</label>
-		<br />
-		<textarea id="livelist-add-comment" name="LiveDesc" placeholder="{{T "livelist.comment"}}"></textarea>
-		<input type="hidden" name="LiveID" value="{{.LiveID}}" />
+{{ define "addToLiveList" }}
+  <form action="/api/addToList" method="post" class="livelist-add-section">
+    <details class="expand-wrapper add-to-live-list-section">
+      <summary class="expand-button">{{ T "livelist.add-header" }}</summary>
+      <h3>{{ T "livelist.add-header" }}</h3>
+      <label for="livelist-add-comment">{{ T "livelist.comment" }}</label>
+      <br />
+      <textarea
+        id="livelist-add-comment"
+        name="LiveDesc"
+        placeholder="{{ T "livelist.comment" }}"
+      ></textarea>
+      <input type="hidden" name="LiveID" value="{{ .LiveID }}" />
 
-		{{if .PersonalLiveLists}}
-			<h4>{{T "livelist.select-existing"}}</h4>
-			<select name="ExistingLiveListID">
-				{{range $liveList := .PersonalLiveLists}}
-					<option value="{{$liveList.ID}}">{{$liveList.Title}}</option>
-				{{end}}
-			</select>
-			<br />
-			<button type="submit" name="AdditionType" value="ExistingList" class="brand-button">{{T "livelist.add"}}</button>
-		{{end}}
+      {{ if .PersonalLiveLists }}
+        <h4>{{ T "livelist.select-existing" }}</h4>
+        <select name="ExistingLiveListID">
+          {{ range $liveList := .PersonalLiveLists }}
+            <option value="{{ $liveList.ID }}">{{ $liveList.Title }}</option>
+          {{ end }}
+        </select>
+        <br />
+        <button
+          type="submit"
+          name="AdditionType"
+          value="ExistingList"
+          class="brand-button"
+        >
+          {{ T "livelist.add" }}
+        </button>
+      {{ end }}
 
-		<h4>{{T "livelist.create-header"}}</h4>
-		<label for="livelist-create-name">{{T "livelist.name-label"}}</label>
-		<br />
-		<input id="livelist-create-name" type="text" placeholder="{{T "livelist.name-label"}}" name="NewLiveListTitle"/>
-		<br />
-		<button type="submit" name="AdditionType" value="NewList" class="brand-button">{{T "livelist.create"}}</button>
-	</details>
-</form>
-{{end}}
+
+      <h4>{{ T "livelist.create-header" }}</h4>
+      <label for="livelist-create-name">{{ T "livelist.name-label" }}</label>
+      <br />
+      <input
+        id="livelist-create-name"
+        type="text"
+        placeholder="{{ T "livelist.name-label" }}"
+        name="NewLiveListTitle"
+      />
+      <br />
+      <button
+        type="submit"
+        name="AdditionType"
+        value="NewList"
+        class="brand-button"
+      >
+        {{ T "livelist.create" }}
+      </button>
+    </details>
+  </form>
+{{ end }}
