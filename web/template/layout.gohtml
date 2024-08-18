@@ -128,7 +128,10 @@
           <span>{{ .Nickname }}</span>
         </li>
         <li>
-          <a href="/profile" hx-boost="false" class="menu-link-button"
+          <a
+            href="/user/{{ .Username }}"
+            hx-boost="false"
+            class="menu-link-button"
             >{{ T "general.profile" }}</a
           >
         </li>

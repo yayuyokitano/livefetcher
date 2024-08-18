@@ -1,0 +1,15 @@
+{{ define "title" }}{{ .Nickname }}{{ end }}
+
+{{ define "styles" }}{{ end }}
+
+{{ define "body" }}
+  {{ $authUser := GetUser }}
+  <h1>Profile of {{ .Nickname }} (@{{ .Username }})</h1>
+  <p>
+    This is
+    {{ if ne .Username $authUser.Username }}
+      not
+    {{ end }}
+    you!
+  </p>
+{{ end }}
