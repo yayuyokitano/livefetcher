@@ -43,7 +43,9 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 	}
 
 	fp := filepath.Join("web", "template", "partials", "liveListDialog.html")
-	templ, err := template.New("liveListDialog").ParseFiles(fp)
+	templ, err := template.New("liveListDialog").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+	}).ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -149,5 +151,5 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 }
 
 func liveListTitle(title string, r *http.Request) string {
-	return i18nloader.GetLocalizer(r).Localize("general.livelist-title", "LiveList", title)
+	return i18nloader.GetLocalizer(r).Localize("livelist.title", "LiveList", title)
 }

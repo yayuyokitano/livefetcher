@@ -33,6 +33,21 @@ h2 {
 	display: none;
 }
 
+.brand-button {
+	font-size: 1.15rem;
+	border: none;
+	padding: 0.75rem 1rem;
+	border-radius: 1rem;
+	background-color: var(--brand);
+	color: var(--always-light);
+	cursor: pointer;
+}
+
+.brand-button:hover,
+.brand-button:focus-visible {
+	background-color: var(--brand-focus);
+}
+
 .nav-search-wrapper button {
 	background-color: var(--always-light);
 	border: none;
@@ -265,6 +280,82 @@ h2 {
 
 .livelist-header {
 	text-align: center;
+}
+
+#main-modal {
+	height: 90%;
+	max-width: 90%;
+	border: none;
+	border-radius: 2rem;
+	padding: 1rem;
+	box-sizing: border-box;
+}
+
+
+.add-to-live-list-section[open] {
+	background-color: var(--bg2);
+	border-radius: 1rem;
+	padding: 1rem;
+}
+
+.add-to-live-list-section h3 {
+	padding-top: 0;
+	margin-top: 0;
+	font-size: 1.5rem;
+}
+
+.add-to-live-list-section label {
+	font-size: 1.15rem;
+	font-weight: bold;
+}
+
+.add-to-live-list-section textarea {
+	font-size: 1rem;
+	font-family: inherit;
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	border: none;
+	height: 5rem;
+	max-width: 100%;
+	width: 40ch;
+	box-sizing: border-box;
+}
+
+.add-to-live-list-section h4 {
+	margin-bottom: 0.4rem;
+	font-size: 1.5rem;
+}
+
+.add-to-live-list-section input,
+.add-to-live-list-section select {
+	font-size: 1.25rem;
+	padding: 0.5rem;
+	border-radius: 0.5rem;
+	border: none;
+	margin-bottom: 0.75rem;
+}
+
+.expand-button {
+	list-style: none;
+}
+
+.expand-wrapper[open] .expand-button {
+	display: none;
+}
+
+.expand-wrapper:not([open]) .expand-button {
+	display: inline-block;
+	background-color: var(--brand);
+	padding: 0.75rem 1rem;
+	border-radius: 1rem;
+	color: var(--always-light);
+	cursor: pointer;
+	font-size: 1.25rem;
+}
+
+.expand-wrapper:not([open]) .expand-button:hover,
+.expand-wrapper:not([open]) .expand-button:focus-visible {
+	background-color: var(--brand-focus);
 }
 
 #result-dump {
