@@ -1,5 +1,5 @@
 {{ define "liveListDialog" }}
-  <h2>{{ T "livelist.header" }}</h2>
+  <h2 class="general-header">{{ T "livelist.header" }}</h2>
   {{ template "addToLiveList" . }}
   <ul class="non-bullet-list">
     {{ range $live := .LiveLiveLists }}

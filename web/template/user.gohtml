@@ -4,10 +4,28 @@
 
 {{ define "body" }}
   {{ $authUser := GetUser }}
-  <h1>Profile of {{ .Nickname }} (@{{ .Username }})</h1>
+  {{ $isSelf := eq .Username $authUser.Username }}
+  <div x-data="{ editing: false }">
+    <div x-show="! editing">
+      <h1 class="big-header">{{ .Nickname }}</h1>
+      <h2 class="general-header">@{{ .Username }}&nbsp;</h2>
+      <div class="bio">
+        <p>{{ .Bio }}</p>
+        <span class="location">{{ .Location }}</span>
+      </div>
+      <button @click="editing = ! editing" class="brand-button">
+        Edit Profile
+      </button>
+    </div>
+    <div x-show="editing">
+      <p>Hi u can edit here</p>
+      <div class="expand-pad"></div>
+      <button @click="editing = ! editing" class="brand-button">Cancel</button>
+    </div>
+  </div>
   <p>
     This is
-    {{ if ne .Username $authUser.Username }}
+    {{ if not $isSelf }}
       not
     {{ end }}
     you!
