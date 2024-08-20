@@ -35,26 +35,7 @@
       <main>
         {{ template "body" . }}
       </main>
-      <div
-        x-ref="modal"
-        class="modal"
-        id="main-modal"
-        role="dialog"
-        tabindex="-1"
-        x-show="isModalOpen"
-        x-cloak
-        x-transition
-      >
-        <div
-          class="modal-inner"
-          x-ref="modalInner"
-          id="main-modal-inner"
-          @click.away="isModalOpen = false"
-        >
-          <!-- This will be dynamically replaced by htmx before opening -->
-        </div>
-      </div>
-      <div class="overlay" x-show="isModalOpen" x-cloak></div>
+      {{ template "modal" }}
     </body>
   </html>
 {{ end }}
@@ -174,6 +155,29 @@
     {{ template "loginIcon" }}
     <span>{{ T "login.login" }}</span>
   </a>
+{{ end }}
+
+{{ define "modal" }}
+  <div
+    x-ref="modal"
+    class="modal"
+    id="main-modal"
+    role="dialog"
+    tabindex="-1"
+    x-show="isModalOpen"
+    x-cloak
+    x-transition
+  >
+    <div
+      class="modal-inner"
+      x-ref="modalInner"
+      id="main-modal-inner"
+      @click.away="isModalOpen = false"
+    >
+      <!-- This will be dynamically replaced by htmx before opening -->
+    </div>
+  </div>
+  <div class="overlay" x-show="isModalOpen" x-cloak></div>
 {{ end }}
 
 {{ define "searchIcon" }}
