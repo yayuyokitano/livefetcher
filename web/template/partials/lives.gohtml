@@ -37,9 +37,9 @@
     <div class="live-button-wrapper">
       {{ template "favoriteButton" . }}
       <button
-        hx-target="#main-modal"
+        hx-target="#main-modal-inner"
         hx-get="/modal/livelist"
-        @click="$refs.modal.innerHTML = ''; $refs.modal.showModal()"
+        @click="$refs.modalInner.innerHTML = ''; isModalOpen = true"
         class="live-button"
         name="liveid"
         value="{{ .ID }}"

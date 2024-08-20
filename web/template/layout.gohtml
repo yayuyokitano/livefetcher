@@ -25,15 +25,36 @@
         }
       </style>
     </head>
-    <body hx-boost="true">
+    <body
+      hx-boost="true"
+      x-data="{isModalOpen: false}"
+      @keydown.escape="isModalOpen = false"
+    >
       {{ template "desktopNav" . }}
       {{ template "mobileNav" . }}
       <main>
         {{ template "body" . }}
       </main>
-      <dialog x-ref="modal" id="main-modal">
-        <!-- This will be dynamically replaced by htmx before opening -->
-      </dialog>
+      <div
+        x-ref="modal"
+        class="modal"
+        id="main-modal"
+        role="dialog"
+        tabindex="-1"
+        x-show="isModalOpen"
+        x-cloak
+        x-transition
+      >
+        <div
+          class="modal-inner"
+          x-ref="modalInner"
+          id="main-modal-inner"
+          @click.away="isModalOpen = false"
+        >
+          <!-- This will be dynamically replaced by htmx before opening -->
+        </div>
+      </div>
+      <div class="overlay" x-show="isModalOpen" x-cloak></div>
     </body>
   </html>
 {{ end }}
