@@ -126,6 +126,7 @@ body {
   position: absolute;
   transform: translateX(-100%);
   left: 100%;
+  background-color: var(--bg);
 }
 
 .user-popup button,

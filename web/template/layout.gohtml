@@ -10,7 +10,6 @@
       <script src="/static/vendor/htmx.min.js" defer></script>
       <script src="/static/vendor/head-support.js" defer></script>
       <script src="/static/vendor/alpinejs.min.js" defer></script>
-      <script src="/static/util.js" defer></script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="stylesheet" type="text/css" href="/static/themes.css" />
       <link rel="stylesheet" type="text/css" href="/static/styles.css" />
@@ -119,12 +118,20 @@
 {{ end }}
 
 {{ define "loggedInUser" }}
-  <div class="dialog-button-wrapper">
-    <button class="nav-button user-button">
+  <div class="dialog-button-wrapper" x-data="{ isUserPopupOpen: false }">
+    <button class="nav-button user-button" @click="isUserPopupOpen = true">
       {{ template "userIcon" }}
       <span>{{ T "general.user" }}</span>
     </button>
-    <dialog class="user-popup">
+    <div
+      class="user-popup"
+      x-show="isUserPopupOpen"
+      role="dialog"
+      tabindex="-1"
+      x-cloak
+      hx-preserve="true"
+      @click.away="isUserPopupOpen = false"
+    >
       <ul class="non-bullet-list">
         <li>
           <span>{{ .Nickname }}</span>
@@ -146,7 +153,7 @@
           <button hx-post="/api/logout">{{ T "login.sign-out" }}</button>
         </li>
       </ul>
-    </dialog>
+    </div>
   </div>
 {{ end }}
 
