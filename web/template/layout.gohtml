@@ -167,6 +167,7 @@
     x-show="isModalOpen"
     x-cloak
     x-transition
+    hx-preserve="true"
   >
     <div
       class="modal-inner"
@@ -177,7 +178,7 @@
       <!-- This will be dynamically replaced by htmx before opening -->
     </div>
   </div>
-  <div class="overlay" x-show="isModalOpen" x-cloak></div>
+  <div hx-preserve="true" class="overlay" x-show="isModalOpen" x-cloak></div>
 {{ end }}
 
 {{ define "searchIcon" }}
