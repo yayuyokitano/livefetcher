@@ -1,21 +1,31 @@
 {{ define "liveListDialog" }}
   <h2 class="general-header">{{ T "livelist.header" }}</h2>
   {{ template "addToLiveList" . }}
-  <ul class="non-bullet-list">
-    {{ range $live := .LiveLiveLists }}
-      {{ template "liveListDialogItem" . }}
-    {{ end }}
-  </ul>
+  {{ if .LiveLiveLists }}
+    <ul class="non-bullet-list">
+      {{ range $live := .LiveLiveLists }}
+        {{ template "liveListDialogItem" . }}
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p>{{ T "livelist.no-live-lists-contain-live" }}</p>
+  {{ end }}
 {{ end }}
 
 {{ define "liveListDialogItem" }}
   <li>
-    <a href="/list/{{ .ID }}" class="livelist-listing">
-      <h3 class="title">{{ .Title }}</h3>
+    <a
+      href="/list/{{ .ID }}"
+      class="livelist-listing"
+      @click="isModalOpen = false"
+    >
+      <h3 class="title">{{ or .Title ( T "livelist.default-title" ) }}</h3>
       <span class="author"
         >{{ T "livelist.made-by" "Author" .User.Nickname }}</span
       >
-      <p class="description">{{ .LiveDesc }}</p>
+      {{ with .LiveDesc }}
+        <p class="description">{{ . }}</p>
+      {{ end }}
     </a>
   </li>
 {{ end }}

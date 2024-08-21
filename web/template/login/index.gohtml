@@ -1,7 +1,9 @@
 {{ define "title" }}{{ T "general.login-title" }}{{ end }}
-{{ define "styles" }}
+
+{{ define "head" }}
   <link rel="stylesheet" type="text/css" href="/static/login.css" />
 {{ end }}
+
 {{ define "body" }}
   <form action="/api/login" method="post" class="login-form">
     <h1>{{ T "login.login" }}</h1>

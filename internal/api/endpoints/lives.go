@@ -98,7 +98,9 @@ func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	}
 
 	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
-	templ, err := template.New("favoriteButton").ParseFiles(fp)
+	templ, err := template.New("favoriteButton").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+	}).ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -132,7 +134,9 @@ func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.Respons
 	}
 
 	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
-	templ, err := template.New("favoriteButton").ParseFiles(fp)
+	templ, err := template.New("favoriteButton").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+	}).ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

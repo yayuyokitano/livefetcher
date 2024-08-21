@@ -1,9 +1,13 @@
 {{ define "lives" }}
-  <ul class="live-list non-bullet-list">
-    {{ range $live := . }}
-      {{ template "live" $live }}
-    {{ end }}
-  </ul>
+  {{ if . }}
+    <ul class="live-list non-bullet-list">
+      {{ range $live := . }}
+        {{ template "live" $live }}
+      {{ end }}
+    </ul>
+  {{ else }}
+    <p>{{ T "live.no-lives-found" }}</p>
+  {{ end }}
 {{ end }}
 
 {{ define "live" }}
@@ -43,6 +47,8 @@
         class="live-button"
         name="liveid"
         value="{{ .ID }}"
+        title="{{ T "live.add-to-livelist-label" }}"
+        aria-label="{{ T "live.add-to-livelist-label" }}"
       >
         {{ template "addToListIcon" }}
       </button>

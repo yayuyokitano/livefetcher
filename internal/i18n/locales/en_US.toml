@@ -15,6 +15,8 @@ user = "User"
 profile = "Profile"
 favorite-lives-header = "Favorite Lives"
 favorite-lives-title = "Favorite Lives | LiveRadar"
+add-to-favorites = "Add to favorites"
+remove-from-favorites = "Remove from favorites"
 
 [login]
 username = "Username"
@@ -36,6 +38,7 @@ sign-out = "Sign Out"
 comment = "Comment"
 title = "{{.LiveList}} | LiveRadar"
 header = "Live Lists Containing This Live"
+no-live-lists-contain-live = "No live lists contain this live, be the first to add it!"
 add-header = "Add to Live List"
 select-existing = "Select Live List"
 add = "Add"
@@ -43,6 +46,12 @@ create-header = "Create New Live List"
 name-label = "Name"
 create = "Create"
 made-by = "by {{.Author}}"
+default-title = "Untitled Live List"
+default-description = "No description provided."
+
+[live]
+no-lives-found = "No lives were found"
+add-to-livelist-label = "Add to live list"
 
 [label]
 artist = "Participating Artist"

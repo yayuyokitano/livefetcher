@@ -1,14 +1,25 @@
 {{ define "favoriteButton" }}
+  <!-- TODO: Add loading indicator? -->
   <button
     hx-swap="outerHTML"
-    hx-post="/api/{{ if .IsFavorited }}
+    hx-post="/api/{{ if .IsFavorited -}}
       unfavorite
-    {{ else }}
+    {{- else -}}
       favorite
-    {{ end }}"
+    {{- end }}"
     class="live-button"
     name="Liveid"
     value="{{ .ID }}"
+    title="{{ if .IsFavorited -}}
+      {{ T "general.remove-from-favorites" }}
+    {{- else -}}
+      {{ T "general.add-to-favorites" }}
+    {{- end }}"
+    aria-label="{{ if .IsFavorited -}}
+      {{ T "general.remove-from-favorites" }}
+    {{- else -}}
+      {{ T "general.add-to-favorites" }}
+    {{- end }}"
   >
     {{ if .IsFavorited }}
       {{ template "heartFilled" }}

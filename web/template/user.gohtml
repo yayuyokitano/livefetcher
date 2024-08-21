@@ -1,6 +1,6 @@
 {{ define "title" }}{{ .Nickname }}{{ end }}
 
-{{ define "styles" }}{{ end }}
+{{ define "head" }}{{ end }}
 
 {{ define "body" }}
   {{ $authUser := GetUser }}
@@ -13,14 +13,23 @@
         <p>{{ .Bio }}</p>
         <span class="location">{{ .Location }}</span>
       </div>
-      <button @click="editing = ! editing" class="brand-button">
+      <button
+        @click="editing = ! editing"
+        class="brand-button"
+        aria-label="Edit Profile"
+      >
         Edit Profile
       </button>
     </div>
     <div x-show="editing">
       <p>Hi u can edit here</p>
-      <div class="expand-pad"></div>
-      <button @click="editing = ! editing" class="brand-button">Cancel</button>
+      <button
+        @click="editing = ! editing"
+        class="brand-button"
+        aria-label="Cancel Editing"
+      >
+        Cancel
+      </button>
     </div>
   </div>
   <p>

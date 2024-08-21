@@ -1,6 +1,6 @@
 {{ define "title" }}{{ T "general.main-title" }}{{ end }}
 
-{{ define "styles" }}{{ end }}
+{{ define "head" }}{{ end }}
 
 {{ define "body" }}
   <h1>This is defintiely a website :)))</h1>
@@ -15,6 +15,7 @@
 {{ end }}
 
 {{ define "areas" }}
+  <!-- TODO: Add aria labels -->
   <ul class="non-bullet-list" x-data="{store: {}}">
     <span>{{ T "label.area" }}</span>
     <br />

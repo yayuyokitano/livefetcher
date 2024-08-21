@@ -15,6 +15,8 @@ user = "ユーザー"
 profile = "プロフィール"
 favorite-lives-header = "お気に入りライブ"
 favorite-lives-title = "お気に入りライブ | LiveRadar"
+add-to-favorites = "お気に入りに追加する"
+remove-from-favorites = "お気に入りを削除する"
 
 [login]
 username = "ユーザー名"
@@ -36,6 +38,7 @@ sign-out = "ログアウト"
 comment = "コメント"
 title = "{{.LiveList}} | LiveRadar"
 header = "このライブが含まれるライブリスト"
+no-live-lists-contain-live = "このライブが含まれるライブリストはありません。"
 add-header = "ライブリストに追加"
 select-existing = "ライブリストを選ぶ"
 add = "追加する"
@@ -43,6 +46,12 @@ create-header = "新規ライブリスト"
 name-label = "ライブリスト名"
 create = "作成"
 made-by = "作者：{{.Author}}"
+default-title = "無題のプレイリスト"
+default-description = "説明はありません。"
+
+[live]
+no-lives-found = "一致するライブは見つかりませんでした"
+add-to-livelist-label = "ライブリストに追加"
 
 [label]
 artist = "参加アーティスト"

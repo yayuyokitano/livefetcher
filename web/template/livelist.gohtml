@@ -1,12 +1,14 @@
 {{ define "title" }}{{ LiveListTitle }}{{ end }}
 
-{{ define "styles" }}{{ end }}
+{{ define "head" }}{{ end }}
 
 {{ define "body" }}
   <header class="livelist-header">
-    <h2 class="general-header">{{ .Title }}</h2>
-    <h3>{{ .Desc }}</h3>
-    <p>{{ .User.Nickname }}</p>
+    <h2 class="general-header">
+      {{ or .Title ( T "livelist.default-title" ) }}
+    </h2>
+    <p>{{ or .Desc ( T "livelist.default-description" ) }}</p>
+    <a href="/user/{{ .User.Username }}">{{ .User.Nickname }}</a>
   </header>
   {{ template "lives" .Lives }}
 {{ end }}

@@ -11,18 +11,11 @@
       <script src="/static/vendor/head-support.js" defer></script>
       <script src="/static/vendor/alpinejs.min.js" defer></script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta charset="UTF-8" />
+      <!-- TODO: add description meta tag? -->
       <link rel="stylesheet" type="text/css" href="/static/themes.css" />
       <link rel="stylesheet" type="text/css" href="/static/styles.css" />
-      {{ template "styles" }}
-      <style>
-        .material-symbols-outlined {
-          font-variation-settings:
-            "FILL" 0,
-            "wght" 400,
-            "GRAD" 0,
-            "opsz" 24;
-        }
-      </style>
+      {{ template "head" . }}
     </head>
     <body
       hx-boost="true"
@@ -68,6 +61,7 @@
         name="Artist"
         type="text"
         placeholder="{{ T "general.searchplaceholder" }}"
+        aria-label="{{ T "general.searchplaceholder" }}"
       />
       <button type="submit">
         {{ template "searchIcon" }}
@@ -85,6 +79,7 @@
       />
     </a>
     <form class="nav-search-wrapper" action="/search">
+      <!-- TODO: add label -->
       <input
         class="nav-search"
         name="Artist"
