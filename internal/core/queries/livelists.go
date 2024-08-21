@@ -117,17 +117,18 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 	err = nil
 
 	queryStr := `WITH queriedlives AS (
-		SELECT livelistlive.id AS id, live_description, live.id AS live_id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
+		SELECT livelistlive.id AS id, livelist.users_id AS livelist_owner_id, live_description, live.id AS live_id, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
 		FROM lives AS live
 		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
 		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
 		INNER JOIN areas area ON (area.id = livehouse.areas_id)
 		INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id AND livelistlive.livelists_id=$1)
+		INNER JOIN livelists livelist ON (livelistlive.livelists_id = livelist.id)
 	)
-	SELECT id, live_description, live_id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	SELECT id, livelist_owner_id, live_description, live_id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	FROM queriedlives
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.live_id)
-	GROUP BY id, live_description, live_id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	GROUP BY id, livelist_owner_id, live_description, live_id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	ORDER BY starttime`
 
 	rows, err := tx.Query(ctx, queryStr, liveList.ID)
@@ -136,7 +137,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 	}
 	for rows.Next() {
 		var l util.Live
-		err = rows.Scan(&l.LiveListLiveID, &l.Desc, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		err = rows.Scan(&l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
 		}

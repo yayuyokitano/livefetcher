@@ -135,6 +135,9 @@ func startServer() {
 	router.Handle("/list/{id}", router.Methods{
 		GET: endpoints.ShowLiveList,
 	})
+	router.Handle("/livelistlive/{id}", router.Methods{
+		DELETE: endpoints.DeleteLiveListLive,
+	})
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})

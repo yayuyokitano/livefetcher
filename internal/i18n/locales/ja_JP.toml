@@ -15,8 +15,8 @@ user = "ユーザー"
 profile = "プロフィール"
 favorite-lives-header = "お気に入りライブ"
 favorite-lives-title = "お気に入りライブ | LiveRadar"
-add-to-favorites = "お気に入りに追加する"
-remove-from-favorites = "お気に入りを削除する"
+add-to-favorites = "お気に入りに追加"
+remove-from-favorites = "お気に入りから削除"
 
 [login]
 username = "ユーザー名"
@@ -52,6 +52,7 @@ default-description = "説明はありません。"
 [live]
 no-lives-found = "一致するライブは見つかりませんでした"
 add-to-livelist-label = "ライブリストに追加"
+remove-from-livelist-label = "ライブリストから削除"
 
 [label]
 artist = "参加アーティスト"

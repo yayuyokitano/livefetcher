@@ -52,6 +52,7 @@ default-description = "No description provided."
 [live]
 no-lives-found = "No lives were found"
 add-to-livelist-label = "Add to live list"
+remove-from-livelist-label = "Remove from live list"
 
 [label]
 artist = "Participating Artist"

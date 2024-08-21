@@ -53,6 +53,8 @@ func Handle(endpoint string, m Methods) {
 			method = m.GET
 		case "POST":
 			method = m.POST
+		case "DELETE":
+			method = m.DELETE
 		case "OPTIONS": // CORS preflight request
 			method = HandleCORSPreflight
 		default:

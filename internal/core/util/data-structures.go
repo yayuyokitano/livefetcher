@@ -39,8 +39,9 @@ type Live struct {
 	FavoriteCount int
 
 	// only used for livelists
-	LiveListLiveID int64
-	Desc           string
+	LiveListLiveID  int64
+	LiveListOwnerID int64
+	Desc            string
 }
 
 type Area struct {

@@ -150,6 +150,21 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 
 }
 
+func DeleteLiveListLive(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+	ctx := context.Background()
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	err = queries.DeleteLiveListLive(ctx, int64(id))
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
 func liveListTitle(title string, r *http.Request) string {
 	return i18nloader.GetLocalizer(r).Localize("livelist.title", "LiveList", title)
 }
