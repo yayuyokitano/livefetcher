@@ -33,6 +33,7 @@
 {{ define "addToLiveList" }}
   <form action="/api/addToList" method="post" class="livelist-add-section">
     <details class="expand-wrapper add-to-live-list-section">
+			<!-- TODO: loading on submit and close on success, use hx-trigger and alpine I guess -->
       <summary class="expand-button">{{ T "livelist.add-header" }}</summary>
       <h3>{{ T "livelist.add-header" }}</h3>
       <label for="livelist-add-comment">{{ T "livelist.comment" }}</label>
