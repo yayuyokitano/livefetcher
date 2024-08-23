@@ -58,6 +58,10 @@ body {
   background-color: var(--brand-focus);
 }
 
+.brand-button[readonly] {
+  background-color: var(--brand-disabled);
+}
+
 .nav-search-wrapper button {
   background-color: var(--always-light);
   border: none;

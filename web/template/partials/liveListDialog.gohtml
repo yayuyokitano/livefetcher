@@ -31,9 +31,15 @@
 {{ end }}
 
 {{ define "addToLiveList" }}
-  <form action="/api/addToList" method="post" class="livelist-add-section">
+  <form
+    action="/api/addToList"
+    method="post"
+    class="livelist-add-section"
+    x-data="{isDisabled: false}"
+    @submit="isDisabled = true"
+    @livelistadded="isDisabled = false"
+  >
     <details class="expand-wrapper add-to-live-list-section">
-			<!-- TODO: loading on submit and close on success, use hx-trigger and alpine I guess -->
       <summary class="expand-button">{{ T "livelist.add-header" }}</summary>
       <h3>{{ T "livelist.add-header" }}</h3>
       <label for="livelist-add-comment">{{ T "livelist.comment" }}</label>
@@ -42,12 +48,13 @@
         id="livelist-add-comment"
         name="LiveDesc"
         placeholder="{{ T "livelist.comment" }}"
+        :readonly="isDisabled"
       ></textarea>
       <input type="hidden" name="LiveID" value="{{ .LiveID }}" />
 
       {{ if .PersonalLiveLists }}
         <h4>{{ T "livelist.select-existing" }}</h4>
-        <select name="ExistingLiveListID">
+        <select name="ExistingLiveListID" :disabled="isDisabled">
           {{ range $liveList := .PersonalLiveLists }}
             <option value="{{ $liveList.ID }}">{{ $liveList.Title }}</option>
           {{ end }}
@@ -58,6 +65,7 @@
           name="AdditionType"
           value="ExistingList"
           class="brand-button"
+          :readonly="isDisabled"
         >
           {{ T "livelist.add" }}
         </button>
@@ -72,6 +80,7 @@
         type="text"
         placeholder="{{ T "livelist.name-label" }}"
         name="NewLiveListTitle"
+        :readonly="isDisabled"
       />
       <br />
       <button
@@ -79,6 +88,7 @@
         name="AdditionType"
         value="NewList"
         class="brand-button"
+        :readonly="isDisabled"
       >
         {{ T "livelist.create" }}
       </button>

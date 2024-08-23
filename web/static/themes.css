@@ -5,6 +5,7 @@ html {
   --shadow: #bbb;
   --brand: #ef6c00;
   --brand-focus: #f57c00;
+  --brand-disabled: #e0e0e0;
   --always-light: #fff;
   --always-dark: #222;
   --neuomorphic: 5px 5px 20px #bbb, -5px -5px 20px #fff9f9;

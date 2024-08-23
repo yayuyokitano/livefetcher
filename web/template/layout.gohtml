@@ -21,6 +21,7 @@
       hx-boost="true"
       x-data="{isModalOpen: false}"
       @keydown.escape="isModalOpen = false"
+      @closemainmodal="isModalOpen = false"
     >
       {{ template "desktopNav" . }}
       {{ template "mobileNav" . }}
