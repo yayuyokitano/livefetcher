@@ -391,6 +391,12 @@ body {
   margin-bottom: 0.75rem;
 }
 
+.add-to-live-list-section input[readonly],
+.add-to-live-list-section select[readonly],
+.add-to-live-list-section textarea[readonly] {
+  background: var(--brand-disabled);
+}
+
 .expand-button {
   list-style: none;
 }

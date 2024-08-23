@@ -58,6 +58,7 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 
 func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	httpWriter.Header().Add("HX-Trigger", "livelistadded")
+	time.Sleep(time.Second)
 	ctx := context.Background()
 
 	if user.Username == "" {
