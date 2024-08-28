@@ -17,8 +17,13 @@ favorite-lives-header = "お気に入りライブ"
 favorite-lives-title = "お気に入りライブ | LiveRadar"
 add-to-favorites = "お気に入りに追加"
 remove-from-favorites = "お気に入りから削除"
+confirm = "確認"
+cancel = "キャンセル"
 
 [login]
+nickname = "ニックネーム"
+bio = "自己紹介"
+location = "場所"
 username = "ユーザー名"
 email = "メールアドレス"
 username-or-email = "ユーザー名またはメールアドレス"
@@ -33,6 +38,7 @@ register-button-label = "登録する"
 mail-dont-match = "メールアドレスと確認用メールアドレスが一致しません"
 password-dont-match = "パスワードと確認用パスワードが一致しません"
 sign-out = "ログアウト"
+edit-profile = "プロフィールを編集"
 
 [livelist]
 comment = "コメント"

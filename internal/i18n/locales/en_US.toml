@@ -17,6 +17,8 @@ favorite-lives-header = "Favorite Lives"
 favorite-lives-title = "Favorite Lives | LiveRadar"
 add-to-favorites = "Add to favorites"
 remove-from-favorites = "Remove from favorites"
+confirm = "Confirm"
+cancel = "Cancel"
 
 [login]
 nickname = "Nickname"
@@ -36,6 +38,7 @@ register-button-label = "Register"
 mail-dont-match = "Email addresses don't match"
 password-dont-match = "Passwords don't match"
 sign-out = "Sign Out"
+edit-profile = "Edit Profile"
 
 [livelist]
 comment = "Comment"

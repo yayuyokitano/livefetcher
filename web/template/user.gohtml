@@ -14,12 +14,8 @@
         <span class="location">{{ .Location }}</span>
       </div>
       {{ if $isSelf }}
-        <button
-          @click="editing = ! editing"
-          class="brand-button"
-          aria-label="Edit Profile"
-        >
-          Edit Profile
+        <button @click="editing = ! editing" class="brand-button">
+          {{ T "login.edit-profile" }}
         </button>
       {{ end }}
     </div>
@@ -39,7 +35,7 @@
 {{ define "editView" }}
   <form method="PATCH" action="/api/user">
     <div>
-      <label for="edit-nickname">Nickname</label>
+      <label for="edit-nickname">{{ T "login.nickname" }}</label>
       <input
         type="text"
         id="edit-nickname"
@@ -48,7 +44,7 @@
       />
     </div>
     <div>
-      <label for="edit-username">Username</label>
+      <label for="edit-username">{{ T "login.username" }}</label>
       <input
         type="text"
         id="edit-username"
@@ -57,11 +53,11 @@
       />
     </div>
     <div>
-      <label for="edit-email">Email</label>
+      <label for="edit-email">{{ T "login.email" }}</label>
       <input type="text" id="edit-email" name="email" value="" />
     </div>
     <div>
-      <label for="edit-location">Location</label>
+      <label for="edit-location">{{ T "login.location" }}</label>
       <input
         type="text"
         id="edit-location"
@@ -70,17 +66,14 @@
       />
     </div>
     <div>
-      <label for="edit-bio"></label>
+      <label for="edit-bio">{{ T "login.bio" }}</label>
       <textarea id="edit-bio" name="bio">{{ .Bio }}</textarea>
     </div>
-    <button class="brand-button" type="submit">Submit</button>
-    <button
-      @click="editing = ! editing"
-      class="brand-button"
-      aria-label="Cancel Editing"
-      type="button"
-    >
-      Cancel
+    <button class="brand-button" type="submit">
+      {{ T "general.confirm" }}
+    </button>
+    <button @click="editing = ! editing" class="brand-button" type="button">
+      {{ T "general.cancel" }}
     </button>
   </form>
 {{ end }}
