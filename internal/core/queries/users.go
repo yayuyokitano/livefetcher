@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
@@ -15,6 +16,10 @@ func GetUserByID(ctx context.Context, id int) (user util.User, err error) {
 	if err != nil {
 		return
 	}
+	return getUserByIDQuery(ctx, tx, id)
+}
+
+func getUserByIDQuery(ctx context.Context, tx pgx.Tx, id int) (user util.User, err error) {
 	row := tx.QueryRow(ctx, "SELECT id, email, username, nickname, password_hash, bio, location, is_verified FROM users WHERE id=$1", id)
 	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.Nickname, &user.PasswordHash, &user.Bio, &user.Location, &user.IsVerified)
 	return
@@ -55,6 +60,50 @@ func PostUser(ctx context.Context, user util.User) (err error) {
 	}
 	if cmd.RowsAffected() == 1 {
 		logging.IncrementUsers()
+	}
+
+	err = counters.CommitTransaction(tx)
+	return
+}
+
+func PatchUser(ctx context.Context, patchInfo util.User) (err error) {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return
+	}
+
+	user, err := getUserByIDQuery(ctx, tx, int(patchInfo.ID))
+	if err != nil {
+		return
+	}
+	if patchInfo.ID != user.ID {
+		return errors.New("user not found")
+	}
+
+	if patchInfo.Username != "" {
+		user.Username = patchInfo.Username
+	}
+	if patchInfo.Nickname != "" {
+		user.Nickname = patchInfo.Nickname
+	}
+	if patchInfo.Email != "" && patchInfo.Email != user.Email {
+		user.Email = patchInfo.Email
+		user.IsVerified = false
+	}
+	if patchInfo.PasswordHash != "" {
+		user.PasswordHash = patchInfo.PasswordHash
+	}
+	if patchInfo.Bio != "" {
+		user.Bio = patchInfo.Bio
+	}
+	if patchInfo.Location != "" {
+		user.Location = patchInfo.Location
+	}
+
+	_, err = tx.Exec(ctx, "UPDATE users SET email=$1, username=$2, nickname=$3, password_hash=$4, bio=$5, location=$6, is_verified=$7 WHERE id=$8", user.Email, user.Username, user.Nickname, user.PasswordHash, user.Bio, user.Location, user.IsVerified, user.ID)
+	if err != nil {
+		return
 	}
 
 	err = counters.CommitTransaction(tx)

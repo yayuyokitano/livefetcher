@@ -316,6 +316,7 @@ body {
   height: 90%;
   box-sizing: border-box;
   margin: auto;
+  overflow-y: auto;
 }
 
 .overlay {
@@ -422,6 +423,10 @@ body {
 
 #result-dump {
   flex-grow: 1;
+}
+
+#profile-header {
+  text-align: center;
 }
 
 @media only screen and (width < 2000px) {

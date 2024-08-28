@@ -132,6 +132,12 @@ func startServer() {
 	router.Handle("/user/{username}", router.Methods{
 		GET: endpoints.ShowUser,
 	})
+	router.Handle("/api/user", router.Methods{
+		PATCH: endpoints.PatchUser,
+	})
+	router.Handle("/api/changepassword", router.Methods{
+		POST: endpoints.ChangePassword,
+	})
 	router.Handle("/list/{id}", router.Methods{
 		GET: endpoints.ShowLiveList,
 	})

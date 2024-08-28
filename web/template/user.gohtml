@@ -4,8 +4,8 @@
 
 {{ define "body" }}
   {{ $authUser := GetUser }}
-  {{ $isSelf := eq .Username $authUser.Username }}
-  <div x-data="{ editing: false }">
+  {{ $isSelf := eq .ID $authUser.ID }}
+  <div id="profile-header" x-data="{ editing: false }">
     <div x-show="! editing">
       <h1 class="big-header">{{ .Nickname }}</h1>
       <h2 class="general-header">@{{ .Username }}&nbsp;</h2>
@@ -13,23 +13,18 @@
         <p>{{ .Bio }}</p>
         <span class="location">{{ .Location }}</span>
       </div>
-      <button
-        @click="editing = ! editing"
-        class="brand-button"
-        aria-label="Edit Profile"
-      >
-        Edit Profile
-      </button>
+      {{ if $isSelf }}
+        <button
+          @click="editing = ! editing"
+          class="brand-button"
+          aria-label="Edit Profile"
+        >
+          Edit Profile
+        </button>
+      {{ end }}
     </div>
     <div x-show="editing">
-      <p>Hi u can edit here</p>
-      <button
-        @click="editing = ! editing"
-        class="brand-button"
-        aria-label="Cancel Editing"
-      >
-        Cancel
-      </button>
+      {{ template "editView" . }}
     </div>
   </div>
   <p>
@@ -39,4 +34,53 @@
     {{ end }}
     you!
   </p>
+{{ end }}
+
+{{ define "editView" }}
+  <form method="PATCH" action="/api/user">
+    <div>
+      <label for="edit-nickname">Nickname</label>
+      <input
+        type="text"
+        id="edit-nickname"
+        name="nickname"
+        value="{{ .Nickname }}"
+      />
+    </div>
+    <div>
+      <label for="edit-username">Username</label>
+      <input
+        type="text"
+        id="edit-username"
+        name="username"
+        value="{{ .Username }}"
+      />
+    </div>
+    <div>
+      <label for="edit-email">Email</label>
+      <input type="text" id="edit-email" name="email" value="" />
+    </div>
+    <div>
+      <label for="edit-location">Location</label>
+      <input
+        type="text"
+        id="edit-location"
+        name="location"
+        value="{{ .Location }}"
+      />
+    </div>
+    <div>
+      <label for="edit-bio"></label>
+      <textarea id="edit-bio" name="bio">{{ .Bio }}</textarea>
+    </div>
+    <button class="brand-button" type="submit">Submit</button>
+    <button
+      @click="editing = ! editing"
+      class="brand-button"
+      aria-label="Cancel Editing"
+      type="button"
+    >
+      Cancel
+    </button>
+  </form>
 {{ end }}

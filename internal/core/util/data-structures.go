@@ -5,15 +5,15 @@ import (
 )
 
 type User struct {
-	ID           int64
-	Email        string
-	Username     string
-	Nickname     string
-	PasswordHash string
-	Bio          string
-	Location     string
-	IsVerified   bool
-	Avatar       string
+	ID           int64  `form:"-"`
+	Email        string `form:"email"`
+	Username     string `form:"username"`
+	Nickname     string `form:"nickname"`
+	PasswordHash string `form:"-"`
+	Bio          string `form:"bio"`
+	Location     string `form:"location"`
+	IsVerified   bool   `form:"-"`
+	Avatar       string `form:"-"`
 }
 
 type AuthUser struct {

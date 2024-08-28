@@ -19,6 +19,7 @@ type Methods struct {
 	GET    HTTPImplementer
 	POST   HTTPImplementer
 	PUT    HTTPImplementer
+	PATCH  HTTPImplementer
 	DELETE HTTPImplementer
 }
 
@@ -55,6 +56,8 @@ func Handle(endpoint string, m Methods) {
 			method = m.POST
 		case "DELETE":
 			method = m.DELETE
+		case "PATCH":
+			method = m.PATCH
 		case "OPTIONS": // CORS preflight request
 			method = HandleCORSPreflight
 		default:

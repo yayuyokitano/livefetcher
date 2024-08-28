@@ -2,9 +2,12 @@ package queries
 
 import (
 	"context"
+	"errors"
+	"net/http"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
+	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
@@ -87,6 +90,44 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthU
 
 	err = counters.CommitTransaction(tx)
 	return
+}
+
+func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) *logging.StatusError {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	var userID int64
+	err = tx.QueryRow(ctx, "SELECT users_id FROM livelists WHERE id=$1", liveListID).Scan(&userID)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	if userID != loggedInUser.ID {
+		return logging.SE(http.StatusUnauthorized, errors.New("not owner of live list"))
+	}
+	return nil
+}
+
+func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser util.AuthUser) *logging.StatusError {
+	tx, err := counters.FetchTransaction()
+	defer counters.RollbackTransaction(tx)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	var userID int64
+	err = tx.QueryRow(ctx, "SELECT users_id FROM livelistlives INNER JOIN livelists ON (livelists.id = livelistlives.livelists_id) WHERE livelistlives.id=$1", liveListLiveID).Scan(&userID)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	if userID != loggedInUser.ID {
+		return logging.SE(http.StatusUnauthorized, errors.New("not owner of live list live"))
+	}
+	return nil
 }
 
 func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) (liveList util.LiveList, err error) {

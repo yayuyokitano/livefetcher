@@ -19,6 +19,9 @@ add-to-favorites = "Add to favorites"
 remove-from-favorites = "Remove from favorites"
 
 [login]
+nickname = "Nickname"
+bio = "Bio"
+location = "Location"
 username = "Username"
 email = "Email"
 username-or-email = "Username or Email"

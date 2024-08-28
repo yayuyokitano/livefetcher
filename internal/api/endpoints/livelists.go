@@ -58,7 +58,6 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 
 func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	httpWriter.Header().Add("HX-Trigger", "livelistadded")
-	time.Sleep(time.Second)
 	ctx := context.Background()
 
 	if user.Username == "" {
@@ -97,6 +96,11 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 	} else if req.AdditionType == "ExistingList" {
 		if req.ExistingLiveListID == 0 {
 			return logging.SE(http.StatusBadRequest, errors.New("no live specified"))
+		}
+
+		se := queries.UserOwnsLiveList(ctx, int64(req.ExistingLiveListID), user)
+		if se != nil {
+			return se
 		}
 
 		err = queries.PostLiveListLive(ctx, int64(req.ExistingLiveListID), int64(req.LiveID), req.LiveDesc)
@@ -158,6 +162,11 @@ func DeleteLiveListLive(user util.AuthUser, w io.Writer, r *http.Request, httpWr
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	se := queries.UserOwnsLiveListLive(ctx, int64(id), user)
+	if se != nil {
+		return se
 	}
 
 	err = queries.DeleteLiveListLive(ctx, int64(id))

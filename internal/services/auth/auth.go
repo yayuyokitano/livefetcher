@@ -87,6 +87,35 @@ func CreateNewUser(ctx context.Context, user util.User, password string) (authTo
 	return CreateNewSession(ctx, user.Email, password)
 }
 
+func ChangePassword(ctx context.Context, authUser util.AuthUser, oldPassword, newPassword, oldRefreshToken string) (authToken, refreshToken string, err error) {
+	user, err := queries.GetUserByID(ctx, int(authUser.ID))
+	if err != nil {
+		return
+	}
+
+	match, err := comparePasswordAndHash(oldPassword, user.PasswordHash)
+	if err != nil {
+		return
+	}
+	if !match {
+		err = ErrIncorrectPassword
+		return
+	}
+
+	hash, err := generateFromPassword(newPassword)
+	if err != nil {
+		return
+	}
+	user.PasswordHash = hash
+	err = queries.PatchUser(ctx, user)
+	if err != nil {
+		return
+	}
+	DisableRefreshToken(ctx, oldRefreshToken)
+
+	return CreateNewSession(ctx, user.Email, newPassword)
+}
+
 func CreateNewSession(ctx context.Context, username, password string) (authToken, refreshToken string, err error) {
 	user, err := queries.GetUserByUsernameOrEmail(ctx, username)
 	if err != nil {
