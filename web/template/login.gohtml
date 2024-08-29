@@ -8,6 +8,8 @@
   <form action="/api/login" method="post" class="login-form">
     <h1>{{ T "login.login" }}</h1>
 
+    <input type="hidden" name="redirect" value="{{ . }}" />
+
     <div class="login-input-wrapper">
       <label for="username">{{ T "login.username-or-email" }}</label>
       <input

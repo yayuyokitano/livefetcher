@@ -129,6 +129,9 @@ func startServer() {
 			err = runner.RunConnector("ShinsaibashiBronze")
 			fmt.Println(err)*/
 
+	router.Handle("/login", router.Methods{
+		GET: endpoints.ShowLogin,
+	})
 	router.Handle("/user/{username}", router.Methods{
 		GET: endpoints.ShowUser,
 	})
@@ -160,7 +163,7 @@ func startServer() {
 		GET: endpoints.GetLiveLiveListModal,
 	})
 	router.Handle("/api/login", router.Methods{
-		POST: endpoints.Login,
+		POST: endpoints.ExecuteLogin,
 	})
 	router.Handle("/api/register", router.Methods{
 		POST: endpoints.Register,

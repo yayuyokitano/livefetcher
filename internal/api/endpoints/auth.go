@@ -3,12 +3,15 @@ package endpoints
 import (
 	"context"
 	"errors"
+	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
@@ -26,6 +29,10 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 	registrationEmail := r.FormValue("email")
 	registrationUsername := r.FormValue("username")
 	registrationPassword := r.FormValue("password")
+	redirectURL := r.FormValue("redirect")
+	if redirectURL == "" {
+		redirectURL = "/"
+	}
 
 	if registrationEmail == "" || registrationUsername == "" || registrationPassword == "" {
 		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
@@ -62,7 +69,34 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 	return nil
 }
 
-func Login(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ShowLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+	if user.Username != "" {
+		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
+	}
+
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", "login.gohtml")
+	templ, err := template.New("layout").Funcs(template.FuncMap{
+		"T": i18nloader.GetLocalizer(r).Localize,
+		"ParseDate": func(t time.Time) string {
+			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
+		},
+		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+		"GetUser": func() util.AuthUser {
+			return user
+		},
+	}).ParseFiles(lp, fp)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	err = templ.ExecuteTemplate(w, "layout", r.Header.Get("HX-Current-Url"))
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	return nil
+}
+
+func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	ctx := context.Background()
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
@@ -75,6 +109,10 @@ func Login(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.Res
 
 	username := r.FormValue("username")
 	password := r.FormValue("password")
+	redirectURL := r.FormValue("redirect")
+	if redirectURL == "" {
+		redirectURL = "/"
+	}
 
 	if username == "" || password == "" {
 		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
@@ -103,7 +141,7 @@ func Login(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.Res
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
+	httpWriter.Header().Add("HX-Redirect", redirectURL)
 	return nil
 }
 
