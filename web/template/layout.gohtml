@@ -34,7 +34,7 @@
 {{ end }}
 
 {{ define "mobileNav" }}
-  <nav id="mobile-nav" hx-preserve="true">
+  <nav id="mobile-nav">
     <div class="button-container">
       <a class="nav-logo-anchor" href="/">
         <img
@@ -58,11 +58,13 @@
     </div>
     <form class="nav-search-wrapper" action="/search">
       <input
+        id="nav-search-mobile"
         class="nav-search"
         name="Artist"
         type="text"
         placeholder="{{ T "general.searchplaceholder" }}"
         aria-label="{{ T "general.searchplaceholder" }}"
+        hx-preserve="true"
       />
       <button type="submit">
         {{ template "searchIcon" }}
@@ -72,7 +74,7 @@
 {{ end }}
 
 {{ define "desktopNav" }}
-  <nav id="desktop-nav" hx-preserve="true">
+  <nav id="desktop-nav">
     <a class="nav-logo-anchor" href="/">
       <img
         class="nav-logo"
@@ -82,10 +84,12 @@
     <form class="nav-search-wrapper" action="/search">
       <!-- TODO: add label -->
       <input
+        id="desktop-nav-search"
         class="nav-search"
         name="Artist"
         type="text"
         placeholder="{{ T "general.searchplaceholder" }}"
+        hx-preserve="true"
       />
       <button type="submit">
         {{ template "searchIcon" }}
