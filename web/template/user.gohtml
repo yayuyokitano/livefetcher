@@ -3,20 +3,18 @@
 {{ define "head" }}{{ end }}
 
 {{ define "body" }}
-  {{ $authUser := GetUser }}
-  {{ $isSelf := eq .ID $authUser.ID }}
   <div id="profile-header" x-data="{ editing: false }">
     <div x-show="! editing">
       <h1 class="big-header">{{ .Nickname }}</h1>
       <h2 class="general-header">@{{ .Username }}&nbsp;</h2>
       <div class="bio">
-        <p>{{ .Bio }}</p>
+        <p>{{ GetBio }}</p>
         <div class="location">
           {{ template "locationOn" }}
-          <span>{{ .Location }}</span>
+          <span>{{ or .Location (T "login.default-location") }}</span>
         </div>
       </div>
-      {{ if $isSelf }}
+      {{ if IsSelf }}
         <button @click="editing = ! editing" class="brand-button">
           {{ T "login.edit-profile" }}
         </button>
@@ -28,7 +26,7 @@
   </div>
   <p>
     This is
-    {{ if not $isSelf }}
+    {{ if not IsSelf }}
       not
     {{ end }}
     you!

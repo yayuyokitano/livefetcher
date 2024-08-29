@@ -39,6 +39,9 @@ mail-dont-match = "Email addresses don't match"
 password-dont-match = "Passwords don't match"
 sign-out = "Sign Out"
 edit-profile = "Edit Profile"
+default-bio-self = "You have not written a bio yet. Click \"Edit Profile\" to add one!"
+default-bio-other = "{{.Nickname}} has no bio."
+default-location = "Earth"
 
 [livelist]
 comment = "Comment"

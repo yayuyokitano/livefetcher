@@ -40,6 +40,18 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		"GetUser": func() util.AuthUser {
 			return user
 		},
+		"IsSelf": func() bool {
+			return user.ID == displayUser.ID
+		},
+		"GetBio": func() string {
+			if displayUser.Bio != "" {
+				return displayUser.Bio
+			}
+			if user.ID == displayUser.ID {
+				return i18nloader.GetLocalizer(r).Localize("login.default-bio-self")
+			}
+			return i18nloader.GetLocalizer(r).Localize("login.default-bio-other", "Nickname", displayUser.Nickname)
+		},
 	}).ParseFiles(lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
