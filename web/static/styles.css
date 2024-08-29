@@ -429,6 +429,61 @@ body {
   text-align: center;
 }
 
+.bio {
+  background-color: var(--bg2);
+  padding: 2rem;
+  border-radius: 2rem;
+  width: 50ch;
+  margin: 2rem auto;
+}
+
+.bio p {
+  text-align: left;
+  margin-top: 0;
+  font-size: 1.25rem;
+}
+
+.bio .location {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+#edit-user-form {
+  margin-top: 3rem;
+}
+
+.settings-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  margin-bottom: 1.25rem;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 0.5rem;
+  max-width: 700px;
+  width: 90%;
+}
+
+.settings-input-wrapper label {
+  font-size: 1.1rem;
+}
+
+.settings-input-wrapper input,
+.settings-input-wrapper textarea {
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--text);
+  outline: none;
+}
+
+.settings-input-wrapper input:focus,
+.settings-input-wrapper textarea:focus {
+  border: 1px solid transparent;
+  outline: 3px solid var(--brand);
+}
+
 @media only screen and (width < 2000px) {
   .live-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
