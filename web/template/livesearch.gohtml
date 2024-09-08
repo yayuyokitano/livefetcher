@@ -4,5 +4,98 @@
 
 {{ define "body" }}
   <h2 class="general-header">{{ SearchHeader }}</h2>
-  {{ template "lives" . }}
+  {{ template "lives" .Lives }}
+  {{ template "filters" .Metadata }}
+{{ end }}
+
+{{ define "filters" }}
+  <div class="corner-dialog-wrapper" x-data="{isFilterDialogOpen: false}">
+    <button
+      class="option-button"
+      type="button"
+      @click="isFilterDialogOpen = true"
+    >
+      {{ template "filterListIcon" }}
+    </button>
+    {{ template "searchFilterDialog" . }}
+  </div>
+{{ end }}
+
+{{ define "searchFilterDialog" }}
+  <form
+    id="search-filters"
+    action="/search"
+    x-show="isFilterDialogOpen"
+    x-cloak
+    x-transition
+    @click.away="isFilterDialogOpen = false"
+  >
+    <h2 class="general-header">{{ T "general.searchfilters" }}</h2>
+    <label for="artist-search">{{ T "label.artist" }}</label>
+    <br />
+    <input
+      class="large-input"
+      type="text"
+      name="Artist"
+      id="artist-search"
+      value="{{ .Query.Artist }}"
+    />
+    {{ template "areas" . }}
+    <br />
+    <button class="brand-button" type="submit">submit</button>
+  </form>
+{{ end }}
+
+{{ define "areas" }}
+  <!-- TODO: Add aria labels -->
+  <ul class="non-bullet-list" x-data="{store: {}}">
+    <span>{{ T "label.area" }}</span>
+    <br />
+    {{ $queryAreas := .Query.Areas }}
+    {{ range $prefecture, $areas := .Areas }}
+      <li x-init="store.{{ $prefecture }} = {}">
+        <label for="checkbox-prefecture-{{ $prefecture }}">
+          <input
+            type="checkbox"
+            id="checkbox-prefecture-{{ $prefecture }}"
+            @change="Object.keys(store.{{ $prefecture }}).forEach((key) => { store.{{ $prefecture }}[key] = $el.checked })"
+            :checked="Object.values(store.{{ $prefecture }}).every((x) => x)"
+          />
+          {{ T (printf "prefecture.%s" $prefecture) }}
+        </label>
+        <ul class="padded-non-bullet-list">
+          {{ range $area := $areas }}
+            <li
+              x-init="store.{{ $prefecture }}.{{ $area.Name }} = {{ index $queryAreas $area.Id }}"
+            >
+              <label for="checkbox-area-{{ $area.Id }}">
+                <input
+                  type="checkbox"
+                  id="checkbox-area-{{ $area.Id }}"
+                  name="Areas[{{ $area.Id }}]"
+                  value="true"
+                  x-model="store.{{ $prefecture }}.{{ $area.Name }}"
+                />
+                {{ T (printf "area.%s.%s" $prefecture $area.Name) }}</label
+              >
+            </li>
+          {{ end }}
+        </ul>
+      </li>
+    {{ end }}
+  </ul>
+{{ end }}
+
+{{ define "filterListIcon" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="48px"
+    viewBox="0 -960 960 960"
+    width="48px"
+    fill="#5f6368"
+  >
+    <path
+      d="M411.15-260v-60h137.31v60H411.15ZM256.16-450v-60h447.3v60h-447.3ZM140-640v-60h680v60H140Z"
+    />
+  </svg>
 {{ end }}

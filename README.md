@@ -31,7 +31,7 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 - [ ] implement saved searches with notification functionality
 - [ ] add live to calendar (google calendar, maybe more)
 - [x] bookmark lives
-- [ ] add live lists
+- [x] add live lists
 
 ### Artist digest
 - [ ] improve artist recognition to make artist names more uniform (this will likely imply creating two columns for artists - one with any extra info, and one without)

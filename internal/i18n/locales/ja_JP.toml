@@ -144,7 +144,7 @@ tokyo = "東京都"
 shinsaibashi = "心斎橋・堀江"
 
 [area.tokyo]
-setagaya = "世田谷（下北沢以外）"
+setagaya = "世田谷（下北沢外）"
 shibuya = "渋谷"
 shimokitazawa = "下北沢"
 shinjuku = "新宿"

@@ -384,7 +384,8 @@ body {
 }
 
 .add-to-live-list-section input,
-.add-to-live-list-section select {
+.add-to-live-list-section select,
+.large-input {
   font-size: 1.25rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
@@ -485,6 +486,41 @@ body {
   outline: 3px solid var(--brand);
 }
 
+.corner-dialog-wrapper {
+  position: fixed;
+  bottom: 6vh;
+  right: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.option-button {
+  background-color: var(--brand);
+  border: none;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 6vw;
+}
+
+.option-button svg {
+  fill: var(--always-light);
+}
+
+.option-button:focus-visible,
+.option-button:hover {
+  background-color: var(--brand-focus);
+}
+
+#search-filters {
+  margin-right: 6vw;
+}
+
 @media only screen and (width < 2000px) {
   .live-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -551,5 +587,17 @@ body {
   }
   .logo-narrow {
     display: inline-block;
+  }
+
+  #search-filters {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    border-radius: 0;
+    margin-right: 0;
+    padding: 1rem;
+    box-sizing: border-box;
   }
 }

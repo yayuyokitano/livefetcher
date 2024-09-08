@@ -16,6 +16,16 @@ import (
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
+type liveTemplateMetadata struct {
+	Areas map[string][]queries.Area
+	Query queries.LiveQuery
+}
+
+type liveTemplateInput struct {
+	Metadata liveTemplateMetadata
+	Lives    []util.Live
+}
+
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
 	if query.Artist != "" {
 		return i18nloader.GetLocalizer(r).Localize("general.search-artist-"+suffix, "Artist", query.Artist)
@@ -37,6 +47,11 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	}
 
 	lives, err := queries.GetLives(query, user)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	areas, err := queries.GetAllAreas(r.Context())
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -64,7 +79,13 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", lives)
+	err = templ.ExecuteTemplate(w, "layout", liveTemplateInput{
+		Metadata: liveTemplateMetadata{
+			Query: query,
+			Areas: areas,
+		},
+		Lives: lives,
+	})
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
