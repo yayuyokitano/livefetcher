@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"net/url"
@@ -201,13 +200,7 @@ func serveTemplate(user util.AuthUser, w io.Writer, r *http.Request, _ http.Resp
 		return logging.SE(http.StatusNotFound, errors.New("404 page not found"))
 	}
 
-	tmpl, err := template.New("layout").Funcs(template.FuncMap{
-		"T":    i18nloader.GetLocalizer(r).Localize,
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() util.AuthUser {
-			return user
-		},
-	}).ParseFiles(lp, fp)
+	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

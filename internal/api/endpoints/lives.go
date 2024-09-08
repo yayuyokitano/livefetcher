@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
@@ -60,26 +59,19 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	fp := filepath.Join("web", "template", "livesearch.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	templ, err := template.New("layout").Funcs(template.FuncMap{
-		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
-		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
 		"SearchTitle": func() string {
 			return searchTitle(query, r, "title")
 		},
 		"SearchHeader": func() string {
 			return searchTitle(query, r, "header")
 		},
-		"GetUser": func() util.AuthUser {
-			return user
-		},
-	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
+	}, lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", liveTemplateInput{
+
+	err = tmpl.ExecuteTemplate(w, "layout", liveTemplateInput{
 		Metadata: liveTemplateMetadata{
 			Query: query,
 			Areas: areas,
@@ -183,20 +175,11 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 	fp := filepath.Join("web", "template", "favoritelives.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	templ, err := template.New("layout").Funcs(template.FuncMap{
-		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
-		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() util.AuthUser {
-			return user
-		},
-	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
+	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", lives)
+	err = tmpl.ExecuteTemplate(w, "layout", lives)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

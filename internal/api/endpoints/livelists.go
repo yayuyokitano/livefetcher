@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
@@ -43,13 +42,17 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 	}
 
 	fp := filepath.Join("web", "template", "partials", "liveListDialog.gohtml")
-	templ, err := template.New("liveListDialog").Funcs(template.FuncMap{
+	tmpl := template.New("liveListDialog")
+	tmpl, err = tmpl.Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
+		"HasTemplate": func(name string) bool {
+			return tmpl.Lookup(name) != nil
+		},
 	}).ParseFiles(fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "liveListDialog", templateParams)
+	err = tmpl.ExecuteTemplate(w, "liveListDialog", templateParams)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -135,21 +138,15 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 	fp := filepath.Join("web", "template", "livelist.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	templ, err := template.New("layout").Funcs(template.FuncMap{
-		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
-		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() util.AuthUser {
-			return user
-		},
+
+	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
 		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
-	}).ParseFiles(lp, fp, favoriteButtonPartial, livesPartial)
+	}, lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", livelist)
+
+	err = tmpl.ExecuteTemplate(w, "layout", livelist)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

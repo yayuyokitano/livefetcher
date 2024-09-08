@@ -23,7 +23,7 @@
 
 {{ define "searchFilterDialog" }}
   <form
-    id="search-filters"
+    class="search-filters"
     action="/search"
     x-show="isFilterDialogOpen"
     x-cloak
@@ -44,6 +44,17 @@
     <br />
     <button class="brand-button" type="submit">{{ T "general.search" }}</button>
   </form>
+{{ end }}
+
+{{ define "hiddenAreas" }}
+  {{ $queryAreas := .Query.Areas }}
+  {{ range $prefecture, $areas := .Areas }}
+    {{ range $area := $areas }}
+      {{ if index $queryAreas $area.Id }}
+        <input type="hidden" name="Areas[{{ $area.Id }}]" value="true" />
+      {{ end }}
+    {{ end }}
+  {{ end }}
 {{ end }}
 
 {{ define "areas" }}

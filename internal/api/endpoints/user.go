@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
-	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
@@ -31,15 +30,7 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "user.gohtml")
-	templ, err := template.New("layout").Funcs(template.FuncMap{
-		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
-		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() util.AuthUser {
-			return user
-		},
+	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
 		"IsSelf": func() bool {
 			return user.ID == displayUser.ID
 		},
@@ -52,11 +43,12 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 			}
 			return i18nloader.GetLocalizer(r).Localize("login.default-bio-other", "Nickname", displayUser.Nickname)
 		},
-	}).ParseFiles(lp, fp)
+	}, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", displayUser)
+
+	err = tmpl.ExecuteTemplate(w, "layout", displayUser)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

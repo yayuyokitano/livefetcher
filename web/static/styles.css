@@ -279,7 +279,7 @@ body {
   margin-left: 1rem;
 }
 
-#search-filters {
+.search-filters {
   align-self: flex-start;
   position: sticky;
   top: 1rem;
@@ -517,7 +517,7 @@ body {
   background-color: var(--brand-focus);
 }
 
-#search-filters {
+.search-filters {
   margin-right: 6vw;
 }
 
@@ -571,7 +571,7 @@ body {
     gap: 0;
   }
 
-  #search-filters {
+  .search-filters {
     position: static;
     align-self: stretch;
   }
@@ -589,7 +589,7 @@ body {
     display: inline-block;
   }
 
-  #search-filters {
+  .search-filters {
     position: fixed;
     top: 0;
     left: 0;

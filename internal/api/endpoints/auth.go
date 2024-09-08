@@ -3,7 +3,6 @@ package endpoints
 import (
 	"context"
 	"errors"
-	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
-	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
@@ -76,20 +74,12 @@ func ShowLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "login.gohtml")
-	templ, err := template.New("layout").Funcs(template.FuncMap{
-		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
-		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() util.AuthUser {
-			return user
-		},
-	}).ParseFiles(lp, fp)
+	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	err = templ.ExecuteTemplate(w, "layout", r.Header.Get("HX-Current-Url"))
+
+	err = tmpl.ExecuteTemplate(w, "layout", r.Header.Get("HX-Current-Url"))
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
