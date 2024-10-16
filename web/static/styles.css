@@ -391,6 +391,7 @@ body {
   border-radius: 0.5rem;
   border: none;
   margin-bottom: 0.75rem;
+	background: var(--bg);
 }
 
 .add-to-live-list-section input[readonly],

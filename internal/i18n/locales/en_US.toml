@@ -58,6 +58,7 @@ create = "Create"
 made-by = "by {{.Author}}"
 default-title = "Untitled Live List"
 default-description = "No description provided."
+author = "Author: "
 
 [live]
 no-lives-found = "No lives were found"

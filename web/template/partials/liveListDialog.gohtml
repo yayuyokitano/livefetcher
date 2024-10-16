@@ -54,7 +54,7 @@
 
       {{ if .PersonalLiveLists }}
         <h4>{{ T "livelist.select-existing" }}</h4>
-        <select name="ExistingLiveListID" :disabled="isDisabled">
+        <select name="ExistingLiveListID" :readonly="isDisabled">
           {{ range $liveList := .PersonalLiveLists }}
             <option value="{{ $liveList.ID }}">{{ $liveList.Title }}</option>
           {{ end }}

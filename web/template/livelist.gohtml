@@ -8,7 +8,11 @@
       {{ or .Title ( T "livelist.default-title" ) }}
     </h2>
     <p>{{ or .Desc ( T "livelist.default-description" ) }}</p>
-    <a href="/user/{{ .User.Username }}">{{ .User.Nickname }}</a>
+    <p class="livelist-author">
+      {{ T "livelist.author" }}<a href="/user/{{ .User.Username }}"
+        >{{ .User.Nickname }}</a
+      >
+    </p>
   </header>
   {{ template "lives" .Lives }}
 {{ end }}

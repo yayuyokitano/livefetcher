@@ -67,7 +67,9 @@
         aria-label="{{ T "general.searchplaceholder" }}"
         hx-preserve="true"
       />
-      {{ TemplateIfExists "hiddenAreas" .Metadata }}
+      {{ if HasField "Metadata" . }}
+        {{ TemplateIfExists "hiddenAreas" .Metadata }}
+      {{ end }}
       <button type="submit">
         {{ template "searchIcon" }}
       </button>
@@ -94,7 +96,9 @@
         placeholder="{{ T "general.searchplaceholder" }}"
         hx-preserve="true"
       />
-      {{ TemplateIfExists "hiddenAreas" .Metadata }}
+      {{ if HasField "Metadata" . }}
+        {{ TemplateIfExists "hiddenAreas" .Metadata }}
+      {{ end }}
       <button type="submit">
         {{ template "searchIcon" }}
       </button>

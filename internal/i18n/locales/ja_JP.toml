@@ -58,6 +58,7 @@ create = "作成"
 made-by = "作者：{{.Author}}"
 default-title = "無題のプレイリスト"
 default-description = "説明はありません。"
+author = "作成者："
 
 [live]
 no-lives-found = "一致するライブは見つかりませんでした"

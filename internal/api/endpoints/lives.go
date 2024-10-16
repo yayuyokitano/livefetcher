@@ -185,3 +185,7 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 	}
 	return nil
 }
+
+func GetDailyLivesJSON() {
+
+}

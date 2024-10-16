@@ -271,6 +271,8 @@ func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int
 type LiveQuery struct {
 	Areas  map[int]bool
 	Artist string
+	From   time.Time
+	To     time.Time
 }
 
 func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error) {
@@ -315,6 +317,16 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	if query.Artist != "" {
 		args = append(args, query.Artist+"%")
 		queryStr += fmt.Sprintf(" AND alias.alias ILIKE $%d", incIndex())
+	}
+
+	if !query.From.IsZero() {
+		args = append(args, query.From)
+		queryStr += fmt.Sprintf(" AND live.starttime >= $%d", incIndex())
+	}
+
+	if !query.To.IsZero() {
+		args = append(args, query.To)
+		queryStr += fmt.Sprintf(" AND live.starttime <= $%d", incIndex())
 	}
 
 	queryStr += `)

@@ -245,8 +245,8 @@ var ShinsaibashiConpassFetcher = fetchers.Simple{
 }
 
 var ShinsaibashiDropFetcher = fetchers.CreateBassOnTopFetcher(
-	"https://vijon.jp/",
-	"https://vijon.jp/schedule/calendar/20%d/%02d/",
+	"https://clubdrop.jp/",
+	"https://clubdrop.jp/schedule/calendar/20%d/%02d/",
 	"osaka",
 	"shinsaibashi",
 	"shinsaibashi-drop",

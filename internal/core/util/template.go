@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"reflect"
 	"time"
 
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
@@ -34,6 +35,16 @@ func BuildTemplate(w io.Writer, r *http.Request, user AuthUser, funcMap template
 			}
 
 			return template.HTML(buf.String()), nil
+		},
+		"HasField": func(name string, data interface{}) bool {
+			v := reflect.ValueOf(data)
+			if v.Kind() == reflect.Ptr {
+				v = v.Elem()
+			}
+			if v.Kind() != reflect.Struct {
+				return false
+			}
+			return v.FieldByName(name).IsValid()
 		},
 	}).Funcs(funcMap).ParseFiles(paths...)
 	return
