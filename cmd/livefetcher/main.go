@@ -137,6 +137,10 @@ func startServer() {
 	router.Handle("/api/user", router.Methods{
 		PATCH: endpoints.PatchUser,
 	})
+
+	router.Handle("/api/dailylives/{year}/{month}/{day}", router.Methods{
+		GET: endpoints.GetDailyLivesJSON,
+	})
 	router.Handle("/api/changepassword", router.Methods{
 		POST: endpoints.ChangePassword,
 	})

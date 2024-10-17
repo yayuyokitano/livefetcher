@@ -288,7 +288,7 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	}
 
 	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
+		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude
 		FROM lives AS live
 		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
 		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
@@ -330,10 +330,10 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	}
 
 	queryStr += `)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude
 	FROM queriedlives
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
+	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude
 	ORDER BY starttime`
 	ctx := context.Background()
 	rows, err := tx.Query(ctx, queryStr, args...)
@@ -342,7 +342,7 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	}
 	for rows.Next() {
 		var l util.Live
-		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
+		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, l.Venue.Latitude)
 		if err != nil {
 			return
 		}

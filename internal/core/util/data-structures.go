@@ -26,22 +26,22 @@ type AuthUser struct {
 }
 
 type Live struct {
-	ID            int64
-	Title         string
-	Artists       []string
-	OpenTime      time.Time
-	StartTime     time.Time
-	Price         string
-	PriceEnglish  string
-	Venue         LiveHouse
-	URL           string
-	IsFavorited   bool
-	FavoriteCount int
+	ID            int64     `json:"id"`
+	Title         string    `json:"title"`
+	Artists       []string  `json:"artists"`
+	OpenTime      time.Time `json:"opentime"`
+	StartTime     time.Time `json:"starttime"`
+	Price         string    `json:"price"`
+	PriceEnglish  string    `json:"price_en"`
+	Venue         LiveHouse `json:"venue"`
+	URL           string    `json:"url"`
+	IsFavorited   bool      `json:"is_favorited"`
+	FavoriteCount int       `json:"favorite_count"`
 
 	// only used for livelists
-	LiveListLiveID  int64
-	LiveListOwnerID int64
-	Desc            string
+	LiveListLiveID  int64  `json:"-"`
+	LiveListOwnerID int64  `json:"-"`
+	Desc            string `json:"-"`
 }
 
 type Area struct {

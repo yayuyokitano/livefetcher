@@ -2,11 +2,14 @@ package endpoints
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
@@ -186,6 +189,32 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 	return nil
 }
 
-func GetDailyLivesJSON() {
+func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	year, err := strconv.Atoi(r.PathValue("year"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+	month, err := strconv.Atoi(r.PathValue("month"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+	day, err := strconv.Atoi(r.PathValue("day"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
 
+	var query queries.LiveQuery
+	query.From = time.Date(year, time.Month(month), day, 2, 0, 0, 0, util.JapanTime)
+	query.To = query.From.Add(24 * time.Hour)
+
+	lives, err := queries.GetLives(query, user)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	b, err := json.Marshal(lives)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+	w.Write(b)
+	return nil
 }
