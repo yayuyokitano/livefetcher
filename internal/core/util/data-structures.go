@@ -66,18 +66,18 @@ type Live struct {
 }
 
 type Area struct {
-	ID         int    `db:"id"`
-	Prefecture string `db:"prefecture"`
-	Area       string `db:"area"`
+	ID         int    `json:"id"`
+	Prefecture string `json:"prefecture"`
+	Area       string `json:"area"`
 }
 
 type LiveHouse struct {
-	ID          string  `db:"id"`
-	Url         string  `db:"url"`
-	Description string  `db:"description"`
-	Area        Area    `db:"areas_id"`
-	Longitude   float64 `db:"longitude"`
-	Latitude    float64 `db:"latitude"`
+	ID          string  `json:"id"`
+	Url         string  `json:"url"`
+	Description string  `json:"description"`
+	Area        Area    `json:"area"`
+	Longitude   float64 `json:"longitude"`
+	Latitude    float64 `json:"latitude"`
 }
 
 type FavoriteButtonInfo struct {

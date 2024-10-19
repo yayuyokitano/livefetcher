@@ -25,10 +25,31 @@ function createMapDataRetriever() {
       lives: [],
       geoJson: [],
     },
+    filteredLives: [],
     date: "2024-10-30",
+    filterLives() {
+      const bounds = leaflet.getBounds();
+      const minLat = bounds.getSouth();
+      const maxLat = bounds.getNorth();
+      const minLng = bounds.getWest();
+      const maxLng = bounds.getEast();
+      this.filteredLives = this.map.lives.filter((live) => {
+        if (live.venue.latitude < minLat || live.venue.latitude > maxLat) {
+          return false;
+        }
+        if (live.venue.longitude < minLng || live.venue.longitude > maxLng) {
+          return false;
+        }
+        return true;
+      });
+    },
+    initMapData() {
+      leaflet.addEventListener("moveend", this.filterLives.bind(this));
+      leaflet.addEventListener("zoomend", this.filterLives.bind(this));
+      this.getMapData();
+    },
     getMapData() {
       this.isLoading = true;
-      console.log("hi");
       const urlDate = this.date.split("-").join("/");
       fetch("/api/dailylives/" + urlDate)
         .then((res) => res.json())
@@ -38,6 +59,7 @@ function createMapDataRetriever() {
           L.geoJSON(map.geoJson, {
             onEachFeature: onEachFeature,
           }).addTo(layerGroup);
+          this.filterLives();
           this.isLoading = false;
         });
     },

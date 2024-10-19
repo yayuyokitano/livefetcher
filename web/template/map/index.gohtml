@@ -12,14 +12,16 @@
 {{ end }}
 
 {{ define "body" }}
-  <div id="wrapper" x-data="createMapDataRetriever()" x-init="getMapData()">
+  <div id="wrapper" x-data="createMapDataRetriever()" x-init="initMapData()">
     <div id="map"></div>
     <div id="details">
       <input type="date" x-model="date" @change="getMapData()" />
-      <ul>
-        <template x-for="live in map.lives" :key="live.id">
-          <li>
-            <span class="" x-text="live.title"></span>
+      <ul class="map-live-list">
+        <template x-for="live in filteredLives" :key="live.id">
+          <li class="map-live">
+            <h2 class="" x-text="live.title"></h2>
+            <span class="" x-text="live.artists.join(' / ')"></span>
+						<p class="" x-text="live.venue.id"></p>
           </li>
         </template>
       </ul>
