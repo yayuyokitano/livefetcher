@@ -40,7 +40,7 @@
         class="option-button"
         @click="isMapDialogOpen = true"
         x-show="!isMapDialogOpen"
-        x-transition.duration
+        x-transition
       >
         {{ template "filterListIcon" }}
         <span id="map-dialog-btn-num" x-text="filteredLives.length"></span>
@@ -50,7 +50,7 @@
         role="dialog"
         x-show="isMapDialogOpen"
         x-cloak
-        x-transition.duration
+        x-transition.origin.bottom.right
       >
         <button @click="isMapDialogOpen = false">X</button>
         <h2><span x-text="filteredLives.length"></span> lives</h2>
