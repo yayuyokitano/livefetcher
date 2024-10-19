@@ -1,13 +1,5 @@
-function onEachFeature(feature, layer) {
-  if (
-    feature.properties &&
-    feature.properties.name &&
-    feature.properties.popupContent
-  ) {
-    layer.bindPopup(
-      `<b>${feature.properties.name}</b><br/><br/>${feature.properties.popupContent}`,
-    );
-  }
+function getLive(liveID) {
+  return document.querySelector(`input[value="${liveID}"]`).closest("li");
 }
 
 function createMapDataRetriever() {
@@ -26,6 +18,7 @@ function createMapDataRetriever() {
       geoJson: [],
     },
     filteredLives: [],
+    liveMarkers: {},
     date: "2024-10-30",
     filterLives() {
       const bounds = leaflet.getBounds();
@@ -57,11 +50,33 @@ function createMapDataRetriever() {
           this.map = map;
           layerGroup.clearLayers();
           L.geoJSON(map.geoJson, {
-            onEachFeature: onEachFeature,
+            onEachFeature: this.onEachFeature.bind(this),
           }).addTo(layerGroup);
           this.filterLives();
           this.isLoading = false;
         });
+    },
+    onEachFeature(feature, layer) {
+      if (
+        feature.properties &&
+        feature.properties.name &&
+        feature.properties.popupContent
+      ) {
+        layer.bindPopup(
+          `<b>${feature.properties.name}</b><br/><br/>${feature.properties.popupContent}`,
+        );
+      }
+      if (feature.properties.id) {
+        this.liveMarkers[feature.properties.id] = layer;
+        layer.on("click", () => {
+          const liveEl = getLive(feature.properties.id);
+          liveEl.focus();
+          liveEl.scrollIntoView({
+            block: "center",
+            inline: "center",
+          });
+        });
+      }
     },
   };
 }

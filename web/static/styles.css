@@ -497,6 +497,10 @@ body {
   gap: 1rem;
 }
 
+.filter-button {
+  margin-right: 6vw;
+}
+
 .option-button {
   background-color: var(--brand);
   border: none;
@@ -506,7 +510,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-right: 6vw;
 }
 
 .option-button svg {

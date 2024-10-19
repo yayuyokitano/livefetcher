@@ -14,17 +14,62 @@
 {{ define "body" }}
   <div id="wrapper" x-data="createMapDataRetriever()" x-init="initMapData()">
     <div id="map"></div>
-    <div id="details">
-      <input type="date" x-model="date" @change="getMapData()" />
-      <ul class="map-live-list">
-        <template x-for="live in filteredLives" :key="live.id">
-          <li class="map-live">
-            <h2 class="" x-text="live.title"></h2>
-            <span class="" x-text="live.artists.join(' / ')"></span>
-						<p class="" x-text="live.venue.id"></p>
-          </li>
-        </template>
-      </ul>
+    <div id="map-date-wrapper">
+      <button
+        @click="$refs.dateInput.stepDown(); date = $refs.dateInput.value; getMapData()"
+        class="date-button"
+      >
+        {{ template "prevArrowIcon" }}
+      </button>
+      <input
+        type="date"
+        x-model="date"
+        @change="getMapData()"
+        x-ref="dateInput"
+      />
+      <button
+        @click="$refs.dateInput.stepUp(); date = $refs.dateInput.value; getMapData()"
+        class="date-button"
+      >
+        {{ template "nextArrowIcon" }}
+      </button>
+    </div>
+    <div id="map-dialog-wrapper">
+      <button
+        id="map-dialog-btn"
+        class="option-button"
+        @click="isMapDialogOpen = true"
+        x-show="!isMapDialogOpen"
+        x-transition.duration
+      >
+        {{ template "filterListIcon" }}
+        <span id="map-dialog-btn-num" x-text="filteredLives.length"></span>
+      </button>
+      <div
+        id="map-dialog-content"
+        role="dialog"
+        x-show="isMapDialogOpen"
+        x-cloak
+        x-transition.duration
+      >
+        <button @click="isMapDialogOpen = false">X</button>
+        <h2><span x-text="filteredLives.length"></span> lives</h2>
+        <ul class="map-live-list">
+          <template x-for="live in filteredLives" :key="live.id">
+            <li
+              tabindex="-1"
+              class="map-live"
+              @mouseenter="liveMarkers[live.id].openPopup(); $el.focus()"
+              @mouseleave="liveMarkers[live.id].closePopup(); $el.blur()"
+            >
+              <input type="hidden" x-model="live.id" />
+              <h3 class="" x-text="live.title"></h3>
+              <span class="" x-text="live.artists.join(' / ')"></span>
+              <p class="" x-text="live.venue.id"></p>
+            </li>
+          </template>
+        </ul>
+      </div>
     </div>
   </div>
 {{ end }}

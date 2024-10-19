@@ -19,8 +19,8 @@
     </head>
     <body
       hx-boost="true"
-      x-data="{isModalOpen: false}"
-      @keydown.escape="isModalOpen = false"
+      x-data="{isModalOpen: false, isMapDialogOpen: false}"
+      @keydown.escape="isModalOpen = false; isMapDialogOpen: false"
       @closemainmodal="isModalOpen = false"
     >
       {{ template "desktopNav" . }}
@@ -263,5 +263,43 @@
     <path
       d="M480-480q33 0 56.5-23.5T560-560q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 33 23.5 56.5T480-480Zm0 294q122-112 181-203.5T720-552q0-109-69.5-178.5T480-800q-101 0-170.5 69.5T240-552q0 71 59 162.5T480-186Zm0 106Q319-217 239.5-334.5T160-552q0-150 96.5-239T480-880q127 0 223.5 89T800-552q0 100-79.5 217.5T480-80Zm0-480Z"
     />
+  </svg>
+{{ end }}
+
+{{ define "filterListIcon" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="48px"
+    viewBox="0 -960 960 960"
+    width="48px"
+    fill="#5f6368"
+  >
+    <path
+      d="M411.15-260v-60h137.31v60H411.15ZM256.16-450v-60h447.3v60h-447.3ZM140-640v-60h680v60H140Z"
+    />
+  </svg>
+{{ end }}
+
+{{ define "prevArrowIcon" }}
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1wmkh38"
+    focusable="false"
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    data-testid="ArrowBackIosNewIcon"
+  >
+    <path d="M17.77 3.77 16 2 6 12l10 10 1.77-1.77L9.54 12z"></path>
+  </svg>
+{{ end }}
+
+{{ define "nextArrowIcon" }}
+  <svg
+    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1wmkh38"
+    focusable="false"
+    aria-hidden="true"
+    viewBox="0 0 24 24"
+    data-testid="ArrowForwardIosIcon"
+  >
+    <path d="M6.23 20.23 8 22l10-10L8 2 6.23 3.77 14.46 12z"></path>
   </svg>
 {{ end }}

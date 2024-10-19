@@ -38,6 +38,7 @@ type LiveGeoJSON struct {
 
 type GeoJSONProperties struct {
 	Name         string `json:"name"`
+	ID           int    `json:"id"`
 	PopupContent string `json:"popupContent"`
 }
 

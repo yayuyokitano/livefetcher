@@ -222,6 +222,7 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 			Type: "Feature",
 			Properties: util.GeoJSONProperties{
 				Name:         localizer.Localize("livehouse." + l.Venue.ID),
+				ID:           int(l.ID),
 				PopupContent: strings.Join(l.Artists, " / "),
 			},
 			Geometry: util.GeoJSONGeometry{

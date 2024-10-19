@@ -1,14 +1,112 @@
-#map {
+body {
   height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+  display: flex;
+}
+
+#wrapper {
+  display: flex;
+}
+
+#details {
+  display: none;
+}
+
+#map {
   width: 100vw;
 }
 
+#map-dialog-wrapper {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 10000;
+}
+
+#map-dialog-content {
+  background-color: var(--bg);
+  color: var(--text);
+  width: calc(100vw - 4rem);
+  height: 80vh;
+  max-width: 400px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  overflow-y: auto;
+}
+
+#map-dialog-btn {
+  bottom: 0;
+  right: 0;
+}
+
+#map-dialog-btn-num {
+  border-radius: 50%;
+  background-color: red;
+  color: white;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -6px;
+  right: -6px;
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+}
+
+#map-date-wrapper {
+  width: max-content;
+  position: absolute;
+  top: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000000000;
+  display: flex;
+  background-color: var(--bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 0px 10px -3px #222;
+}
+
+.date-button {
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  fill: var(--text);
+  padding: 10px;
+  cursor: pointer;
+}
+
+.date-button:hover,
+.date-button:focus {
+  background-color: var(--bg2);
+}
+
+#map-date-wrapper input {
+  font-size: 20px;
+  border: none;
+}
+
 .map-live-list {
-	padding: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .map-live {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.map-live:hover,
+.map-live:focus {
+  background-color: var(--bg2);
 }
