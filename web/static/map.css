@@ -85,7 +85,7 @@ main {
 }
 
 .date-button:hover,
-.date-button:focus {
+.date-button:focus-visible {
   background-color: var(--bg2);
 }
 
