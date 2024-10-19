@@ -27,7 +27,7 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 - [ ] batch live/livelist favorite SELECT queries
 
 ### Search improvements
-- [ ] implement search within distance from point
+- [x] implement search within distance from point
 - [ ] implement saved searches with notification functionality
 - [ ] add live to calendar (google calendar, maybe more)
 - [x] bookmark lives
