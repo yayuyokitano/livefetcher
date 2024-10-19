@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-playground/form"
@@ -211,7 +212,26 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	b, err := json.Marshal(lives)
+	livesWithGeoJSON := util.LiveWithGeoJSON{
+		Lives:   lives,
+		GeoJson: make([]util.LiveGeoJSON, 0),
+	}
+	localizer := i18nloader.GetLocalizer(r)
+	for _, l := range lives {
+		livesWithGeoJSON.GeoJson = append(livesWithGeoJSON.GeoJson, util.LiveGeoJSON{
+			Type: "Feature",
+			Properties: util.GeoJSONProperties{
+				Name:         localizer.Localize("livehouse." + l.Venue.ID),
+				PopupContent: strings.Join(l.Artists, " / "),
+			},
+			Geometry: util.GeoJSONGeometry{
+				Type:        "Point",
+				Coordinates: []float64{l.Venue.Longitude, l.Venue.Latitude},
+			},
+		})
+	}
+
+	b, err := json.Marshal(livesWithGeoJSON)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

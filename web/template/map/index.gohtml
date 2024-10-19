@@ -1,0 +1,28 @@
+{{ define "title" }}Map{{ end }}
+
+{{ define "head" }}
+  <link
+    rel="stylesheet"
+    type="text/css"
+    href="/static/vendor/leaflet/leaflet.css"
+  />
+  <script src="/static/vendor/leaflet/leaflet.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/map.css" />
+  <script src="/static/map.js"></script>
+{{ end }}
+
+{{ define "body" }}
+  <div id="wrapper" x-data="createMapDataRetriever()" x-init="getMapData()">
+    <div id="map"></div>
+    <div id="details">
+      <input type="date" x-model="date" @change="getMapData()" />
+      <ul>
+        <template x-for="live in map.lives" :key="live.id">
+          <li>
+            <span class="" x-text="live.title"></span>
+          </li>
+        </template>
+      </ul>
+    </div>
+  </div>
+{{ end }}

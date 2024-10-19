@@ -12,7 +12,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
-func isSameLive(live util.Live, oldLive util.Live, oldLives []util.Live) bool {
+func isSameLive(live util.Live, oldLive util.Live, oldLives []util.Live, lives []util.Live) bool {
 	if live.StartTime == oldLive.StartTime {
 		return true
 	}
@@ -27,7 +27,21 @@ func isSameLive(live util.Live, oldLive util.Live, oldLives []util.Live) bool {
 			closestIndex = i
 			closest = cur
 		}
-		if oldLives[closestIndex].ID == oldLive.ID {
+		if oldLives[closestIndex].ID != oldLive.ID {
+			return false
+		}
+
+		closest = oldLive.StartTime.Sub(live.StartTime).Abs()
+		closestIndex = 0
+		for i, l := range lives {
+			cur := oldLive.StartTime.Sub(l.StartTime).Abs()
+			if closest < cur {
+				continue
+			}
+			closestIndex = i
+			closest = cur
+		}
+		if lives[closestIndex].ID == live.ID {
 			return true
 		}
 	}
@@ -145,7 +159,7 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLiv
 	for _, live := range lives {
 		foundLive := false
 		for oldLiveIndex, oldLive := range oldLives {
-			if !isSameLive(live, oldLive, oldLives) {
+			if !isSameLive(live, oldLive, oldLives, lives) {
 				continue
 			}
 			foundLive = true
@@ -254,6 +268,15 @@ func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int
 		return
 	}
 
+	liveIds := make([]int64, 0)
+	for _, l := range lives {
+		liveIds = append(liveIds, l.ID)
+	}
+	_, err = tx.Exec(ctx, "DELETE FROM liveartists WHERE lives_id=ANY($1)", liveIds)
+	if err != nil {
+		return
+	}
+
 	_, err = tx.Exec(ctx, "INSERT INTO liveartists SELECT * FROM tmp_liveartists ON CONFLICT DO NOTHING")
 	if err != nil {
 		return
@@ -342,7 +365,7 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	}
 	for rows.Next() {
 		var l util.Live
-		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, l.Venue.Latitude)
+		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude)
 		if err != nil {
 			return
 		}

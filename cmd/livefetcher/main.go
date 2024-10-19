@@ -119,14 +119,15 @@ func startServer() {
 		fmt.Println(err)
 	}*/
 	/*
-		err := runner.RunConnector("ShimokitazawaMosaic")
+		err := runner.RunConnector("ShinsaibashiKnave")
 		fmt.Println(err)
-		err = runner.RunConnector("ShimokitazawaShelter")
-		fmt.Println(err)
-			err = runner.RunConnector("ShinjukuLoft")
+
+			err = runner.RunConnector("ShimokitazawaShelter")
 			fmt.Println(err)
-			err = runner.RunConnector("ShinsaibashiBronze")
-			fmt.Println(err)*/
+				err = runner.RunConnector("ShinjukuLoft")
+				fmt.Println(err)
+				err = runner.RunConnector("ShinsaibashiBronze")
+				fmt.Println(err)*/
 
 	router.Handle("/login", router.Methods{
 		GET: endpoints.ShowLogin,

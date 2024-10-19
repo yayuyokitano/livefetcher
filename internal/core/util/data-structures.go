@@ -25,6 +25,27 @@ type AuthUser struct {
 	Avatar     string `json:"avatar"`
 }
 
+type LiveWithGeoJSON struct {
+	Lives   []Live        `json:"lives"`
+	GeoJson []LiveGeoJSON `json:"geoJson"`
+}
+
+type LiveGeoJSON struct {
+	Type       string            `json:"type"`
+	Properties GeoJSONProperties `json:"properties"`
+	Geometry   GeoJSONGeometry   `json:"geometry"`
+}
+
+type GeoJSONProperties struct {
+	Name         string `json:"name"`
+	PopupContent string `json:"popupContent"`
+}
+
+type GeoJSONGeometry struct {
+	Type        string    `json:"type"`
+	Coordinates []float64 `json:"coordinates"`
+}
+
 type Live struct {
 	ID            int64     `json:"id"`
 	Title         string    `json:"title"`
