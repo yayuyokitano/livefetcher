@@ -52,7 +52,7 @@ function createMapDataRetriever() {
           L.geoJSON(map.geoJson, {
             onEachFeature: this.onEachFeature.bind(this),
           }).addTo(layerGroup);
-					layerGroup.addTo(leaflet);
+          layerGroup.addTo(leaflet);
           this.filterLives();
           this.isLoading = false;
         });
@@ -80,4 +80,11 @@ function createMapDataRetriever() {
       }
     },
   };
+}
+
+function getLiveCounter(num) {
+  if (document.documentElement.lang == "en") {
+    return `${num} lives`;
+  }
+  return `${num}ライブ`;
 }

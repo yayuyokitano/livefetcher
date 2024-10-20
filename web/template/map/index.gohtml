@@ -52,8 +52,12 @@
         x-cloak
         x-transition.origin.bottom.right
       >
-        <button @click="isMapDialogOpen = false">X</button>
-        <h2><span x-text="filteredLives.length"></span> lives</h2>
+        <div id="map-dialog-header">
+          <button @click="isMapDialogOpen = false">
+            {{ template "closeIcon" }}
+          </button>
+          <h2 x-text="getLiveCounter(filteredLives.length)"></h2>
+        </div>
         <ul class="map-live-list">
           <template x-for="live in filteredLives" :key="live.id">
             <li
@@ -65,11 +69,78 @@
               <input type="hidden" x-model="live.id" />
               <h3 class="" x-text="live.title"></h3>
               <span class="" x-text="live.artists.join(' / ')"></span>
-              <p class="" x-text="live.venue.id"></p>
+              <p class="" x-text="live.venue.name"></p>
+              <div class="compact-button-wrapper">
+                {{ template "clientFavoriteButton" }}
+                {{ template "clientAddToListButton" }}
+              </div>
             </li>
           </template>
         </ul>
       </div>
     </div>
   </div>
+{{ end }}
+
+{{ define "clientFavoriteButton" }}
+  <button
+    hx-swap="outerHTML"
+    :hx-post="`/api/${live.isFavorited ? 'unfavorite' : 'favorite'}`"
+    class="live-button"
+    name="Liveid"
+    :value="live.id"
+    x-effect="live;htmx.process($el)"
+    :title="live.isFavorited ? '{{ T "general.remove-from-favorites" }}' : '{{ T "general.add-to-favorites" }}'"
+    :aria-label="live.isFavorited ? '{{ T "general.remove-from-favorites" }}' : '{{ T "general.add-to-favorites" }}'"
+  >
+    {{ template "conditionalHeartFilled" }}
+    {{ template "conditionalHeartOutlined" }}
+    <span x-text="live.favoriteCount"></span>
+  </button>
+{{ end }}
+
+{{ define "clientAddToListButton" }}
+  <button
+    hx-target="#main-modal-inner"
+    hx-get="/modal/livelist"
+    @click="$refs.modalInner.innerHTML = ''; isModalOpen = true"
+    class="live-button"
+    name="liveid"
+    :value="live.id"
+    title="{{ T "live.add-to-livelist-label" }}"
+    aria-label="{{ T "live.add-to-livelist-label" }}"
+    x-effect="live;htmx.process($el)"
+  >
+    {{ template "addToListIcon" }}
+  </button>
+{{ end }}
+
+{{ define "conditionalHeartOutlined" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#5f6368"
+    x-show="! live.isFavorited"
+  >
+    <path
+      d="m480-146.93-44.15-39.69q-99.46-90.23-164.5-155.07-65.04-64.85-103.08-115.43-38.04-50.57-53.15-92.27Q100-591.08 100-634q0-85.15 57.42-142.58Q214.85-834 300-834q52.38 0 99 24.5t81 70.27q34.38-45.77 81-70.27 46.62-24.5 99-24.5 85.15 0 142.58 57.42Q860-719.15 860-634q0 42.92-15.12 84.61-15.11 41.7-53.15 92.27-38.04 50.58-102.89 115.43Q624-276.85 524.15-186.62L480-146.93Zm0-81.07q96-86.38 158-148.08 62-61.69 98-107.19t50-80.81q14-35.3 14-69.92 0-60-40-100t-100-40q-47.38 0-87.58 26.88-40.19 26.89-63.65 74.81h-57.54q-23.85-48.31-63.85-75Q347.38-774 300-774q-59.62 0-99.81 40Q160-694 160-634q0 34.62 14 69.92 14 35.31 50 80.81t98 107q62 61.5 158 148.27Zm0-273Z"
+    />
+  </svg>
+{{ end }}
+
+{{ define "conditionalHeartFilled" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#5f6368"
+    x-show="live.isFavorited"
+  >
+    <path
+      d="m480-146.93-44.15-39.69q-99.46-90.23-164.5-155.07-65.04-64.85-103.08-115.43-38.04-50.57-53.15-92.27Q100-591.08 100-634q0-85.15 57.42-142.58Q214.85-834 300-834q52.38 0 99 24.5t81 70.27q34.38-45.77 81-70.27 46.62-24.5 99-24.5 85.15 0 142.58 57.42Q860-719.15 860-634q0 42.92-15.12 84.61-15.11 41.7-53.15 92.27-38.04 50.58-102.89 115.43Q624-276.85 524.15-186.62L480-146.93Z"
+    />
+  </svg>
 {{ end }}

@@ -21,7 +21,7 @@ type AuthUser struct {
 	Email      string `json:"email"`
 	Username   string `json:"username"`
 	Nickname   string `json:"nickname"`
-	IsVerified bool   `json:"is_verified"`
+	IsVerified bool   `json:"isVerified"`
 	Avatar     string `json:"avatar"`
 }
 
@@ -54,11 +54,11 @@ type Live struct {
 	OpenTime      time.Time `json:"opentime"`
 	StartTime     time.Time `json:"starttime"`
 	Price         string    `json:"price"`
-	PriceEnglish  string    `json:"price_en"`
+	PriceEnglish  string    `json:"priceEn"`
 	Venue         LiveHouse `json:"venue"`
 	URL           string    `json:"url"`
-	IsFavorited   bool      `json:"is_favorited"`
-	FavoriteCount int       `json:"favorite_count"`
+	IsFavorited   bool      `json:"isFavorited"`
+	FavoriteCount int       `json:"favoriteCount"`
 
 	// only used for livelists
 	LiveListLiveID  int64  `json:"-"`
@@ -74,6 +74,7 @@ type Area struct {
 
 type LiveHouse struct {
 	ID          string  `json:"id"`
+	Name        string  `json:"name"`
 	Url         string  `json:"url"`
 	Description string  `json:"description"`
 	Area        Area    `json:"area"`

@@ -37,7 +37,39 @@ main {
   position: absolute;
   bottom: 0;
   right: 0;
-  overflow-y: auto;
+  overflow: hidden;
+  border-radius: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+#map-dialog-header {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+#map-dialog-header button {
+  width: 3.5rem;
+  height: 3.5rem;
+  padding-top: 0.5rem;
+  padding-right: 1rem;
+  padding-left: 0.5rem;
+  padding-bottom: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#map-dialog-header button:hover {
+  background-color: var(--bg2);
+}
+
+#map-dialog-header h2 {
+  margin: 0;
+  padding-left: 1rem;
 }
 
 #map-dialog-btn {
@@ -96,17 +128,34 @@ main {
 
 .map-live-list {
   padding: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .map-live {
   list-style: none;
-  padding: 0;
+  padding: 0 0.8rem;
   margin: 0;
+  border: 4px solid transparent;
 }
 
 .map-live:hover,
 .map-live:focus {
-  background-color: var(--bg2);
+  border: 4px solid var(--brand);
+}
+
+#map-dialog-content .live-button {
+  flex-direction: row;
+  gap: 0.1rem;
+}
+
+#map-dialog-content .live-button span {
+  margin-top: -2px;
+}
+
+.compact-button-wrapper {
+  display: flex;
+  margin: 0 -0.8rem;
 }

@@ -217,7 +217,7 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 		GeoJson: make([]util.LiveGeoJSON, 0),
 	}
 	localizer := i18nloader.GetLocalizer(r)
-	for _, l := range lives {
+	for i, l := range lives {
 		livesWithGeoJSON.GeoJson = append(livesWithGeoJSON.GeoJson, util.LiveGeoJSON{
 			Type: "Feature",
 			Properties: util.GeoJSONProperties{
@@ -230,6 +230,7 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 				Coordinates: []float64{l.Venue.Longitude, l.Venue.Latitude},
 			},
 		})
+		lives[i].Venue.Name = localizer.Localize("livehouse." + l.Venue.ID)
 	}
 
 	b, err := json.Marshal(livesWithGeoJSON)
