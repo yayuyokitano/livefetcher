@@ -11,8 +11,8 @@ import (
 )
 
 func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -46,6 +46,6 @@ func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
 		}
 		n += cmd.RowsAffected()
 	}
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }

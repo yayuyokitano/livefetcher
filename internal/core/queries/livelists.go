@@ -12,14 +12,14 @@ import (
 )
 
 func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthUser) (liveLists []util.LiveList, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -47,19 +47,19 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 		liveLists = append(liveLists, ll)
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthUser) (liveLists []util.LiveList, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -88,13 +88,13 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthU
 		liveLists = append(liveLists, ll)
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) *logging.StatusError {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -112,8 +112,8 @@ func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser util.A
 }
 
 func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser util.AuthUser) *logging.StatusError {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -131,14 +131,14 @@ func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUse
 }
 
 func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) (liveList util.LiveList, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -191,13 +191,13 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 		liveList.Lives = append(liveList.Lives, l)
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func PostLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (id int64, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -207,13 +207,13 @@ func PostLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (id i
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func PutLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -223,13 +223,13 @@ func PutLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (err e
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -239,13 +239,13 @@ func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc string) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -255,13 +255,13 @@ func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc 
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -271,13 +271,13 @@ func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -296,13 +296,13 @@ func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favo
 		ID:            int(livelistid),
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -321,19 +321,19 @@ func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64)
 		ID:            int(livelistid),
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func GetUserFavoriteLiveLists(ctx context.Context, user util.AuthUser) (liveLists []util.LiveList, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -362,7 +362,7 @@ func GetUserFavoriteLiveLists(ctx context.Context, user util.AuthUser) (liveList
 		liveLists = append(liveLists, ll)
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 

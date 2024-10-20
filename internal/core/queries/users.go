@@ -11,8 +11,8 @@ import (
 )
 
 func GetUserByID(ctx context.Context, id int) (user util.User, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -26,8 +26,8 @@ func getUserByIDQuery(ctx context.Context, tx pgx.Tx, id int) (user util.User, e
 }
 
 func GetUserByUsername(ctx context.Context, username string) (user util.User, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -37,8 +37,8 @@ func GetUserByUsername(ctx context.Context, username string) (user util.User, er
 }
 
 func GetUserByUsernameOrEmail(ctx context.Context, query string) (user util.User, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -48,8 +48,8 @@ func GetUserByUsernameOrEmail(ctx context.Context, query string) (user util.User
 }
 
 func PostUser(ctx context.Context, user util.User) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -62,13 +62,13 @@ func PostUser(ctx context.Context, user util.User) (err error) {
 		logging.IncrementUsers()
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func PatchUser(ctx context.Context, patchInfo util.User) (err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -106,7 +106,7 @@ func PatchUser(ctx context.Context, patchInfo util.User) (err error) {
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
@@ -130,8 +130,8 @@ func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid in
 }
 
 func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -150,13 +150,13 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 		ID:            int(liveid),
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
 func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -175,6 +175,6 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 		ID:            int(liveid),
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }

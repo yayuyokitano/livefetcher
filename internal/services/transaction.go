@@ -8,20 +8,20 @@ import (
 
 var Tx pgx.Tx
 
-func StartTransaction() (err error) {
-	Tx, err = Pool.BeginTx(context.Background(), pgx.TxOptions{})
+func StartTransaction(ctx context.Context) (err error) {
+	Tx, err = Pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return
 	}
 	return
 }
 
-func RollbackTransaction() (err error) {
-	err = Tx.Rollback(context.Background())
+func RollbackTransaction(ctx context.Context) (err error) {
+	err = Tx.Rollback(ctx)
 	return
 }
 
-func CommitTransaction() (err error) {
-	err = Tx.Commit(context.Background())
+func CommitTransaction(ctx context.Context) (err error) {
+	err = Tx.Commit(ctx)
 	return
 }

@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"html/template"
@@ -49,7 +48,7 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	lives, err := queries.GetLives(query, user)
+	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -109,7 +108,7 @@ func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	favoriteButtonInfo, err := queries.FavoriteLive(context.Background(), user.ID, req.Liveid)
+	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, req.Liveid)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -145,7 +144,7 @@ func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.Respons
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	favoriteButtonInfo, err := queries.UnfavoriteLive(context.Background(), user.ID, req.Liveid)
+	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, req.Liveid)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -170,7 +169,7 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	lives, err := queries.GetUserFavoriteLives(context.Background(), user.ID)
+	lives, err := queries.GetUserFavoriteLives(r.Context(), user.ID)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -208,7 +207,7 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 	query.From = time.Date(year, time.Month(month), day, 2, 0, 0, 0, util.JapanTime)
 	query.To = query.From.Add(24 * time.Hour)
 
-	lives, err := queries.GetLives(query, user)
+	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

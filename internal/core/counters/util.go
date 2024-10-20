@@ -36,20 +36,19 @@ func GetIntArray(query url.Values, key string) []int {
 	return a
 }
 
-func FetchTransaction() (tx pgx.Tx, err error) {
+func FetchTransaction(ctx context.Context) (tx pgx.Tx, err error) {
 	tx = services.Tx
 	if tx == nil {
-		tx, err = services.Pool.BeginTx(context.Background(), pgx.TxOptions{})
+		tx, err = services.Pool.BeginTx(ctx, pgx.TxOptions{})
 		if err != nil {
-			RollbackTransaction(tx)
+			RollbackTransaction(ctx, tx)
 			return
 		}
 	}
 	return
 }
 
-func CommitTransaction(tx pgx.Tx, tempTables ...string) (err error) {
-	ctx := context.Background()
+func CommitTransaction(ctx context.Context, tx pgx.Tx, tempTables ...string) (err error) {
 	if services.IsTesting {
 		for _, table := range tempTables {
 			_, err = tx.Exec(ctx, "DROP TABLE IF EXISTS "+table)
@@ -60,8 +59,7 @@ func CommitTransaction(tx pgx.Tx, tempTables ...string) (err error) {
 	return
 }
 
-func RollbackTransaction(tx pgx.Tx) {
-	ctx := context.Background()
+func RollbackTransaction(ctx context.Context, tx pgx.Tx) {
 	if services.IsTesting || tx == nil {
 		return
 	}

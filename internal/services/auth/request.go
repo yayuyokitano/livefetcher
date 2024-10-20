@@ -1,14 +1,12 @@
 package auth
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 )
 
 func GetUser(w http.ResponseWriter, r *http.Request) (user util.AuthUser) {
-	ctx := context.Background()
 	c, err := r.Cookie("authToken")
 	if err != nil {
 		return
@@ -23,7 +21,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) (user util.AuthUser) {
 	if err != nil {
 		return
 	}
-	authToken, refreshToken, err := RefreshSession(ctx, c.Value)
+	authToken, refreshToken, err := RefreshSession(r.Context(), c.Value)
 	if err != nil {
 		return
 	}

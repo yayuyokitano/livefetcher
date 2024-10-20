@@ -47,8 +47,7 @@ var (
 	})
 )
 
-func setCounts() {
-	ctx := context.Background()
+func setCounts(ctx context.Context) {
 	curAreaCount, err := counters.GetAreaCount(ctx)
 	if err != nil {
 		metricError("areaCount", err)
@@ -91,7 +90,7 @@ func ServeLogs() {
 	if os.Getenv("CONTAINERIZED") == "true" {
 		isContainerized = true
 		fmt.Println("serving metrics on port 2113")
-		setCounts()
+		setCounts(context.Background())
 		http.Handle("/metrics", promhttp.Handler())
 		http.ListenAndServe(":2113", nil)
 	}

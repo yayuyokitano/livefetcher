@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -14,7 +13,6 @@ import (
 )
 
 func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
 	}
@@ -41,7 +39,7 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 		Username: registrationUsername,
 		Nickname: registrationUsername,
 	}
-	authToken, refreshToken, err := auth.CreateNewUser(ctx, newUser, registrationPassword)
+	authToken, refreshToken, err := auth.CreateNewUser(r.Context(), newUser, registrationPassword)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -87,7 +85,6 @@ func ShowLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http
 }
 
 func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
 	}
@@ -108,7 +105,7 @@ func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
 	}
 
-	authToken, refreshToken, err := auth.CreateNewSession(ctx, username, password)
+	authToken, refreshToken, err := auth.CreateNewSession(r.Context(), username, password)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -136,8 +133,6 @@ func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 }
 
 func Logout(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
-
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
 		Value:    "",
@@ -161,7 +156,7 @@ func Logout(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.Re
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
 	}
-	err = auth.DisableRefreshToken(ctx, refreshToken.Value)
+	err = auth.DisableRefreshToken(r.Context(), refreshToken.Value)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

@@ -10,8 +10,8 @@ import (
 )
 
 func PostLiveHouses(ctx context.Context, livehouses []util.LiveHouse) (n int, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -40,6 +40,6 @@ func PostLiveHouses(ctx context.Context, livehouses []util.LiveHouse) (n int, er
 		}
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }

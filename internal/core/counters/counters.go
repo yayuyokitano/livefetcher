@@ -3,8 +3,8 @@ package counters
 import "context"
 
 func GetLiveCount(ctx context.Context) (n int64, err error) {
-	tx, err := FetchTransaction()
-	defer RollbackTransaction(tx)
+	tx, err := FetchTransaction(ctx)
+	defer RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -15,13 +15,13 @@ func GetLiveCount(ctx context.Context) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	err = CommitTransaction(tx)
+	err = CommitTransaction(ctx, tx)
 	return
 }
 
 func GetLiveHouseCount(ctx context.Context) (n int64, err error) {
-	tx, err := FetchTransaction()
-	defer RollbackTransaction(tx)
+	tx, err := FetchTransaction(ctx)
+	defer RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -32,13 +32,13 @@ func GetLiveHouseCount(ctx context.Context) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	err = CommitTransaction(tx)
+	err = CommitTransaction(ctx, tx)
 	return
 }
 
 func GetArtistCount(ctx context.Context) (n int64, err error) {
-	tx, err := FetchTransaction()
-	defer RollbackTransaction(tx)
+	tx, err := FetchTransaction(ctx)
+	defer RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -49,13 +49,13 @@ func GetArtistCount(ctx context.Context) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	err = CommitTransaction(tx)
+	err = CommitTransaction(ctx, tx)
 	return
 }
 
 func GetAreaCount(ctx context.Context) (n int64, err error) {
-	tx, err := FetchTransaction()
-	defer RollbackTransaction(tx)
+	tx, err := FetchTransaction(ctx)
+	defer RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -66,13 +66,13 @@ func GetAreaCount(ctx context.Context) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	err = CommitTransaction(tx)
+	err = CommitTransaction(ctx, tx)
 	return
 }
 
 func GetUserCount(ctx context.Context) (n int64, err error) {
-	tx, err := FetchTransaction()
-	defer RollbackTransaction(tx)
+	tx, err := FetchTransaction(ctx)
+	defer RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -83,6 +83,6 @@ func GetUserCount(ctx context.Context) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	err = CommitTransaction(tx)
+	err = CommitTransaction(ctx, tx)
 	return
 }

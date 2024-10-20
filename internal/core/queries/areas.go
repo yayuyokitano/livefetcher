@@ -9,8 +9,8 @@ import (
 )
 
 func GetArea(ctx context.Context, prefecture string, area string) (id int, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -32,7 +32,7 @@ func GetArea(ctx context.Context, prefecture string, area string) (id int, err e
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
@@ -44,8 +44,8 @@ type Area struct {
 
 func GetAllAreas(ctx context.Context) (areas map[string][]Area, err error) {
 	areas = make(map[string][]Area)
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}

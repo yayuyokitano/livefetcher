@@ -9,7 +9,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 )
 
-func RunConnector(connectorID string) (err error) {
+func RunConnector(ctx context.Context, connectorID string) (err error) {
 	if _, ok := coreconnectors.Connectors[connectorID]; !ok {
 		err = errors.New("Connector not found: " + connectorID)
 		return
@@ -21,7 +21,7 @@ func RunConnector(connectorID string) (err error) {
 		return
 	}
 
-	deleted, added, modified, addedArtists, err := queries.PostLives(context.Background(), fetcher.Lives)
+	deleted, added, modified, addedArtists, err := queries.PostLives(ctx, fetcher.Lives)
 	if err != nil {
 		fmt.Println(err)
 		return

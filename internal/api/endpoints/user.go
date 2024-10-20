@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"context"
 	"errors"
 	"html/template"
 	"io"
@@ -17,13 +16,12 @@ import (
 )
 
 func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	username := r.PathValue("username")
 	if username == "" {
 		return logging.SE(http.StatusBadRequest, errors.New("no user specified"))
 	}
 
-	displayUser, err := queries.GetUserByUsername(ctx, username)
+	displayUser, err := queries.GetUserByUsername(r.Context(), username)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -56,7 +54,6 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 }
 
 func ChangePassword(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	if user.Username == "" {
 		return logging.SE(http.StatusForbidden, errors.New("not signed in"))
 	}
@@ -77,7 +74,7 @@ func ChangePassword(user util.AuthUser, w io.Writer, r *http.Request, httpWriter
 		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
 	}
 
-	authToken, refreshToken, err := auth.ChangePassword(ctx, user, currentPassword, newPassword, oldRefreshToken.Value)
+	authToken, refreshToken, err := auth.ChangePassword(r.Context(), user, currentPassword, newPassword, oldRefreshToken.Value)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, errors.New("failed to change password"))
 	}
@@ -105,7 +102,6 @@ func ChangePassword(user util.AuthUser, w io.Writer, r *http.Request, httpWriter
 }
 
 func PatchUser(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
@@ -123,7 +119,7 @@ func PatchUser(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http
 	}
 
 	newUser.ID = user.ID
-	err = queries.PatchUser(ctx, newUser)
+	err = queries.PatchUser(r.Context(), newUser)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

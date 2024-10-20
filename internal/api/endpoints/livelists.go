@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"context"
 	"errors"
 	"html/template"
 	"io"
@@ -18,9 +17,7 @@ import (
 )
 
 func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
-
-	userLiveLists, err := queries.GetUserLiveLists(ctx, user.ID, user)
+	userLiveLists, err := queries.GetUserLiveLists(r.Context(), user.ID, user)
 	if err != nil {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
@@ -30,7 +27,7 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 		return logging.SE(http.StatusBadRequest, errors.New("no live specified"))
 	}
 
-	liveLiveLists, err := queries.GetLiveLiveLists(ctx, int64(liveID), user)
+	liveLiveLists, err := queries.GetLiveLiveLists(r.Context(), int64(liveID), user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, errors.New("couldn't fetch live live lists"))
 	}
@@ -61,7 +58,6 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 
 func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	httpWriter.Header().Add("HX-Trigger", "livelistadded")
-	ctx := context.Background()
 
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
@@ -84,7 +80,7 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 			return logging.SE(http.StatusBadRequest, errors.New("no name specified"))
 		}
 
-		liveListID, err := queries.PostLiveList(ctx, util.LiveListWriteRequest{
+		liveListID, err := queries.PostLiveList(r.Context(), util.LiveListWriteRequest{
 			UserID: user.ID,
 			Title:  req.NewLiveListTitle,
 		})
@@ -92,7 +88,7 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 			return logging.SE(http.StatusInternalServerError, err)
 		}
 
-		err = queries.PostLiveListLive(ctx, liveListID, int64(req.LiveID), req.LiveDesc)
+		err = queries.PostLiveListLive(r.Context(), liveListID, int64(req.LiveID), req.LiveDesc)
 		if err != nil {
 			return logging.SE(http.StatusInternalServerError, err)
 		}
@@ -101,12 +97,12 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 			return logging.SE(http.StatusBadRequest, errors.New("no live specified"))
 		}
 
-		se := queries.UserOwnsLiveList(ctx, int64(req.ExistingLiveListID), user)
+		se := queries.UserOwnsLiveList(r.Context(), int64(req.ExistingLiveListID), user)
 		if se != nil {
 			return se
 		}
 
-		err = queries.PostLiveListLive(ctx, int64(req.ExistingLiveListID), int64(req.LiveID), req.LiveDesc)
+		err = queries.PostLiveListLive(r.Context(), int64(req.ExistingLiveListID), int64(req.LiveID), req.LiveDesc)
 		if err != nil {
 			if strings.Contains(err.Error(), "SQLSTATE 23505") {
 				return logging.SE(http.StatusBadRequest, errors.New("live already in list"))
@@ -123,13 +119,12 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 }
 
 func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	livelist, err := queries.GetLiveList(ctx, int64(id), user)
+	livelist, err := queries.GetLiveList(r.Context(), int64(id), user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -155,18 +150,17 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 }
 
 func DeleteLiveListLive(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	ctx := context.Background()
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	se := queries.UserOwnsLiveListLive(ctx, int64(id), user)
+	se := queries.UserOwnsLiveListLive(r.Context(), int64(id), user)
 	if se != nil {
 		return se
 	}
 
-	err = queries.DeleteLiveListLive(ctx, int64(id))
+	err = queries.DeleteLiveListLive(r.Context(), int64(id))
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

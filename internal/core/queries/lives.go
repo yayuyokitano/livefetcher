@@ -191,8 +191,8 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLiv
 
 func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int64, modified int64, addedArtists int64, err error) {
 
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -229,7 +229,7 @@ func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int
 	}
 	deleted += cmd.RowsAffected()
 
-	oldLives, err := getLiveHouseLives(tx, livehouses)
+	oldLives, err := getLiveHouseLives(ctx, tx, livehouses)
 	if err != nil {
 		return
 	}
@@ -282,7 +282,7 @@ func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int
 		return
 	}
 
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
@@ -298,14 +298,14 @@ type LiveQuery struct {
 	To     time.Time
 }
 
-func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+func GetLives(ctx context.Context, query LiveQuery, user util.AuthUser) (lives []util.Live, err error) {
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -358,7 +358,6 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
 	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude
 	ORDER BY starttime`
-	ctx := context.Background()
 	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
 		return
@@ -377,11 +376,11 @@ func GetLives(query LiveQuery, user util.AuthUser) (lives []util.Live, err error
 		err = nil
 		lives = append(lives, l)
 	}
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
-func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.Live, err error) {
+func getLiveHouseLives(ctx context.Context, tx pgx.Tx, livehouses []string) (lives []util.Live, err error) {
 	queryStr := `WITH queriedlives AS (
 		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
 		FROM lives AS live
@@ -395,7 +394,7 @@ func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.Live, err e
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
 	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	ORDER BY starttime`
-	rows, err := tx.Query(context.Background(), queryStr, livehouses)
+	rows, err := tx.Query(ctx, queryStr, livehouses)
 	if err != nil {
 		return
 	}
@@ -411,13 +410,13 @@ func getLiveHouseLives(tx pgx.Tx, livehouses []string) (lives []util.Live, err e
 }
 
 func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live, err error) {
-	tx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(tx)
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
-	favoriteTx, err := counters.FetchTransaction()
-	defer counters.RollbackTransaction(favoriteTx)
+	favoriteTx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -436,7 +435,7 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live,
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
 	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
 	ORDER BY starttime`
-	rows, err := tx.Query(context.Background(), queryStr, userid)
+	rows, err := tx.Query(ctx, queryStr, userid)
 	if err != nil {
 		return
 	}
@@ -455,6 +454,6 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live,
 		err = nil
 		lives = append(lives, l)
 	}
-	err = counters.CommitTransaction(tx)
+	err = counters.CommitTransaction(ctx, tx)
 	return
 }
