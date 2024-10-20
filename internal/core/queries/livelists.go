@@ -18,12 +18,6 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
-	if err != nil {
-		return
-	}
-
 	rows, err := tx.Query(ctx, `SELECT livelist.id, title, list_description, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
 		INNER JOIN users ON (livelist.users_id = users.id)
@@ -38,13 +32,16 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, ll.ID)
+		liveLists = append(liveLists, ll)
+	}
+	rows.Close()
+	for i, ll := range liveLists {
+		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, tx, loggedInUser.ID, ll.ID)
 		if err == nil {
-			ll.FavoriteCount = int(favoriteCount)
-			ll.IsFavorited = isFavorited
+			liveLists[i].FavoriteCount = int(favoriteCount)
+			liveLists[i].IsFavorited = isFavorited
 		}
 		err = nil
-		liveLists = append(liveLists, ll)
 	}
 
 	err = counters.CommitTransaction(ctx, tx)
@@ -54,12 +51,6 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthUser) (liveLists []util.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
-	if err != nil {
-		return
-	}
-
-	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -79,13 +70,16 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthU
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, ll.ID)
+		liveLists = append(liveLists, ll)
+	}
+	rows.Close()
+	for i, ll := range liveLists {
+		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, tx, loggedInUser.ID, ll.ID)
 		if err == nil {
-			ll.FavoriteCount = int(favoriteCount)
-			ll.IsFavorited = isFavorited
+			liveLists[i].FavoriteCount = int(favoriteCount)
+			liveLists[i].IsFavorited = isFavorited
 		}
 		err = nil
-		liveLists = append(liveLists, ll)
 	}
 
 	err = counters.CommitTransaction(ctx, tx)
@@ -137,12 +131,6 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 		return
 	}
 
-	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
-	if err != nil {
-		return
-	}
-
 	err = tx.QueryRow(ctx, `SELECT livelist.id, title, list_description, livelist.created_at, livelist.updated_at, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
 		INNER JOIN users ON (livelist.users_id = users.id)
@@ -150,7 +138,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 	if err != nil {
 		return
 	}
-	isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, liveList.ID)
+	isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, tx, loggedInUser.ID, liveList.ID)
 	if err == nil {
 		liveList.FavoriteCount = int(favoriteCount)
 		liveList.IsFavorited = isFavorited
@@ -182,13 +170,16 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, loggedInUser.ID, l.ID)
+		liveList.Lives = append(liveList.Lives, l)
+	}
+	rows.Close()
+	for i, l := range liveList.Lives {
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, loggedInUser.ID, l.ID)
 		if err == nil {
-			l.FavoriteCount = int(favoriteCount)
-			l.IsFavorited = isFavorited
+			liveList.Lives[i].FavoriteCount = int(favoriteCount)
+			liveList.Lives[i].IsFavorited = isFavorited
 		}
 		err = nil
-		liveList.Lives = append(liveList.Lives, l)
 	}
 
 	err = counters.CommitTransaction(ctx, tx)
@@ -353,13 +344,16 @@ func GetUserFavoriteLiveLists(ctx context.Context, user util.AuthUser) (liveList
 		if err != nil {
 			return
 		}
+		liveLists = append(liveLists, ll)
+	}
+	rows.Close()
+	for i, ll := range liveLists {
 		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, favoriteTx, user.ID, ll.ID)
 		if err == nil {
-			ll.FavoriteCount = int(favoriteCount)
-			ll.IsFavorited = isFavorited
+			liveLists[i].FavoriteCount = int(favoriteCount)
+			liveLists[i].IsFavorited = isFavorited
 		}
 		err = nil
-		liveLists = append(liveLists, ll)
 	}
 
 	err = counters.CommitTransaction(ctx, tx)

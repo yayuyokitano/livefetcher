@@ -39,7 +39,7 @@ func GetPGConnectionString() string {
 		domain = "localhost"
 	}
 
-	return fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?pool_max_conns=100",
+	return fmt.Sprintf("postgresql://%s:%s@%s:5432/%s?pool_max_conns=80",
 		os.Getenv("POSTGRES_USER"), url.QueryEscape(os.Getenv("POSTGRES_PASSWORD")), domain, os.Getenv("POSTGRES_DB"))
 }
 

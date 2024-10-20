@@ -190,7 +190,6 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []util.Live, oldLiv
 }
 
 func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int64, modified int64, addedArtists int64, err error) {
-
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -304,11 +303,6 @@ func GetLives(ctx context.Context, query LiveQuery, user util.AuthUser) (lives [
 	if err != nil {
 		return
 	}
-	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
-	if err != nil {
-		return
-	}
 
 	queryStr := `WITH queriedlives AS (
 		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude
@@ -368,13 +362,16 @@ func GetLives(ctx context.Context, query LiveQuery, user util.AuthUser) (lives [
 		if err != nil {
 			return
 		}
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, user.ID, l.ID)
+		lives = append(lives, l)
+	}
+	rows.Close()
+	for i, l := range lives {
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, user.ID, l.ID)
 		if err == nil {
-			l.FavoriteCount = int(favoriteCount)
-			l.IsFavorited = isFavorited
+			lives[i].FavoriteCount = int(favoriteCount)
+			lives[i].IsFavorited = isFavorited
 		}
 		err = nil
-		lives = append(lives, l)
 	}
 	err = counters.CommitTransaction(ctx, tx)
 	return
@@ -398,6 +395,7 @@ func getLiveHouseLives(ctx context.Context, tx pgx.Tx, livehouses []string) (liv
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var l util.Live
 		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
@@ -412,11 +410,6 @@ func getLiveHouseLives(ctx context.Context, tx pgx.Tx, livehouses []string) (liv
 func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
-	if err != nil {
-		return
-	}
-	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
@@ -445,14 +438,16 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []util.Live,
 		if err != nil {
 			return
 		}
-
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, favoriteTx, userid, l.ID)
+		lives = append(lives, l)
+	}
+	rows.Close()
+	for i, l := range lives {
+		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, userid, l.ID)
 		if err == nil {
-			l.FavoriteCount = int(favoriteCount)
-			l.IsFavorited = isFavorited
+			lives[i].FavoriteCount = int(favoriteCount)
+			lives[i].IsFavorited = isFavorited
 		}
 		err = nil
-		lives = append(lives, l)
 	}
 	err = counters.CommitTransaction(ctx, tx)
 	return
