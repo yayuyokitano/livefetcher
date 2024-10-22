@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -151,6 +152,12 @@ func startServer() {
 	router.Handle("/livelistlive/{id}", router.Methods{
 		DELETE: endpoints.DeleteLiveListLive,
 	})
+	router.Handle("/user/notifications", router.Methods{
+		GET: endpoints.ListUserNotifications,
+	})
+	router.Handle("/notification/{id}", router.Methods{
+		GET: endpoints.ShowNotification,
+	})
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})
@@ -180,6 +187,16 @@ func startServer() {
 	})
 	router.Handle("/api/unfavorite", router.Methods{
 		POST: endpoints.Unfavorite,
+	})
+	router.Handle("/api/updateTestLive", router.Methods{
+		GET: func(au util.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) *logging.StatusError {
+			err := runner.RunConnector(context.Background(), "ShimokitazawaTest")
+			if err != nil {
+				return logging.SE(http.StatusInternalServerError, err)
+			}
+			w1.Write([]byte("Successfully updated test live"))
+			return nil
+		},
 	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,

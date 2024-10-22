@@ -121,3 +121,46 @@ type AddToLiveListParameters struct {
 	NewLiveListTitle   string // specified if new live
 	AdditionType       string
 }
+
+type NotificationType int16
+
+const (
+	NotificationTypeChangedTitle NotificationType = iota + 1
+	NotificationTypeChangedOpenTime
+	NotificationTypeChangedStartTime
+	NotificationTypeChangedPrice
+	NotificationTypeChangedPriceEnglish
+	NotificationTypeChangedURL
+	NotificationTypeChangedVenue
+	NotificationTypeAddedArtist
+	NotificationTypeRemovedArtist
+)
+
+func (nt NotificationType) String() string {
+	return [...]string{
+		"",
+		"Changed Title",
+		"Changed Open Time",
+		"Changed Start Time",
+		"Changed Price",
+		"Changed English Price",
+		"Changed URL",
+		"Changed Venue",
+		"Added Artist",
+		"Removed Artist",
+	}[nt]
+}
+
+type NotificationField struct {
+	Type     NotificationType
+	OldValue string
+	NewValue string
+}
+
+type Notification struct {
+	ID        int64
+	UserID    int64
+	LiveID    int64
+	Seen      bool
+	CreatedAt time.Time
+}

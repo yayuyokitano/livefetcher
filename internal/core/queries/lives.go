@@ -87,50 +87,118 @@ func addLive(tx pgx.Tx, ctx context.Context, live util.Live, artists *map[string
 	return
 }
 
-func arraysHaveSameItems(a, b []string) bool {
-	if len(a) != len(b) {
-		return false
+func getArrayDiff(old, new []string) (removed, added []string) {
+	removed = make([]string, 0)
+	added = make([]string, 0)
+
+	if len(old) != len(new) {
+		return
 	}
-	slices.Sort(a)
-	slices.Sort(b)
-	for i := range a {
-		if a[i] != b[i] {
-			return false
+	slices.Sort(old)
+	slices.Sort(new)
+	for i, j := len(old), len(new); i < len(old) || j < len(new); {
+		if i >= len(old) {
+			added = append(added, new[j])
+			j++
+			continue
 		}
+
+		if j >= len(new) {
+			removed = append(removed, old[i])
+			i++
+			continue
+		}
+
+		if old[i] == new[j] {
+			i++
+			j++
+			continue
+		}
+
+		if old[i] > new[j] {
+			added = append(added, new[j])
+			j++
+			continue
+		}
+
+		removed = append(removed, old[i])
+		i++
 	}
-	return true
+	return
 }
 
-func shouldUpdateLive(live util.Live, oldLive util.Live) bool {
+func getLiveUpdates(live util.Live, oldLive util.Live) []util.NotificationField {
+	notificationFields := make([]util.NotificationField, 0)
 	if live.Title != oldLive.Title {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedTitle,
+			OldValue: oldLive.Title,
+			NewValue: live.Title,
+		})
 	}
 	if live.OpenTime != oldLive.OpenTime {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedOpenTime,
+			OldValue: oldLive.OpenTime.Format(time.RFC3339),
+			NewValue: live.OpenTime.Format(time.RFC3339),
+		})
 	}
 	if live.StartTime != oldLive.StartTime {
-		return true
-	}
-	if !arraysHaveSameItems(live.Artists, oldLive.Artists) {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedStartTime,
+			OldValue: oldLive.StartTime.Format(time.RFC3339),
+			NewValue: live.StartTime.Format(time.RFC3339),
+		})
 	}
 	if live.Price != oldLive.Price {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedPrice,
+			OldValue: oldLive.Price,
+			NewValue: live.Price,
+		})
 	}
 	if live.PriceEnglish != oldLive.PriceEnglish {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedPriceEnglish,
+			OldValue: oldLive.PriceEnglish,
+			NewValue: live.PriceEnglish,
+		})
 	}
 	if live.URL != oldLive.URL {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedURL,
+			OldValue: oldLive.URL,
+			NewValue: live.URL,
+		})
 	}
 	if live.Venue.ID != oldLive.Venue.ID {
-		return true
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeChangedVenue,
+			OldValue: oldLive.Venue.ID,
+			NewValue: live.Venue.ID,
+		})
 	}
-	return false
+
+	removedArtists, addedArtists := getArrayDiff(oldLive.Artists, live.Artists)
+	for _, r := range removedArtists {
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeRemovedArtist,
+			OldValue: r,
+		})
+	}
+	for _, a := range addedArtists {
+		notificationFields = append(notificationFields, util.NotificationField{
+			Type:     util.NotificationTypeAddedArtist,
+			NewValue: a,
+		})
+	}
+
+	return notificationFields
 }
 
 func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.Live, artists *map[string]bool, liveartists *[][]interface{}) (modified int64, err error) {
-	if !shouldUpdateLive(live, oldLive) {
+	liveUpdates := getLiveUpdates(live, oldLive)
+	if len(liveUpdates) == 0 {
 		return
 	}
 
@@ -140,6 +208,13 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.
 	}
 	modified = cmd.RowsAffected()
 
+	err = notifyUpdates(ctx, tx, oldLive.ID, liveUpdates)
+	if err != nil {
+		// ignore and log
+		fmt.Println("notifyUpdates", err)
+		err = nil
+	}
+
 	liveartistmap := make(map[string]bool)
 	for _, artist := range live.Artists {
 		liveartistmap[artist] = true
@@ -147,6 +222,31 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live util.Live, oldLive util.
 	}
 	for k := range liveartistmap {
 		*liveartists = append(*liveartists, []interface{}{oldLive.ID, k})
+	}
+	return
+}
+
+func notifyUpdates(ctx context.Context, tx pgx.Tx, liveID int64, liveUpdates []util.NotificationField) (err error) {
+	userIDs, err := GetLiveFavoritedUsers(ctx, tx, liveID)
+	if err != nil {
+		return
+	}
+
+	// this is massively inefficient, but for now i do not care
+	// TODO: make this more efficient
+	for _, userID := range userIDs {
+		var notificationID int64
+		err = tx.QueryRow(ctx, "INSERT INTO notifications (users_id, lives_id) VALUES ($1, $2) RETURNING id", userID, liveID).Scan(&notificationID)
+		if err != nil {
+			return
+		}
+
+		for _, notificationField := range liveUpdates {
+			_, err = tx.Exec(ctx, "INSERT INTO notification_contents (notifications_id, notification_type, old_value, new_value) VALUES ($1, $2, $3, $4)", notificationID, notificationField.Type, notificationField.OldValue, notificationField.NewValue)
+			if err != nil {
+				return
+			}
+		}
 	}
 	return
 }
@@ -222,7 +322,7 @@ func PostLives(ctx context.Context, lives []util.Live) (deleted int64, added int
 			lastLive = live.StartTime
 		}
 	}
-	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1) AND starttime NOT BETWEEN $2 AND $3", util.GetUniqueVenueIDs(venues), firstLive, lastLive)
+	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1) AND starttime < NOW()", util.GetUniqueVenueIDs(venues))
 	if err != nil {
 		return
 	}
@@ -403,6 +503,23 @@ func getLiveHouseLives(ctx context.Context, tx pgx.Tx, livehouses []string) (liv
 			return
 		}
 		lives = append(lives, l)
+	}
+	return
+}
+
+func GetLiveFavoritedUsers(ctx context.Context, tx pgx.Tx, liveID int64) (userIDs []int64, err error) {
+	rows, err := tx.Query(ctx, "SELECT users_id FROM userfavorites WHERE lives_id = $1", liveID)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var userID int64
+		err = rows.Scan(&userID)
+		if err != nil {
+			return
+		}
+		userIDs = append(userIDs, userID)
 	}
 	return
 }

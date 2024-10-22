@@ -14,6 +14,43 @@ import (
 	"golang.org/x/net/html"
 )
 
+var ShimokitazawaTestFetcher = fetchers.Simple{
+	BaseURL:        "http://localhost:9999/",
+	InitialURL:     "http://localhost:9999/static/testLive.html",
+	LiveSelector:   "//div[@class='live']",
+	TitleQuerier:   *htmlquerier.Q("//h2"),
+	ArtistsQuerier: *htmlquerier.QAll("//li"),
+	PriceQuerier:   *htmlquerier.Q("//p[@class='price']"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//p[@class='date']"),
+		MonthQuerier:     *htmlquerier.Q("//p[@class='date']").After("年"),
+		DayQuerier:       *htmlquerier.Q("//p[@class='date']").After("月"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[@class='open']"),
+		StartTimeQuerier: *htmlquerier.Q("//p[@class='start']"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shimokitazawa",
+	VenueID:        "shimokitazawa-test",
+	Latitude:       35.661563,
+	Longitude:      139.666938,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         2,
+		FirstLiveTitle:        "Live Title",
+		FirstLiveArtists:      []string{"artist1", "artist2"},
+		FirstLivePrice:        "ADV¥3000 / DOOR¥3500",
+		FirstLivePriceEnglish: "ADV¥3000 / DOOR¥3500",
+		FirstLiveOpenTime:     time.Date(2024, 11, 8, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2024, 11, 8, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://localhost:9999/static/testLive.html",
+	},
+}
+
 /*************
  *           *
  *  Shibuya  *
