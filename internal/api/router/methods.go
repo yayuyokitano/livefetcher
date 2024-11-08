@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-type HTTPImplementer = func(util.AuthUser, io.Writer, *http.Request, http.ResponseWriter) *logging.StatusError
+type HTTPImplementer = func(datastructures.AuthUser, io.Writer, *http.Request, http.ResponseWriter) *logging.StatusError
 type WebSocketEstablisher = func(http.ResponseWriter, *http.Request) *logging.StatusError
 
 type Methods struct {
@@ -86,11 +86,11 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 	logging.LogRequestCompletion(log, r, t)
 }
 
-func HandleCORSPreflight(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func HandleCORSPreflight(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	return nil
 }
 
-func ReturnMethodNotAllowed(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ReturnMethodNotAllowed(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	return logging.SE(http.StatusMethodNotAllowed, fmt.Errorf("method %s is not allowed", r.Method))
 }
 

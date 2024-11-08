@@ -7,10 +7,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetUserByID(ctx context.Context, id int) (user util.User, err error) {
+func GetUserByID(ctx context.Context, id int) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -19,13 +19,13 @@ func GetUserByID(ctx context.Context, id int) (user util.User, err error) {
 	return getUserByIDQuery(ctx, tx, id)
 }
 
-func getUserByIDQuery(ctx context.Context, tx pgx.Tx, id int) (user util.User, err error) {
+func getUserByIDQuery(ctx context.Context, tx pgx.Tx, id int) (user datastructures.User, err error) {
 	row := tx.QueryRow(ctx, "SELECT id, email, username, nickname, password_hash, bio, location, is_verified FROM users WHERE id=$1", id)
 	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.Nickname, &user.PasswordHash, &user.Bio, &user.Location, &user.IsVerified)
 	return
 }
 
-func GetUserByUsername(ctx context.Context, username string) (user util.User, err error) {
+func GetUserByUsername(ctx context.Context, username string) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -36,7 +36,7 @@ func GetUserByUsername(ctx context.Context, username string) (user util.User, er
 	return
 }
 
-func GetUserByUsernameOrEmail(ctx context.Context, query string) (user util.User, err error) {
+func GetUserByUsernameOrEmail(ctx context.Context, query string) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -47,7 +47,7 @@ func GetUserByUsernameOrEmail(ctx context.Context, query string) (user util.User
 	return
 }
 
-func PostUser(ctx context.Context, user util.User) (err error) {
+func PostUser(ctx context.Context, user datastructures.User) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -66,7 +66,7 @@ func PostUser(ctx context.Context, user util.User) (err error) {
 	return
 }
 
-func PatchUser(ctx context.Context, patchInfo util.User) (err error) {
+func PatchUser(ctx context.Context, patchInfo datastructures.User) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -129,7 +129,7 @@ func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid in
 	return
 }
 
-func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -144,7 +144,7 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 	if err != nil {
 		return
 	}
-	favoriteButtonInfo = util.FavoriteButtonInfo{
+	favoriteButtonInfo = datastructures.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
 		ID:            int(liveid),
@@ -154,7 +154,7 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 	return
 }
 
-func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -169,7 +169,7 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 	if err != nil {
 		return
 	}
-	favoriteButtonInfo = util.FavoriteButtonInfo{
+	favoriteButtonInfo = datastructures.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
 		ID:            int(liveid),

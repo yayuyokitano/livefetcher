@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Register(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
 	}
@@ -34,7 +35,7 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
 	}
 
-	newUser := util.User{
+	newUser := datastructures.User{
 		Email:    registrationEmail,
 		Username: registrationUsername,
 		Nickname: registrationUsername,
@@ -65,14 +66,14 @@ func Register(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.
 	return nil
 }
 
-func ShowLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ShowLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "login.gohtml")
-	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp)
+	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -84,7 +85,7 @@ func ShowLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http
 	return nil
 }
 
-func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ExecuteLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	if user.Username != "" {
 		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
 	}
@@ -132,7 +133,7 @@ func ExecuteLogin(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 	return nil
 }
 
-func Logout(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Logout(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
 		Value:    "",

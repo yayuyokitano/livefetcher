@@ -3,10 +3,10 @@ package auth
 import (
 	"net/http"
 
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetUser(w http.ResponseWriter, r *http.Request) (user util.AuthUser) {
+func GetUser(w http.ResponseWriter, r *http.Request) (user datastructures.AuthUser) {
 	c, err := r.Cookie("authToken")
 	if err != nil {
 		return

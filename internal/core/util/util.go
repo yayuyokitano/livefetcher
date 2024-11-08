@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
 func Max(a, b int) int {
@@ -316,7 +318,7 @@ func SpacedPriceTimeFetcher(d string, s string) (price string, open time.Time, s
 	return
 }
 
-func GetUniqueVenues(a []LiveHouse) (b []LiveHouse) {
+func GetUniqueVenues(a []datastructures.LiveHouse) (b []datastructures.LiveHouse) {
 	m := make(map[string]bool)
 	for _, v := range a {
 		if !m[v.ID] {
@@ -327,7 +329,7 @@ func GetUniqueVenues(a []LiveHouse) (b []LiveHouse) {
 	return
 }
 
-func GetUniqueVenueIDs(a []LiveHouse) (b []string) {
+func GetUniqueVenueIDs(a []datastructures.LiveHouse) (b []string) {
 	m := make(map[string]bool)
 	for _, v := range a {
 		if !m[v.ID] {

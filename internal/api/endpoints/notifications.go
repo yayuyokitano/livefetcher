@@ -10,10 +10,10 @@ import (
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func ListUserNotifications(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	userID := user.ID
 	if user.ID == 0 {
 		return logging.SE(http.StatusUnauthorized, errors.New("not logged in"))
@@ -33,23 +33,27 @@ func ListUserNotifications(user util.AuthUser, w io.Writer, r *http.Request, _ h
 	return nil
 }
 
-func ShowNotification(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	notificationIDRaw := r.PathValue("id")
 	notificationID, err := strconv.Atoi(notificationIDRaw)
 	if err != nil || notificationID == 0 {
 		return logging.SE(http.StatusBadRequest, errors.New("no notification specified"))
 	}
 
-	notification, notificationFields, err := queries.GetNotification(r.Context(), int64(notificationID))
+	notification, notificationFields, err := queries.GetNotification(r.Context(), int64(notificationID), user.ID)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
 	res := fmt.Sprintf("<h1>Notification %d</h1>", notificationID)
-	res += fmt.Sprintf("<p>userid: %d, liveid: %d, seen: %t, createdat: %s</p>", notification.UserID, notification.LiveID, notification.Seen, notification.CreatedAt.Format(time.RFC3339))
-	res += "<h2>changes</h2><ul>"
+	res += fmt.Sprintf("<p>seen: %t, createdat: %s</p>", notification.Seen, notification.CreatedAt.Format(time.RFC3339))
+	res += "<ul>"
 	for _, f := range notificationFields {
-		res += fmt.Sprintf("<li>%s: %s → %s</li>", f.Type.String(), f.OldValue, f.NewValue)
+		changedModifier := ""
+		if f.OldValue != f.NewValue {
+			changedModifier = "!!changed!! "
+		}
+		res += fmt.Sprintf("<li>%s%s: %s → %s</li>", changedModifier, f.Type.String(), f.OldValue, f.NewValue)
 	}
 	res += "</ul>"
 	w.Write([]byte(res))

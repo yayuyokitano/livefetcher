@@ -13,7 +13,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"github.com/yayuyokitano/livefetcher/internal/services"
 	"golang.org/x/crypto/argon2"
 )
@@ -50,7 +50,7 @@ var recipient = "https://example.com"
 
 type claims struct {
 	jwt.RegisteredClaims
-	User util.AuthUser `json:"user"`
+	User datastructures.AuthUser `json:"user"`
 }
 
 type refreshClaims struct {
@@ -73,7 +73,7 @@ func DisableRefreshToken(ctx context.Context, refreshToken string) (err error) {
 	return
 }
 
-func CreateNewUser(ctx context.Context, user util.User, password string) (authToken, refreshToken string, err error) {
+func CreateNewUser(ctx context.Context, user datastructures.User, password string) (authToken, refreshToken string, err error) {
 	hash, err := generateFromPassword(password)
 	if err != nil {
 		return
@@ -87,7 +87,7 @@ func CreateNewUser(ctx context.Context, user util.User, password string) (authTo
 	return CreateNewSession(ctx, user.Email, password)
 }
 
-func ChangePassword(ctx context.Context, authUser util.AuthUser, oldPassword, newPassword, oldRefreshToken string) (authToken, refreshToken string, err error) {
+func ChangePassword(ctx context.Context, authUser datastructures.AuthUser, oldPassword, newPassword, oldRefreshToken string) (authToken, refreshToken string, err error) {
 	user, err := queries.GetUserByID(ctx, int(authUser.ID))
 	if err != nil {
 		return
@@ -139,7 +139,7 @@ func CreateNewSession(ctx context.Context, username, password string) (authToken
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(authTokenDuration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
-		util.AuthUser{
+		datastructures.AuthUser{
 			ID:         user.ID,
 			Email:      user.Email,
 			Username:   user.Username,
@@ -177,7 +177,7 @@ func CreateNewSession(ctx context.Context, username, password string) (authToken
 	return
 }
 
-func verifyAuthToken(authToken string) (user util.AuthUser, err error) {
+func verifyAuthToken(authToken string) (user datastructures.AuthUser, err error) {
 	parsedToken, err := jwt.ParseWithClaims(authToken, &claims{}, func(token *jwt.Token) (interface{}, error) {
 		return services.PublicKey, nil
 	})
@@ -212,7 +212,7 @@ func RefreshSession(ctx context.Context, oldRefreshToken string) (authToken, ref
 			return
 		}
 
-		var user util.User
+		var user datastructures.User
 		user, err = queries.GetUserByID(ctx, id)
 		if err != nil {
 			return
@@ -226,7 +226,7 @@ func RefreshSession(ctx context.Context, oldRefreshToken string) (authToken, ref
 				ExpiresAt: jwt.NewNumericDate(time.Now().Add(authTokenDuration)),
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 			},
-			util.AuthUser{
+			datastructures.AuthUser{
 				ID:         user.ID,
 				Email:      user.Email,
 				Username:   user.Username,

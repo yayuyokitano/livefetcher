@@ -6,10 +6,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func PostLiveHouses(ctx context.Context, livehouses []util.LiveHouse) (n int, err error) {
+func PostLiveHouses(ctx context.Context, livehouses []datastructures.LiveHouse) (n int, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {

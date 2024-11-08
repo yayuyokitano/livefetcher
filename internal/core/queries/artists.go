@@ -7,7 +7,7 @@ import (
 	"github.com/gojp/kana"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/mecab"
 )
 
 func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
@@ -23,7 +23,7 @@ func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
 			return
 		}
 		var katakana string
-		katakana, err = util.Mecab(artist)
+		katakana, err = mecab.Mecab(artist)
 		if err != nil {
 			return
 		}

@@ -10,12 +10,13 @@ import (
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ShowUser(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	username := r.PathValue("username")
 	if username == "" {
 		return logging.SE(http.StatusBadRequest, errors.New("no user specified"))
@@ -28,7 +29,7 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "user.gohtml")
-	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"IsSelf": func() bool {
 			return user.ID == displayUser.ID
 		},
@@ -53,7 +54,7 @@ func ShowUser(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	return nil
 }
 
-func ChangePassword(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ChangePassword(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	if user.Username == "" {
 		return logging.SE(http.StatusForbidden, errors.New("not signed in"))
 	}
@@ -101,7 +102,7 @@ func ChangePassword(user util.AuthUser, w io.Writer, r *http.Request, httpWriter
 	return nil
 }
 
-func PatchUser(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func PatchUser(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
@@ -112,7 +113,7 @@ func PatchUser(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http
 	}
 
 	decoder := form.NewDecoder()
-	var newUser util.User
+	var newUser datastructures.User
 	err = decoder.Decode(&newUser, r.Form)
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)

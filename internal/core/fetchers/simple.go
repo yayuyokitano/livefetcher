@@ -16,6 +16,7 @@ import (
 	"github.com/antchfx/htmlquery"
 	"github.com/yayuyokitano/livefetcher/internal/core/htmlquerier"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"golang.org/x/net/html"
 )
 
@@ -228,7 +229,7 @@ type Simple struct {
 
 	// Lives is used internally in the core for processing lives.
 	// Do not use this in connectors.
-	Lives []util.Live
+	Lives []datastructures.Live
 	// isTesting is used internally in the core for processing lives.
 	// Do not use this in connectors.
 	isTesting bool
@@ -305,7 +306,7 @@ func (s *Simple) iterateUsingNextLink() (err error) {
 		if err != nil {
 			break
 		}
-		var appL []util.Live
+		var appL []datastructures.Live
 		appL, err = s.fetchLives(n, nextURL, nil)
 		if err != nil {
 			break
@@ -343,7 +344,7 @@ func (s *Simple) iterateUsingShortYear() (err error) {
 	t := time.Now()
 	year := t.Year() % 100
 	month := int(t.Month())
-	var l []util.Live
+	var l []datastructures.Live
 	for err == nil {
 		var n *html.Node
 		var newURL *url.URL
@@ -355,7 +356,7 @@ func (s *Simple) iterateUsingShortYear() (err error) {
 		if err != nil {
 			break
 		}
-		var appL []util.Live
+		var appL []datastructures.Live
 		appL, err = s.fetchLives(n, newURL, nil)
 		if err != nil {
 			break
@@ -408,7 +409,7 @@ type LiveContext struct {
 	url *url.URL
 }
 
-func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []byte) (l []util.Live, err error) {
+func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []byte) (l []datastructures.Live, err error) {
 	var lives []LiveContext
 	if s.ExpandedLiveSelector != "" {
 		var overview []*html.Node
@@ -574,7 +575,7 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 	return
 }
 
-func (s *Simple) fetchDetails(live *html.Node, overviewURL *url.URL, year string, month string, day string) (l util.Live, err error) {
+func (s *Simple) fetchDetails(live *html.Node, overviewURL *url.URL, year string, month string, day string) (l datastructures.Live, err error) {
 	date := fmt.Sprintf("%s-%s-%s", year, month, day)
 
 	var open time.Time
@@ -633,16 +634,16 @@ func (s *Simple) fetchDetails(live *html.Node, overviewURL *url.URL, year string
 		}
 	}
 
-	l = util.Live{
+	l = datastructures.Live{
 		Title:        title,
 		Artists:      artists,
 		OpenTime:     open,
 		StartTime:    start,
 		Price:        strings.TrimSpace(price),
 		PriceEnglish: strings.TrimSpace(util.EnglishPriceHandler(price)),
-		Venue: util.LiveHouse{
+		Venue: datastructures.LiveHouse{
 			ID: s.VenueID,
-			Area: util.Area{
+			Area: datastructures.Area{
 				Prefecture: s.PrefectureName,
 				Area:       s.AreaName,
 			},

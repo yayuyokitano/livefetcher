@@ -15,6 +15,8 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
@@ -25,7 +27,7 @@ type liveTemplateMetadata struct {
 
 type liveTemplateInput struct {
 	Metadata liveTemplateMetadata
-	Lives    []util.Live
+	Lives    []datastructures.Live
 }
 
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
@@ -35,7 +37,7 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 	return i18nloader.GetLocalizer(r).Localize("general.main-" + suffix)
 }
 
-func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	err := r.ParseForm()
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -62,7 +64,7 @@ func GetLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	fp := filepath.Join("web", "template", "livesearch.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"SearchTitle": func() string {
 			return searchTitle(query, r, "title")
 		},
@@ -91,7 +93,7 @@ type favoriteRequest struct {
 	Liveid int64
 }
 
-func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
@@ -127,7 +129,7 @@ func Favorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseW
 	return nil
 }
 
-func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
@@ -163,7 +165,7 @@ func Unfavorite(user util.AuthUser, w io.Writer, r *http.Request, _ http.Respons
 	return nil
 }
 
-func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	err := r.ParseForm()
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -178,7 +180,7 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 	fp := filepath.Join("web", "template", "favoritelives.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp, favoriteButtonPartial, livesPartial)
+	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -189,7 +191,7 @@ func GetFavoriteLives(user util.AuthUser, w io.Writer, r *http.Request, _ http.R
 	return nil
 }
 
-func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	year, err := strconv.Atoi(r.PathValue("year"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -211,20 +213,20 @@ func GetDailyLivesJSON(user util.AuthUser, w io.Writer, r *http.Request, _ http.
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
-	livesWithGeoJSON := util.LiveWithGeoJSON{
+	livesWithGeoJSON := datastructures.LiveWithGeoJSON{
 		Lives:   lives,
-		GeoJson: make([]util.LiveGeoJSON, 0),
+		GeoJson: make([]datastructures.LiveGeoJSON, 0),
 	}
 	localizer := i18nloader.GetLocalizer(r)
 	for i, l := range lives {
-		livesWithGeoJSON.GeoJson = append(livesWithGeoJSON.GeoJson, util.LiveGeoJSON{
+		livesWithGeoJSON.GeoJson = append(livesWithGeoJSON.GeoJson, datastructures.LiveGeoJSON{
 			Type: "Feature",
-			Properties: util.GeoJSONProperties{
+			Properties: datastructures.GeoJSONProperties{
 				Name:         localizer.Localize("livehouse." + l.Venue.ID),
 				ID:           int(l.ID),
 				PopupContent: strings.Join(l.Artists, " / "),
 			},
-			Geometry: util.GeoJSONGeometry{
+			Geometry: datastructures.GeoJSONGeometry{
 				Type:        "Point",
 				Coordinates: []float64{l.Venue.Longitude, l.Venue.Latitude},
 			},

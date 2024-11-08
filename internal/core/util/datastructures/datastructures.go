@@ -1,4 +1,4 @@
-package util
+package datastructures
 
 import (
 	"time"
@@ -122,45 +122,44 @@ type AddToLiveListParameters struct {
 	AdditionType       string
 }
 
-type NotificationType int16
+type NotificationFieldType int16
 
 const (
-	NotificationTypeChangedTitle NotificationType = iota + 1
-	NotificationTypeChangedOpenTime
-	NotificationTypeChangedStartTime
-	NotificationTypeChangedPrice
-	NotificationTypeChangedPriceEnglish
-	NotificationTypeChangedURL
-	NotificationTypeChangedVenue
-	NotificationTypeAddedArtist
-	NotificationTypeRemovedArtist
+	NotificationFieldTitle NotificationFieldType = iota + 1
+	NotificationFieldOpenTime
+	NotificationFieldStartTime
+	NotificationFieldPrice
+	NotificationFieldPriceEnglish
+	NotificationFieldURL
+	NotificationFieldVenue
+	NotificationFieldArtists
 )
 
-func (nt NotificationType) String() string {
+func (nt NotificationFieldType) String() string {
 	return [...]string{
 		"",
-		"Changed Title",
-		"Changed Open Time",
-		"Changed Start Time",
-		"Changed Price",
-		"Changed English Price",
-		"Changed URL",
-		"Changed Venue",
-		"Added Artist",
-		"Removed Artist",
+		"Title",
+		"Open Time",
+		"Start Time",
+		"Price",
+		"English Price",
+		"URL",
+		"Venue",
+		"Artist",
 	}[nt]
 }
 
 type NotificationField struct {
-	Type     NotificationType
+	Type     NotificationFieldType
 	OldValue string
 	NewValue string
 }
 
 type Notification struct {
 	ID        int64
-	UserID    int64
+	Deleted   bool
 	LiveID    int64
+	LiveTitle string
 	Seen      bool
 	CreatedAt time.Time
 }

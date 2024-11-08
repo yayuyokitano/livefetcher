@@ -1,17 +1,20 @@
-package util
+package templatebuilder
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
 	"reflect"
 	"time"
 
+	"github.com/yayuyokitano/livefetcher/internal/core/queries"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
-func BuildTemplate(w io.Writer, r *http.Request, user AuthUser, funcMap template.FuncMap, paths ...string) (tmpl *template.Template, err error) {
+func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap template.FuncMap, paths ...string) (tmpl *template.Template, err error) {
 	tmpl = template.New("layout")
 	tmpl, err = tmpl.Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
@@ -19,7 +22,7 @@ func BuildTemplate(w io.Writer, r *http.Request, user AuthUser, funcMap template
 			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
 		},
 		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
-		"GetUser": func() AuthUser {
+		"GetUser": func() datastructures.AuthUser {
 			return user
 		},
 		"TemplateIfExists": func(name string, pipeline interface{}) (template.HTML, error) {
@@ -45,6 +48,19 @@ func BuildTemplate(w io.Writer, r *http.Request, user AuthUser, funcMap template
 				return false
 			}
 			return v.FieldByName(name).IsValid()
+		},
+		"GetNotifications": func() []datastructures.Notification {
+			userID := user.ID
+			if user.ID == 0 {
+				return []datastructures.Notification{}
+			}
+
+			notifications, err := queries.GetUserNotifications(r.Context(), userID)
+			if err != nil {
+				fmt.Println(err)
+				return []datastructures.Notification{}
+			}
+			return notifications
 		},
 	}).Funcs(funcMap).ParseFiles(paths...)
 	return

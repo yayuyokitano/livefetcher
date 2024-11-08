@@ -8,10 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthUser) (liveLists []util.LiveList, err error) {
+func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -27,7 +27,7 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 	}
 
 	for rows.Next() {
-		var ll util.LiveList
+		var ll datastructures.LiveList
 		err = rows.Scan(&ll.ID, &ll.Title, &ll.Desc, &ll.User.ID, &ll.User.Username, &ll.User.Nickname, &ll.User.Location)
 		if err != nil {
 			return
@@ -48,7 +48,7 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser util.AuthU
 	return
 }
 
-func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthUser) (liveLists []util.LiveList, err error) {
+func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -65,7 +65,7 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthU
 	}
 
 	for rows.Next() {
-		var ll util.LiveList
+		var ll datastructures.LiveList
 		err = rows.Scan(&ll.ID, &ll.Title, &ll.Desc, &ll.LiveDesc, &ll.User.ID, &ll.User.Username, &ll.User.Nickname, &ll.User.Location)
 		if err != nil {
 			return
@@ -86,7 +86,7 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser util.AuthU
 	return
 }
 
-func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) *logging.StatusError {
+func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -105,7 +105,7 @@ func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser util.A
 	return nil
 }
 
-func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser util.AuthUser) *logging.StatusError {
+func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -124,7 +124,7 @@ func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUse
 	return nil
 }
 
-func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUser) (liveList util.LiveList, err error) {
+func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) (liveList datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -165,7 +165,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 		return
 	}
 	for rows.Next() {
-		var l util.Live
+		var l datastructures.Live
 		err = rows.Scan(&l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
 		if err != nil {
 			return
@@ -186,7 +186,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser util.AuthUs
 	return
 }
 
-func PostLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (id int64, err error) {
+func PostLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (id int64, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -202,7 +202,7 @@ func PostLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (id i
 	return
 }
 
-func PutLiveList(ctx context.Context, livelist util.LiveListWriteRequest) (err error) {
+func PutLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -266,7 +266,7 @@ func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
 	return
 }
 
-func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -281,7 +281,7 @@ func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favo
 	if err != nil {
 		return
 	}
-	favoriteButtonInfo = util.FavoriteButtonInfo{
+	favoriteButtonInfo = datastructures.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
 		ID:            int(livelistid),
@@ -291,7 +291,7 @@ func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favo
 	return
 }
 
-func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo util.FavoriteButtonInfo, err error) {
+func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -306,7 +306,7 @@ func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64)
 	if err != nil {
 		return
 	}
-	favoriteButtonInfo = util.FavoriteButtonInfo{
+	favoriteButtonInfo = datastructures.FavoriteButtonInfo{
 		IsFavorited:   isFavorited,
 		FavoriteCount: int(favoriteCount),
 		ID:            int(livelistid),
@@ -316,7 +316,7 @@ func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64)
 	return
 }
 
-func GetUserFavoriteLiveLists(ctx context.Context, user util.AuthUser) (liveLists []util.LiveList, err error) {
+func GetUserFavoriteLiveLists(ctx context.Context, user datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -339,7 +339,7 @@ func GetUserFavoriteLiveLists(ctx context.Context, user util.AuthUser) (liveList
 	}
 
 	for rows.Next() {
-		var ll util.LiveList
+		var ll datastructures.LiveList
 		err = rows.Scan(&ll.ID, &ll.Title, &ll.Desc, &ll.User.ID, &ll.User.Username, &ll.User.Nickname, &ll.User.Location)
 		if err != nil {
 			return

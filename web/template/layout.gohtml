@@ -26,11 +26,20 @@
       {{ template "desktopNav" . }}
       {{ template "mobileNav" . }}
       <main>
+				{{ template "notifications" GetNotifications }}
         {{ template "body" . }}
       </main>
       {{ template "modal" }}
     </body>
   </html>
+{{ end }}
+
+{{ define "notifications" }}
+	<ul>
+		{{ range . }}
+		<li><a href="/notification/{{.ID}}">LiveID: {{.LiveID}}, Seen: {{.Seen}}, CreatedAt: {{.CreatedAt}}, Deleted: {{.Deleted}}, Title: {{.LiveTitle}}</a></li>
+		{{ end }}
+	</ul>
 {{ end }}
 
 {{ define "mobileNav" }}

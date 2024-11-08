@@ -12,11 +12,12 @@ import (
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
-func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetLiveLiveListModal(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	userLiveLists, err := queries.GetUserLiveLists(r.Context(), user.ID, user)
 	if err != nil {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
@@ -32,7 +33,7 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 		return logging.SE(http.StatusInternalServerError, errors.New("couldn't fetch live live lists"))
 	}
 
-	templateParams := util.AddToLiveListTemplateParams{
+	templateParams := datastructures.AddToLiveListTemplateParams{
 		LiveID:            int64(liveID),
 		PersonalLiveLists: userLiveLists,
 		LiveLiveLists:     liveLiveLists,
@@ -56,7 +57,7 @@ func GetLiveLiveListModal(user util.AuthUser, w io.Writer, r *http.Request, _ ht
 	return nil
 }
 
-func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func AddToLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	httpWriter.Header().Add("HX-Trigger", "livelistadded")
 
 	if user.Username == "" {
@@ -69,7 +70,7 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 	}
 
 	decoder := form.NewDecoder()
-	var req util.AddToLiveListParameters
+	var req datastructures.AddToLiveListParameters
 	err = decoder.Decode(&req, r.Form)
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -80,7 +81,7 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 			return logging.SE(http.StatusBadRequest, errors.New("no name specified"))
 		}
 
-		liveListID, err := queries.PostLiveList(r.Context(), util.LiveListWriteRequest{
+		liveListID, err := queries.PostLiveList(r.Context(), datastructures.LiveListWriteRequest{
 			UserID: user.ID,
 			Title:  req.NewLiveListTitle,
 		})
@@ -118,7 +119,7 @@ func AddToLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter 
 	return nil
 }
 
-func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
@@ -134,7 +135,7 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
 
-	tmpl, err := util.BuildTemplate(w, r, user, template.FuncMap{
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
 	}, lp, fp, favoriteButtonPartial, livesPartial)
 	if err != nil {
@@ -149,7 +150,7 @@ func ShowLiveList(user util.AuthUser, w io.Writer, r *http.Request, httpWriter h
 
 }
 
-func DeleteLiveListLive(user util.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func DeleteLiveListLive(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)

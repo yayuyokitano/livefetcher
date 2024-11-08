@@ -19,7 +19,8 @@ import (
 	runner "github.com/yayuyokitano/livefetcher/internal/core"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
-	"github.com/yayuyokitano/livefetcher/internal/core/util"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services"
 )
@@ -189,7 +190,7 @@ func startServer() {
 		POST: endpoints.Unfavorite,
 	})
 	router.Handle("/api/updateTestLive", router.Methods{
-		GET: func(au util.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) *logging.StatusError {
+		GET: func(au datastructures.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) *logging.StatusError {
 			err := runner.RunConnector(context.Background(), "ShimokitazawaTest")
 			if err != nil {
 				return logging.SE(http.StatusInternalServerError, err)
@@ -205,7 +206,7 @@ func startServer() {
 	http.ListenAndServe(":9999", nil)
 }
 
-func serveTemplate(user util.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func serveTemplate(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.gohtml")
 
@@ -222,7 +223,7 @@ func serveTemplate(user util.AuthUser, w io.Writer, r *http.Request, _ http.Resp
 		return logging.SE(http.StatusNotFound, errors.New("404 page not found"))
 	}
 
-	tmpl, err := util.BuildTemplate(w, r, user, nil, lp, fp)
+	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
