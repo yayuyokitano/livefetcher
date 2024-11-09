@@ -49,16 +49,16 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 			}
 			return v.FieldByName(name).IsValid()
 		},
-		"GetNotifications": func() []datastructures.Notification {
+		"GetNotifications": func() datastructures.NotificationsWrapper {
 			userID := user.ID
 			if user.ID == 0 {
-				return []datastructures.Notification{}
+				return datastructures.NotificationsWrapper{}
 			}
 
 			notifications, err := queries.GetUserNotifications(r.Context(), userID)
 			if err != nil {
 				fmt.Println(err)
-				return []datastructures.Notification{}
+				return datastructures.NotificationsWrapper{}
 			}
 			return notifications
 		},

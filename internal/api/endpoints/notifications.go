@@ -25,7 +25,7 @@ func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Re
 	}
 
 	res := "<ul>"
-	for _, n := range notifications {
+	for _, n := range notifications.Notifications {
 		res += fmt.Sprintf(`<li><a href="/notification/%d">Live: %d, Seen: %t, CreatedAt: %s</a></li>`, n.ID, n.LiveID, n.Seen, n.CreatedAt.Format(time.RFC3339))
 	}
 	res += "</ul>"

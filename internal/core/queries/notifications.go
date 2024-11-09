@@ -7,14 +7,14 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetUserNotifications(ctx context.Context, userID int64) (notifications []datastructures.Notification, err error) {
+func GetUserNotifications(ctx context.Context, userID int64) (notifications datastructures.NotificationsWrapper, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
 
-	notifications = make([]datastructures.Notification, 0)
+	notifications.Notifications = make([]datastructures.Notification, 0)
 	rows, err := tx.Query(ctx, `
 		SELECT notifications_id, seen, created_at, deleted, lives.id, title
 		FROM usernotifications
@@ -33,7 +33,10 @@ func GetUserNotifications(ctx context.Context, userID int64) (notifications []da
 		if err != nil {
 			return
 		}
-		notifications = append(notifications, n)
+		notifications.Notifications = append(notifications.Notifications, n)
+		if !n.Seen {
+			notifications.UnseenCount++
+		}
 	}
 	err = counters.CommitTransaction(ctx, tx)
 	return

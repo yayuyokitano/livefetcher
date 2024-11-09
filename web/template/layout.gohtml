@@ -17,25 +17,42 @@
       <link rel="stylesheet" type="text/css" href="/static/styles.css" />
       {{ template "head" . }}
     </head>
+    {{ $notifications := GetNotifications }}
     <body
       hx-boost="true"
-      x-data="{isModalOpen: false, isMapDialogOpen: false}"
-      @keydown.escape="isModalOpen = false; isMapDialogOpen: false"
+      x-data="{isModalOpen: false, isMapDialogOpen: false, isNotificationDialogOpen: false, unseenNotifications: {{ if gt $notifications.UnseenCount 9 }}
+        9+
+      {{ else }}
+        {{ $notifications.UnseenCount }}
+      {{ end }}}"
+      @keydown.escape="isModalOpen = false; isMapDialogOpen = false; isNotificationDialogOpen = false"
       @closemainmodal="isModalOpen = false"
     >
       {{ template "desktopNav" . }}
       {{ template "mobileNav" . }}
       <main>
-        {{ template "notifications" GetNotifications }}
         {{ template "body" . }}
       </main>
       {{ template "modal" }}
+      {{ template "notificationsDialog" $notifications.Notifications }}
     </body>
   </html>
 {{ end }}
 
-{{ define "notifications" }}
-  <ul>
+{{ define "notificationsButton" }}
+  <button class="nav-button" @click="isNotificationDialogOpen = true">
+    {{ template "notificationIcon" }}
+    <span class="notification-count" x-text="unseenNotifications"></span>
+  </button>
+{{ end }}
+
+{{ define "notificationsDialog" }}
+  <ul
+    x-show="isNotificationDialogOpen"
+    x-cloak
+    x-transition.origin.top
+    @click.away="isNotificationDialogOpen = false"
+  >
     {{ range . }}
       <li>
         <a href="/notification/{{ .ID }}"
@@ -64,10 +81,7 @@
         {{ template "mapIcon" }}
         <span>{{ T "general.search-show-map" }}</span>
       </a>
-      <a class="nav-button" href="/search/area">
-        <img src="/static/icons/japan_white.svg" />
-        <span>{{ T "general.search-by-area" }}</span>
-      </a>
+      {{ template "notificationsButton" }}
       {{ template "navUser" GetUser }}
     </div>
     <form class="nav-search-wrapper" action="/search">
@@ -122,10 +136,7 @@
         {{ template "mapIcon" }}
         <span>{{ T "general.search-show-map" }}</span>
       </a>
-      <a class="nav-button" href="/search/area">
-        <img src="/static/icons/japan_white.svg" />
-        <span>{{ T "general.search-by-area" }}</span>
-      </a>
+      {{ template "notificationsButton" }}
       {{ template "navUser" GetUser }}
     </div>
   </nav>
@@ -343,5 +354,19 @@
     <path
       d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
     ></path>
+  </svg>
+{{ end }}
+
+{{ define "notificationIcon" }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    height="24px"
+    viewBox="0 -960 960 960"
+    width="24px"
+    fill="#5f6368"
+  >
+    <path
+      d="M204.19-214.04v-36.92h61.54v-311.39q0-78 49.76-137.5t125.74-74.61v-20.66q0-16.35 11.02-27.48 11.03-11.13 27.54-11.13 16.52 0 27.75 11.13t11.23 27.48v20.66q76.15 15.11 126.02 74.61 49.86 59.5 49.86 137.5v311.39h61.54v36.92h-552ZM480-495.38ZM479.86-112q-26.21 0-44.73-18.62-18.51-18.61-18.51-44.76h126.76q0 26.34-18.65 44.86Q506.07-112 479.86-112ZM302.65-250.96h355.08v-311.39q0-73.73-52.08-125.54-52.08-51.8-125.79-51.8-73.7 0-125.46 51.8-51.75 51.81-51.75 125.54v311.39Z"
+    />
   </svg>
 {{ end }}

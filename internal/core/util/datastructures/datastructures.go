@@ -155,6 +155,11 @@ type NotificationField struct {
 	NewValue string
 }
 
+type NotificationsWrapper struct {
+	UnseenCount   int
+	Notifications []Notification
+}
+
 type Notification struct {
 	ID        int64
 	Deleted   bool
