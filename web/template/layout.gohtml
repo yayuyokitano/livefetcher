@@ -20,16 +20,15 @@
     {{ $notifications := GetNotifications }}
     <body
       hx-boost="true"
-      x-data="{isModalOpen: false, isMapDialogOpen: false, isNotificationDialogOpen: false, unseenNotifications: {{ if gt $notifications.UnseenCount 9 }}
+      x-data="{isModalOpen: false, isMapDialogOpen: false, isNotificationDialogOpen: false, unseenNotifications: {{- if gt $notifications.UnseenCount 9 -}}
         9+
-      {{ else }}
+      {{- else -}}
         {{ $notifications.UnseenCount }}
-      {{ end }}}"
+      {{- end -}}}"
       @keydown.escape="isModalOpen = false; isMapDialogOpen = false; isNotificationDialogOpen = false"
       @closemainmodal="isModalOpen = false"
     >
-      {{ template "desktopNav" . }}
-      {{ template "mobileNav" . }}
+      {{ template "nav" . }}
       <main>
         {{ template "body" . }}
       </main>
@@ -64,9 +63,16 @@
   </ul>
 {{ end }}
 
-{{ define "mobileNav" }}
-  <nav id="mobile-nav">
-    <div class="button-container">
+{{ define "nav" }}
+  <nav
+    id="nav"
+    x-data="{ artist: '{{- if HasField "Metadata" . -}}
+      {{ .Metadata.Query.Artist }}
+    {{- else -}}
+    {{- end -}}
+	'}"
+  >
+    <div class="top-container">
       <a class="nav-logo-anchor" href="/">
         <img
           class="nav-logo logo-wide"
@@ -77,69 +83,39 @@
           src="/static/icons/logo/livefetcher_text_below_white.svg"
         />
       </a>
-      <a class="nav-button" href="/map">
-        {{ template "mapIcon" }}
-        <span>{{ T "general.search-show-map" }}</span>
-      </a>
-      {{ template "notificationsButton" }}
-      {{ template "navUser" GetUser }}
+      <form class="nav-search-wrapper show-desktop" action="/search">
+        {{ template "navSearchInner" . }}
+      </form>
+      <div class="button-container">
+        <a class="nav-button" href="/map">
+          {{ template "mapIcon" }}
+          <span>{{ T "general.search-show-map" }}</span>
+        </a>
+        {{ template "notificationsButton" }}
+        {{ template "navUser" GetUser }}
+      </div>
     </div>
-    <form class="nav-search-wrapper" action="/search">
-      <!-- TODO: add hidden inputs for filters to auto apply -->
-      <input
-        id="nav-search-mobile"
-        class="nav-search"
-        name="Artist"
-        type="text"
-        placeholder="{{ T "general.searchplaceholder" }}"
-        aria-label="{{ T "general.searchplaceholder" }}"
-        hx-preserve="true"
-      />
-      {{ if HasField "Metadata" . }}
-        {{ TemplateIfExists "hiddenAreas" .Metadata }}
-      {{ end }}
-      <button type="submit">
-        {{ template "searchIcon" }}
-      </button>
+    <form class="nav-search-wrapper show-mobile" action="/search">
+      {{ template "navSearchInner" . }}
     </form>
   </nav>
 {{ end }}
 
-{{ define "desktopNav" }}
-  <nav id="desktop-nav">
-    <a class="nav-logo-anchor" href="/">
-      <img
-        class="nav-logo"
-        src="/static/icons/logo/livefetcher_text_white.svg"
-      />
-    </a>
-    <form class="nav-search-wrapper" action="/search">
-      <!-- TODO: add label -->
-      <!-- TODO: add hidden inputs for filters to auto apply -->
-      <input
-        id="desktop-nav-search"
-        class="nav-search"
-        name="Artist"
-        type="text"
-        placeholder="{{ T "general.searchplaceholder" }}"
-        hx-preserve="true"
-      />
-      {{ if HasField "Metadata" . }}
-        {{ TemplateIfExists "hiddenAreas" .Metadata }}
-      {{ end }}
-      <button type="submit">
-        {{ template "searchIcon" }}
-      </button>
-    </form>
-    <div class="button-container">
-      <a class="nav-button" href="/map">
-        {{ template "mapIcon" }}
-        <span>{{ T "general.search-show-map" }}</span>
-      </a>
-      {{ template "notificationsButton" }}
-      {{ template "navUser" GetUser }}
-    </div>
-  </nav>
+{{ define "navSearchInner" }}
+  <input
+    class="nav-search"
+    name="Artist"
+    type="text"
+    x-model="artist"
+    placeholder="{{ T "general.searchplaceholder" }}"
+    aria-label="{{ T "general.searchplaceholder" }}"
+  />
+  {{ if HasField "Metadata" . }}
+    {{ TemplateIfExists "hiddenAreas" .Metadata }}
+  {{ end }}
+  <button type="submit">
+    {{ template "searchIcon" }}
+  </button>
 {{ end }}
 
 {{ define "navUser" }}
