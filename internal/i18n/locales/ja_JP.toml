@@ -65,7 +65,7 @@ add-to-livelist-label = "ライブリストに追加"
 remove-from-livelist-label = "ライブリストから削除"
 
 [label]
-artist = "参加アーティスト"
+artist = "出演アーティスト"
 area = "場所"
 
 [livehouse]
@@ -107,6 +107,7 @@ shimokitazawa-reg = "下北沢RéG"
 shimokitazawa-shangrila = "下北沢シャングリラ"
 shimokitazawa-shelter = "下北沢Shelter"
 shimokitazawa-spread = "SPREAD"
+shimokitazawa-test = "下北沢TEST"
 shimokitazawa-three = "THREE"
 shimokitazawa-waver = "LIVE HOUSE WAVER"
 shindaita-fever = "LIVE HOUSE FEVER"
@@ -154,3 +155,16 @@ shinjuku = "新宿"
 prefecture-area = "{{.Prefecture}}{{.Area}}"
 start = "START {{.Start}}"
 open = "OPEN {{.Open}}"
+
+[notifications]
+live-edited-suffix = "が変更されました。詳細を確認のため、クリックします。"
+live-deleted-suffix = "が消されました。キャンセルされたかもしれません。"
+live-edited-suffix-main = "が変更されました。"
+live-deleted-suffix-main = "が消されました。"
+title = "タイトル"
+venue = "ライブハウス"
+open = "開場"
+start = "開演"
+artists = "出演アーティスト"
+price = "料金"
+url = "URL"

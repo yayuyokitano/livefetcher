@@ -9,6 +9,51 @@ body {
   margin: 0;
 }
 
+table {
+	font-size: 1.5rem;
+}
+
+table, td, th {
+	border: 1px solid var(--text);
+	border-collapse: collapse;
+}
+
+td {
+	padding: 1rem;
+}
+
+.bottom-item {
+	margin-bottom: 4rem !important;
+}
+
+.artist-list {
+	list-style-type: none;
+	padding: 0;
+}
+
+.artist-list li {
+	padding: 0.5rem;
+}
+
+.old-artists .highlighted,
+.old-table-data {
+	background-color: rgba(255, 0, 0, 0.3);
+	text-decoration: line-through 3px;
+}
+
+.new-artists .highlighted,
+.new-table-data {
+	background-color: rgba(0, 255, 0, 0.3);
+}
+
+.centered {
+	text-align: center;
+}
+
+.centered table {
+	margin: 0 auto;
+}
+
 [x-cloak] {
   display: none !important;
 }
@@ -129,21 +174,25 @@ body {
   position: relative;
 }
 
+.notification-popup,
 .user-popup {
   border: none;
   padding: 0;
+	margin-top: 0.8rem;
   flex-direction: column;
   width: max-content;
   text-align: center;
   position: absolute;
   transform: translateX(-100%);
   left: 100%;
-  background-color: var(--bg);
+  background-color: var(--bg2);
   z-index: 1000000;
 }
 
+.notification-popup button,
 .user-popup button,
 .menu-link-button,
+.notification-popup span,
 .user-popup span {
   width: 100%;
   box-sizing: border-box;
@@ -154,6 +203,7 @@ body {
   color: var(--text);
 }
 
+.notification-popup button,
 .user-popup button,
 .menu-link-button {
   border: none;
@@ -161,11 +211,14 @@ body {
   cursor: pointer;
 }
 
+.notification-popup button:hover,
 .user-popup button:hover,
 .menu-link-button:hover {
-  background: var(--bg2);
+  background: var(--brand);
+	color: var(--always-light);
 }
 
+.notification-popup span,
 .user-popup span {
   display: inline-block;
 }

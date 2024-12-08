@@ -1,16 +1,21 @@
 package endpoints
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
 func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
@@ -40,22 +45,119 @@ func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request
 		return logging.SE(http.StatusBadRequest, errors.New("no notification specified"))
 	}
 
-	notification, notificationFields, err := queries.GetNotification(r.Context(), int64(notificationID), user.ID)
+	notification, err := queries.GetNotification(r.Context(), int64(notificationID), user.ID, i18nloader.GetLanguages(r))
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	res := fmt.Sprintf("<h1>Notification %d</h1>", notificationID)
-	res += fmt.Sprintf("<p>seen: %t, createdat: %s</p>", notification.Seen, notification.CreatedAt.Format(time.RFC3339))
-	res += "<ul>"
-	for _, f := range notificationFields {
-		changedModifier := ""
-		if f.OldValue != f.NewValue {
-			changedModifier = "!!changed!! "
-		}
-		res += fmt.Sprintf("<li>%s%s: %s → %s</li>", changedModifier, f.Type.String(), f.OldValue, f.NewValue)
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", "notification.gohtml")
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
+		"GetFieldLines": getFieldLines,
+	}, lp, fp)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
 	}
-	res += "</ul>"
-	w.Write([]byte(res))
+
+	err = tmpl.ExecuteTemplate(w, "layout", notification)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	/*
+		res := fmt.Sprintf("<h1>Notification %d</h1>", notificationID)
+		res += fmt.Sprintf("<p>seen: %t, createdat: %s</p>", notification.Seen, notification.CreatedAt.Format(time.RFC3339))
+		res += "<ul>"
+		for _, f := range notificationFields {
+			changedModifier := ""
+			if f.OldValue != f.NewValue {
+				changedModifier = "!!changed!! "
+			}
+			res += fmt.Sprintf("<li>%s%s: %s → %s</li>", changedModifier, f.Type.String(), f.OldValue, f.NewValue)
+		}
+		res += "</ul>"
+		w.Write([]byte(res))
+	*/
 	return nil
+}
+
+func getFieldLines(notificationField datastructures.NotificationField) (lines []datastructures.FieldLine) {
+	lines = make([]datastructures.FieldLine, 0)
+	var oldArr, newArr []string
+	err := json.Unmarshal([]byte(notificationField.OldValue), &oldArr)
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal([]byte(notificationField.NewValue), &newArr)
+	if err != nil {
+		return
+	}
+
+	oldMap := make(map[string]bool)
+	newMap := make(map[string]bool)
+	for _, line := range oldArr {
+		oldMap[line] = true
+	}
+	for _, line := range newArr {
+		newMap[line] = true
+	}
+
+	mutual := make([]string, 0)
+	added := make([]string, 0)
+	removed := make([]string, 0)
+	for _, line := range newArr {
+		if oldMap[line] {
+			mutual = append(mutual, line)
+		} else {
+			added = append(added, line)
+		}
+	}
+	for _, line := range oldArr {
+		if !newMap[line] {
+			removed = append(removed, line)
+		}
+	}
+
+	for i := 0; i < max(len(added), len(removed)); i++ {
+		if len(added) <= i {
+			lines = append(lines, datastructures.FieldLine{
+				Old: datastructures.FieldLineItem{
+					InnerText:     removed[i],
+					IsHighlighted: true,
+				},
+			})
+			continue
+		}
+		if len(removed) <= i {
+			lines = append(lines, datastructures.FieldLine{
+				New: datastructures.FieldLineItem{
+					InnerText:     added[i],
+					IsHighlighted: true,
+				},
+			})
+			continue
+		}
+		lines = append(lines, datastructures.FieldLine{
+			Old: datastructures.FieldLineItem{
+				InnerText:     removed[i],
+				IsHighlighted: true,
+			},
+			New: datastructures.FieldLineItem{
+				InnerText:     added[i],
+				IsHighlighted: true,
+			},
+		})
+	}
+
+	for _, s := range mutual {
+		lines = append(lines, datastructures.FieldLine{
+			Old: datastructures.FieldLineItem{
+				InnerText: s,
+			},
+			New: datastructures.FieldLineItem{
+				InnerText: s,
+			},
+		})
+	}
+	return
 }

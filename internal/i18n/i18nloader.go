@@ -2,7 +2,6 @@ package i18nloader
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -54,7 +53,7 @@ func TimeIsIndeterminate(t time.Time) bool {
 	return t.Hour() == 3 && t.Minute() == 24
 }
 
-func ParseDate(t time.Time, langs []string) string {
+func FormatDate(t time.Time, langs []string) string {
 	for _, lang := range langs {
 		if strings.HasPrefix(lang, "ja") {
 			hour := t.Hour()
@@ -99,7 +98,7 @@ func ParseDate(t time.Time, langs []string) string {
 	return t.Format("Mon 2 Jan 2006 03:04 PM")
 }
 
-func GetLanguages(w io.Writer, r *http.Request) (langs []string) {
+func GetLanguages(r *http.Request) (langs []string) {
 	lang := r.FormValue("lang")
 	if lang != "" {
 		langs = append(langs, lang)
@@ -117,7 +116,7 @@ func GetLanguages(w io.Writer, r *http.Request) (langs []string) {
 	return
 }
 
-func GetMainLanguage(w io.Writer, r *http.Request) string {
+func GetMainLanguage(r *http.Request) string {
 	lang := r.FormValue("lang")
 	accept := r.Header.Get("Accept-Language")
 	_, tag, err := i18n.NewLocalizer(bundle, lang, accept).LocalizeWithTag(&i18n.LocalizeConfig{
@@ -127,6 +126,20 @@ func GetMainLanguage(w io.Writer, r *http.Request) string {
 		return "en-US"
 	}
 	return tag.String()
+}
+
+func GetMainLanguageFromLangs(langs []string) string {
+	_, tag, err := i18n.NewLocalizer(bundle, langs...).LocalizeWithTag(&i18n.LocalizeConfig{
+		MessageID: "general.artists",
+	})
+	if err != nil {
+		return "en-US"
+	}
+	return tag.String()
+}
+
+func LocalizerFromLangs(langs []string) SimplifiedLocalizer {
+	return SimplifiedLocalizer{i18n.NewLocalizer(bundle, langs...)}
 }
 
 func GetLocalizer(r *http.Request) SimplifiedLocalizer {

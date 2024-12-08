@@ -31,6 +31,7 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 - [ ] implement saved searches with notification functionality
 - [ ] add live to calendar (google calendar, maybe more)
 - [x] bookmark lives
+- [x] bookmarked lives notifications
 - [x] add live lists
 
 ### Artist digest

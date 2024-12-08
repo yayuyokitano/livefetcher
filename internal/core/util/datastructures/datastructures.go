@@ -1,6 +1,7 @@
 package datastructures
 
 import (
+	"slices"
 	"time"
 )
 
@@ -122,6 +123,14 @@ type AddToLiveListParameters struct {
 	AdditionType       string
 }
 
+type NotificationType int16
+
+const (
+	NotificationTypeEdited NotificationType = iota + 1
+	NotificationTypeDeleted
+	NotificationTypeAdded
+)
+
 type NotificationFieldType int16
 
 const (
@@ -138,15 +147,49 @@ const (
 func (nt NotificationFieldType) String() string {
 	return [...]string{
 		"",
-		"Title",
-		"Open Time",
-		"Start Time",
-		"Price",
-		"English Price",
-		"URL",
-		"Venue",
-		"Artist",
+		"notifications.title",
+		"notifications.open",
+		"notifications.start",
+		"notifications.price",
+		"notifications.price",
+		"notifications.url",
+		"notifications.venue",
+		"notifications.artists",
 	}[nt]
+}
+
+func compareNotificationFields(a, b NotificationField) int {
+	if a.Type == b.Type {
+		return 0
+	}
+	order := []NotificationFieldType{
+		NotificationFieldTitle,
+		NotificationFieldVenue,
+		NotificationFieldOpenTime,
+		NotificationFieldStartTime,
+		NotificationFieldArtists,
+		NotificationFieldPrice,
+		NotificationFieldPriceEnglish,
+		NotificationFieldURL,
+	}
+	for _, fieldType := range order {
+		if a.Type == fieldType {
+			return -1
+		}
+		if b.Type == fieldType {
+			return 1
+		}
+	}
+	return 0
+}
+
+type NotificationFields []NotificationField
+
+func (nf NotificationFields) Sort() NotificationFields {
+	slices.SortFunc(nf, func(a, b NotificationField) int {
+		return compareNotificationFields(a, b)
+	})
+	return nf
 }
 
 type NotificationField struct {
@@ -161,10 +204,21 @@ type NotificationsWrapper struct {
 }
 
 type Notification struct {
-	ID        int64
-	Deleted   bool
-	LiveID    int64
-	LiveTitle string
-	Seen      bool
-	CreatedAt time.Time
+	ID                 int64
+	Type               int16
+	LiveID             int64
+	LiveTitle          string
+	Seen               bool
+	CreatedAt          time.Time
+	NotificationFields NotificationFields
+}
+
+type FieldLineItem struct {
+	InnerText     string
+	IsHighlighted bool
+}
+
+type FieldLine struct {
+	Old FieldLineItem
+	New FieldLineItem
 }

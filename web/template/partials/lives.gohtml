@@ -27,8 +27,8 @@
         {{ end }}
       </ul>
       <div class="live-details">
-        <p>{{ T "util.open" "Open" (ParseDate .OpenTime) }}</p>
-        <p>{{ T "util.start" "Start" (ParseDate .StartTime) }}</p>
+        <p>{{ T "util.open" "Open" (FormatDate .OpenTime) }}</p>
+        <p>{{ T "util.start" "Start" (FormatDate .StartTime) }}</p>
         <p class="live-livehouse">{{ T (printf "livehouse.%s" .Venue.ID) }}</p>
         <div class="location-wrapper">
           {{ template "locationOn" }}

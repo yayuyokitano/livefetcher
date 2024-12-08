@@ -1,0 +1,77 @@
+{{ define "title" }}{{ T "general.login-title" }}{{ end }}
+
+{{ define "head" }}{{ end }}
+
+{{ define "body" }}
+	<div class="centered">
+		{{ if eq .Type 1 }}
+			<h1>{{ .LiveTitle }}{{ T "notifications.live-edited-suffix-main" }}</h1>
+			{{ template "edited-table" . }}
+		{{ else if eq .Type 2 }}
+			<h1>{{ .LiveTitle }}{{ T "notifications.live-deleted-suffix-main" }}</h1>
+			{{ template "deleted-table" . }}
+		{{ end }}
+	</div>
+{{ end }}
+
+{{ define "deleted-table" }}
+wat
+{{ end }}
+
+{{ define "edited-table" }}
+	<table class="bottom-item">
+		<tbody>
+			{{ range $notificationField := .NotificationFields.Sort }}
+				{{ $isChanged := not (eq $notificationField.OldValue $notificationField.NewValue) }}
+				{{ if not (eq $notificationField.Type 8) }}
+					<tr>
+						<td>{{ T $notificationField.Type.String }}</td>
+						{{ if $isChanged }}
+							<td class="old-table-data">{{ $notificationField.OldValue }}</td>
+							<td class="new-table-data">{{ $notificationField.NewValue }}</td>
+						{{ else }}
+							<td colspan="2">{{ $notificationField.NewValue }}</td>
+						{{ end }}
+					</tr>
+				{{ else }}
+					{{ template "artist-table-row" $notificationField }}
+				{{ end }}
+			{{ end }}
+		</tbody>
+	</table>
+{{ end }}
+
+{{ define "artist-table-row" }}
+	{{ $fieldLines := GetFieldLines . }}
+	<tr>
+		<td>{{ T .Type.String }}</td>
+		<td class="old-artists">
+			<ul class="artist-list">
+				{{ range $line := $fieldLines }}
+					{{ template "artist-span" $line.Old }}
+				{{ end }}
+			</ul>
+		</td>
+		<td class="new-artists">
+			<ul class="artist-list">
+				{{ range $line := $fieldLines }}
+					{{ template "artist-span" $line.New }}
+				{{ end }}
+			</ul>
+		</td>
+	</tr>
+{{ end }}
+
+{{ define "artist-span" }}
+	<li
+		{{ if .IsHighlighted }}
+			class="highlighted"
+		{{ end }}
+	>
+	{{- if .InnerText -}}
+		{{ .InnerText }}
+	{{- else -}}
+		&nbsp;
+	{{- end -}}
+</li>
+{{ end }}

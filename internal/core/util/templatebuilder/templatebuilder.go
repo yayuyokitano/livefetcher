@@ -16,12 +16,14 @@ import (
 
 func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap template.FuncMap, paths ...string) (tmpl *template.Template, err error) {
 	tmpl = template.New("layout")
+	var notifications datastructures.NotificationsWrapper
+	notificationsFetched := false
 	tmpl, err = tmpl.Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
-		"ParseDate": func(t time.Time) string {
-			return i18nloader.ParseDate(t, i18nloader.GetLanguages(w, r))
+		"FormatDate": func(t time.Time) string {
+			return i18nloader.FormatDate(t, i18nloader.GetLanguages(r))
 		},
-		"Lang": func() string { return i18nloader.GetMainLanguage(w, r) },
+		"Lang": func() string { return i18nloader.GetMainLanguage(r) },
 		"GetUser": func() datastructures.AuthUser {
 			return user
 		},
@@ -50,12 +52,16 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 			return v.FieldByName(name).IsValid()
 		},
 		"GetNotifications": func() datastructures.NotificationsWrapper {
+			if notificationsFetched {
+				return notifications
+			}
+			notificationsFetched = true
 			userID := user.ID
 			if user.ID == 0 {
 				return datastructures.NotificationsWrapper{}
 			}
 
-			notifications, err := queries.GetUserNotifications(r.Context(), userID)
+			notifications, err = queries.GetUserNotifications(r.Context(), userID)
 			if err != nil {
 				fmt.Println(err)
 				return datastructures.NotificationsWrapper{}
