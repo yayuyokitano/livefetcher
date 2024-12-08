@@ -10,48 +10,50 @@ body {
 }
 
 table {
-	font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 
-table, td, th {
-	border: 1px solid var(--text);
-	border-collapse: collapse;
+table,
+td,
+th {
+  border: 1px solid var(--text);
+  border-collapse: collapse;
 }
 
 td {
-	padding: 1rem;
+  padding: 1rem;
 }
 
 .bottom-item {
-	margin-bottom: 4rem !important;
+  margin-bottom: 4rem !important;
 }
 
 .artist-list {
-	list-style-type: none;
-	padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 .artist-list li {
-	padding: 0.5rem;
+  padding: 0.5rem;
 }
 
 .old-artists .highlighted,
 .old-table-data {
-	background-color: rgba(255, 0, 0, 0.3);
-	text-decoration: line-through 3px;
+  background-color: rgba(255, 0, 0, 0.3);
+  text-decoration: line-through 3px;
 }
 
 .new-artists .highlighted,
 .new-table-data {
-	background-color: rgba(0, 255, 0, 0.3);
+  background-color: rgba(0, 255, 0, 0.3);
 }
 
 .centered {
-	text-align: center;
+  text-align: center;
 }
 
 .centered table {
-	margin: 0 auto;
+  margin: 0 auto;
 }
 
 [x-cloak] {
@@ -178,7 +180,7 @@ td {
 .user-popup {
   border: none;
   padding: 0;
-	margin-top: 0.8rem;
+  margin-top: 0.8rem;
   flex-direction: column;
   width: max-content;
   text-align: center;
@@ -215,7 +217,7 @@ td {
 .user-popup button:hover,
 .menu-link-button:hover {
   background: var(--brand);
-	color: var(--always-light);
+  color: var(--always-light);
 }
 
 .notification-popup span,

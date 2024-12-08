@@ -38,40 +38,39 @@
 {{ end }}
 
 {{ define "notificationsButton" }}
-	<div class="dialog-button-wrapper">
-  <button class="nav-button" @click="isNotificationDialogOpen = true">
-    {{ template "notificationIcon" }}
-    <span class="notification-count" x-text="unseenNotifications"></span>
-  </button>
-	{{ template "notificationsDialog" }}
-</div>
+  <div class="dialog-button-wrapper">
+    <button class="nav-button" @click="isNotificationDialogOpen = true">
+      {{ template "notificationIcon" }}
+      <span class="notification-count" x-text="unseenNotifications"></span>
+    </button>
+    {{ template "notificationsDialog" }}
+  </div>
 {{ end }}
 
 {{ define "notificationsDialog" }}
-	{{ $notifications := GetNotifications }}
-	<div class="notification-popup">
-  <ul
-    x-show="isNotificationDialogOpen"
-    x-cloak
-    x-transition.origin.top
-    @click.away="isNotificationDialogOpen = false"
-		class="non-bullet-list"
-  >
-    {{ range $notifications.Notifications }}
-      <li>
-        <a href="/notification/{{ .ID }}" class="menu-link-button"
-          >
-					<strong>{{ .LiveTitle }}</strong>
-					{{- if eq .Type 1 -}}
-						{{ T "notifications.live-edited-suffix" }}
-					{{- else if eq .Type 2 -}}
-						{{ T "notifications.live-deleted-suffix" }}
-					{{- end -}}
-				</a>
-      </li>
-    {{ end }}
-  </ul>
-</div>
+  {{ $notifications := GetNotifications }}
+  <div class="notification-popup">
+    <ul
+      x-show="isNotificationDialogOpen"
+      x-cloak
+      x-transition.origin.top
+      @click.away="isNotificationDialogOpen = false"
+      class="non-bullet-list"
+    >
+      {{ range $notifications.Notifications }}
+        <li>
+          <a href="/notification/{{ .ID }}" class="menu-link-button">
+            <strong>{{ .LiveTitle }}</strong>
+            {{- if eq .Type 1 -}}
+              {{ T "notifications.live-edited-suffix" }}
+            {{- else if eq .Type 2 -}}
+              {{ T "notifications.live-deleted-suffix" }}
+            {{- end -}}
+          </a>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
 {{ end }}
 
 {{ define "nav" }}
