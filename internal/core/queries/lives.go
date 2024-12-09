@@ -422,7 +422,12 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	if query.Artist != "" {
-		args = append(args, query.Artist+"%")
+		if query.Artist[0] == '"' && query.Artist[len(query.Artist)-1] == '"' {
+			args = append(args, query.Artist[1:len(query.Artist)-1])
+		} else {
+			args = append(args, query.Artist+"%")
+		}
+
 		queryStr += fmt.Sprintf(" AND alias.alias ILIKE $%d", incIndex())
 	}
 
