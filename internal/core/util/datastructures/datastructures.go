@@ -222,3 +222,9 @@ type FieldLine struct {
 	Old FieldLineItem
 	New FieldLineItem
 }
+
+type SavedSearch struct {
+	Id         int64
+	UserId     int64
+	TextSearch string
+}

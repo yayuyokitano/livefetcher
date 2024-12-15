@@ -77,6 +77,7 @@ func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *
 		fmt.Println(err)
 		return
 	}
+
 	added++
 	*editedLives = append(*editedLives, liveid)
 	liveartistmap := make(map[string]bool)
@@ -87,6 +88,8 @@ func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *
 	for k := range liveartistmap {
 		*liveartists = append(*liveartists, []interface{}{liveid, k})
 	}
+
+	err = notifyNewLive(ctx, tx, live)
 	return
 }
 
@@ -204,12 +207,38 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 	for k := range liveartistmap {
 		*liveartists = append(*liveartists, []interface{}{oldLive.ID, k})
 	}
+
+	err = notifyChangedLive(ctx, tx, live)
+	return
+}
+
+func createNotification(ctx context.Context, tx pgx.Tx, liveId int64) (notificationID int64, err error) {
+	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id) VALUES ($1) RETURNING id", liveId).Scan(&notificationID)
+	return
+}
+
+func pushNotificationToUsers(ctx context.Context, tx pgx.Tx, notificationId int64, userIds []int64, notificationFields []datastructures.NotificationField) (err error) {
+	// this is massively inefficient, but for now i do not care
+	// TODO: make this more efficient
+	for _, userId := range userIds {
+		_, err = tx.Exec(ctx, "INSERT INTO usernotifications (notifications_id, users_id) VALUES ($1, $2)", notificationId, userId)
+		if err != nil {
+			return
+		}
+
+		for _, notificationField := range notificationFields {
+			_, err = tx.Exec(ctx, "INSERT INTO notification_fields (notifications_id, field_type, old_value, new_value) VALUES ($1, $2, $3, $4)", notificationId, notificationField.Type, notificationField.OldValue, notificationField.NewValue)
+			if err != nil {
+				return
+			}
+		}
+	}
 	return
 }
 
 func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.Live) (err error) {
-	userIDs, err := GetLiveFavoritedUsers(ctx, tx, oldLive.ID)
-	if err != nil || len(userIDs) == 0 {
+	userIds, err := GetLiveFavoritedUsers(ctx, tx, oldLive.ID)
+	if err != nil || len(userIds) == 0 {
 		return
 	}
 
@@ -218,27 +247,12 @@ func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.
 		return
 	}
 
-	var notificationID int64
-	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id) VALUES ($1) RETURNING id", oldLive.ID).Scan(&notificationID)
+	notificationId, err := createNotification(ctx, tx, oldLive.ID)
 	if err != nil {
 		return
 	}
 
-	// this is massively inefficient, but for now i do not care
-	// TODO: make this more efficient
-	for _, userID := range userIDs {
-		_, err = tx.Exec(ctx, "INSERT INTO usernotifications (notifications_id, users_id) VALUES ($1, $2)", notificationID, userID)
-		if err != nil {
-			return
-		}
-
-		for _, notificationField := range notificationFields {
-			_, err = tx.Exec(ctx, "INSERT INTO notification_fields (notifications_id, field_type, old_value, new_value) VALUES ($1, $2, $3, $4)", notificationID, notificationField.Type, notificationField.OldValue, notificationField.NewValue)
-			if err != nil {
-				return
-			}
-		}
-	}
+	err = pushNotificationToUsers(ctx, tx, notificationId, userIds, notificationFields)
 	return
 }
 
@@ -451,6 +465,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var l datastructures.Live
 		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude)
@@ -459,7 +474,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 		}
 		lives = append(lives, l)
 	}
-	rows.Close()
+
 	for i, l := range lives {
 		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, user.ID, l.ID)
 		if err == nil {
@@ -544,6 +559,7 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []datastruct
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var l datastructures.Live
 		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
@@ -552,7 +568,6 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []datastruct
 		}
 		lives = append(lives, l)
 	}
-	rows.Close()
 	for i, l := range lives {
 		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, userid, l.ID)
 		if err == nil {
@@ -562,5 +577,140 @@ func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []datastruct
 		err = nil
 	}
 	err = counters.CommitTransaction(ctx, tx)
+	return
+}
+
+func createNewLiveNotificationFields(live datastructures.Live) (fields []datastructures.NotificationField, err error) {
+	artists, err := json.Marshal(live.Artists)
+	if err != nil {
+		return
+	}
+
+	return []datastructures.NotificationField{{
+		Type:     datastructures.NotificationFieldTitle,
+		NewValue: live.Title,
+	}, {
+		Type:     datastructures.NotificationFieldOpenTime,
+		NewValue: live.OpenTime.Format(time.RFC3339),
+	}, {
+		Type:     datastructures.NotificationFieldStartTime,
+		NewValue: live.StartTime.Format(time.RFC3339),
+	}, {
+		Type:     datastructures.NotificationFieldPrice,
+		NewValue: live.Price,
+	}, {
+		Type:     datastructures.NotificationFieldPriceEnglish,
+		NewValue: live.PriceEnglish,
+	}, {
+		Type:     datastructures.NotificationFieldURL,
+		NewValue: live.URL,
+	}, {
+		Type:     datastructures.NotificationFieldVenue,
+		NewValue: live.Venue.ID,
+	}, {
+		Type:     datastructures.NotificationFieldArtists,
+		NewValue: string(artists),
+	}}, nil
+}
+
+func getUnnotifiedUsers(ctx context.Context, tx pgx.Tx, userIds []int64, live datastructures.Live) (unnotifiedUserIds []int64, err error) {
+	rows, err := tx.Query(ctx, `
+	SELECT un.users_id FROM usernotifications un
+	INNER JOIN notifications n ON n.id = un.notifications_id AND n.lives_id = $1
+	WHERE un.users_id = ANY($2)
+	`, live.ID, userIds)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var uid int64
+		err = rows.Scan(&uid)
+		if err != nil {
+			return
+		}
+		unnotifiedUserIds = append(unnotifiedUserIds, uid)
+	}
+	return
+}
+
+func notifyChangedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (err error) {
+	ss, err := getMatchingSavedSearches(ctx, tx, live)
+	if err != nil || len(ss) == 0 {
+		return
+	}
+
+	nf, err := createNewLiveNotificationFields(live)
+	if err != nil {
+		return
+	}
+
+	notificationId, err := createNotification(ctx, tx, live.ID)
+	if err != nil {
+		return
+	}
+
+	userIds := make([]int64, 0)
+	for _, s := range ss {
+		userIds = append(userIds, s.UserId)
+	}
+
+	unnotifiedUsers, err := getUnnotifiedUsers(ctx, tx, userIds, live)
+	if err != nil {
+		return
+	}
+
+	err = pushNotificationToUsers(ctx, tx, notificationId, unnotifiedUsers, nf)
+	return
+}
+
+func notifyNewLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (err error) {
+	ss, err := getMatchingSavedSearches(ctx, tx, live)
+	if err != nil || len(ss) == 0 {
+		return
+	}
+
+	nf, err := createNewLiveNotificationFields(live)
+	if err != nil {
+		return
+	}
+
+	notificationId, err := createNotification(ctx, tx, live.ID)
+	if err != nil {
+		return
+	}
+
+	userIds := make([]int64, 0)
+	for _, s := range ss {
+		userIds = append(userIds, s.UserId)
+	}
+
+	err = pushNotificationToUsers(ctx, tx, notificationId, userIds, nf)
+	return
+}
+
+func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructures.Live) (savedSearches []datastructures.SavedSearch, err error) {
+	for _, artist := range live.Artists {
+		var rows pgx.Rows
+		rows, err = tx.Query(ctx, `
+			SELECT id, users_id, text_search FROM saved_searches s
+			LEFT JOIN saved_search_areas a ON s.id = a.saved_searches_id
+			WHERE $1 ILIKE s.text_search AND (a.id IS NULL OR a.id = $2)
+		`, artist, live.Venue.Area.ID)
+		if err != nil {
+			return
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var ss datastructures.SavedSearch
+			err = rows.Scan(&ss.Id, ss.UserId, ss.TextSearch)
+			if err != nil {
+				return
+			}
+
+			savedSearches = append(savedSearches, ss)
+		}
+	}
 	return
 }

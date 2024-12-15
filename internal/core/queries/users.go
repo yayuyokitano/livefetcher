@@ -178,3 +178,34 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 	err = counters.CommitTransaction(ctx, tx)
 	return
 }
+
+func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds []int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+	tx, err := counters.FetchTransaction(ctx)
+	defer counters.RollbackTransaction(ctx, tx)
+	if err != nil {
+		return
+	}
+
+	var searchId int64
+	if search[0] == '"' && search[len(search)-1] == '"' {
+		err = tx.QueryRow(ctx, "INSERT INTO saved_searches (users_id, text_search) VALUES ($1, $2) RETURNING id", userid, search[1:len(search)-1]).Scan(&searchId)
+		if err != nil {
+			return
+		}
+	} else {
+		err = tx.QueryRow(ctx, "INSERT INTO saved_searches (users_id, text_search) VALUES ($1, $2) RETURNING id", userid, search+"%").Scan(&searchId)
+		if err != nil {
+			return
+		}
+	}
+
+	for _, areaId := range areaIds {
+		_, err = tx.Exec(ctx, "INSERT INTO saved_search_areas (saved_searches_id, areas_id) VALUES ($1, $2)", searchId, areaId)
+		if err != nil {
+			return
+		}
+	}
+
+	err = counters.CommitTransaction(ctx, tx)
+	return
+}

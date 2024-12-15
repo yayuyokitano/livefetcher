@@ -25,6 +25,7 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastruct
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var ll datastructures.LiveList
@@ -34,7 +35,6 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastruct
 		}
 		liveLists = append(liveLists, ll)
 	}
-	rows.Close()
 	for i, ll := range liveLists {
 		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, tx, loggedInUser.ID, ll.ID)
 		if err == nil {
@@ -63,6 +63,7 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastruct
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var ll datastructures.LiveList
@@ -72,7 +73,6 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastruct
 		}
 		liveLists = append(liveLists, ll)
 	}
-	rows.Close()
 	for i, ll := range liveLists {
 		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, tx, loggedInUser.ID, ll.ID)
 		if err == nil {
@@ -164,6 +164,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructu
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var l datastructures.Live
 		err = rows.Scan(&l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
@@ -172,7 +173,6 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructu
 		}
 		liveList.Lives = append(liveList.Lives, l)
 	}
-	rows.Close()
 	for i, l := range liveList.Lives {
 		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, loggedInUser.ID, l.ID)
 		if err == nil {
@@ -337,6 +337,7 @@ func GetUserFavoriteLiveLists(ctx context.Context, user datastructures.AuthUser)
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		var ll datastructures.LiveList
@@ -346,7 +347,7 @@ func GetUserFavoriteLiveLists(ctx context.Context, user datastructures.AuthUser)
 		}
 		liveLists = append(liveLists, ll)
 	}
-	rows.Close()
+
 	for i, ll := range liveLists {
 		isFavorited, favoriteCount, err := getLiveListFavoriteAndCount(ctx, favoriteTx, user.ID, ll.ID)
 		if err == nil {
