@@ -77,6 +77,7 @@ func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *
 		fmt.Println(err)
 		return
 	}
+	live.ID = liveid
 
 	added++
 	*editedLives = append(*editedLives, liveid)
@@ -212,8 +213,8 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 	return
 }
 
-func createNotification(ctx context.Context, tx pgx.Tx, liveId int64) (notificationID int64, err error) {
-	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id) VALUES ($1) RETURNING id", liveId).Scan(&notificationID)
+func createNotification(ctx context.Context, tx pgx.Tx, liveId int64, nt datastructures.NotificationType) (notificationID int64, err error) {
+	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id, notification_type) VALUES ($1, $2) RETURNING id", liveId, nt).Scan(&notificationID)
 	return
 }
 
@@ -247,7 +248,7 @@ func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, oldLive.ID)
+	notificationId, err := createNotification(ctx, tx, oldLive.ID, datastructures.NotificationTypeEdited)
 	if err != nil {
 		return
 	}
@@ -280,6 +281,7 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Li
 		if foundLive {
 			continue
 		}
+
 		a, err := addLive(tx, ctx, live, &artists, &liveartists, &editedLives)
 		if err == nil {
 			added += a
@@ -645,7 +647,7 @@ func notifyChangedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live)
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, live.ID)
+	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeAdded)
 	if err != nil {
 		return
 	}
@@ -675,7 +677,7 @@ func notifyNewLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (er
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, live.ID)
+	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeAdded)
 	if err != nil {
 		return
 	}
@@ -695,7 +697,7 @@ func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructure
 		rows, err = tx.Query(ctx, `
 			SELECT id, users_id, text_search FROM saved_searches s
 			LEFT JOIN saved_search_areas a ON s.id = a.saved_searches_id
-			WHERE $1 ILIKE s.text_search AND (a.id IS NULL OR a.id = $2)
+			WHERE $1 ILIKE s.text_search AND (a.areas_id IS NULL OR a.areas_id = $2)
 		`, artist, live.Venue.Area.ID)
 		if err != nil {
 			return
@@ -704,7 +706,7 @@ func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructure
 
 		for rows.Next() {
 			var ss datastructures.SavedSearch
-			err = rows.Scan(&ss.Id, ss.UserId, ss.TextSearch)
+			err = rows.Scan(&ss.Id, &ss.UserId, &ss.TextSearch)
 			if err != nil {
 				return
 			}

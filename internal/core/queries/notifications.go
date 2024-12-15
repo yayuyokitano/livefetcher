@@ -79,17 +79,22 @@ func GetNotification(ctx context.Context, notificationID int64, userID int64, la
 		switch f.Type {
 		case datastructures.NotificationFieldOpenTime:
 		case datastructures.NotificationFieldStartTime:
-			var ot, nt time.Time
-			ot, err = time.Parse(time.RFC3339, f.OldValue)
-			if err != nil {
-				return
+			if notification.Type == datastructures.NotificationTypeDeleted || notification.Type == datastructures.NotificationTypeEdited {
+				var ot time.Time
+				ot, err = time.Parse(time.RFC3339, f.OldValue)
+				if err != nil {
+					return
+				}
+				f.OldValue = i18nloader.FormatDate(ot, langs)
 			}
-			nt, err = time.Parse(time.RFC3339, f.NewValue)
-			if err != nil {
-				return
+			if notification.Type == datastructures.NotificationTypeAdded || notification.Type == datastructures.NotificationTypeEdited {
+				var nt time.Time
+				nt, err = time.Parse(time.RFC3339, f.NewValue)
+				if err != nil {
+					return
+				}
+				f.NewValue = i18nloader.FormatDate(nt, langs)
 			}
-			f.OldValue = i18nloader.FormatDate(ot, langs)
-			f.NewValue = i18nloader.FormatDate(nt, langs)
 
 		case datastructures.NotificationFieldVenue:
 			l := i18nloader.LocalizerFromLangs(langs)

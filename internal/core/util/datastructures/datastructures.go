@@ -205,7 +205,7 @@ type NotificationsWrapper struct {
 
 type Notification struct {
 	ID                 int64
-	Type               int16
+	Type               NotificationType
 	LiveID             int64
 	LiveTitle          string
 	Seen               bool

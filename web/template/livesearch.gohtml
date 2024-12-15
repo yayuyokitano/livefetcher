@@ -44,7 +44,7 @@
     <br />
     <button class="brand-button" type="submit">{{ T "general.search" }}</button>
 		<br /><br />
-		<button class="brand-button" type="button" hx-post="/savedsearch" hx-target="#saved-search-status">Save Search</button>
+		<button class="brand-button" type="button" hx-post="/api/savedsearch" hx-target="#saved-search-status">Save Search</button>
 		<div id="saved-search-status"></div>
   </form>
 {{ end }}

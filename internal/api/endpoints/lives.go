@@ -241,3 +241,37 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 	w.Write(b)
 	return nil
 }
+
+func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	err := r.ParseForm()
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	decoder := form.NewDecoder()
+	var query queries.LiveQuery
+	err = decoder.Decode(&query, r.Form)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+	if query.Artist == "" || query.Artist == `""` {
+		return logging.SE(http.StatusBadRequest, errors.New("please enter an artist search"))
+	}
+
+	areas := make([]int64, 0)
+	for k := range query.Areas {
+		areas = append(areas, int64(k))
+	}
+
+	err = queries.PostSavedSearch(r.Context(), user.ID, query.Artist, areas)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	w.Write([]byte("Successfully saved search for " + query.Artist))
+	return nil
+}

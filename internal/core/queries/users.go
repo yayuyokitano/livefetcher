@@ -179,7 +179,7 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 	return
 }
 
-func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds []int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds []int64) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {

@@ -148,6 +148,9 @@ func startServer() {
 	router.Handle("/api/changepassword", router.Methods{
 		POST: endpoints.ChangePassword,
 	})
+	router.Handle("/api/savedsearch", router.Methods{
+		POST: endpoints.PostSavedSearch,
+	})
 	router.Handle("/list/{id}", router.Methods{
 		GET: endpoints.ShowLiveList,
 	})

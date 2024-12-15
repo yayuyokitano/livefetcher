@@ -10,8 +10,24 @@
     {{ else if eq .Type 2 }}
       <h1>{{ .LiveTitle }}{{ T "notifications.live-deleted-suffix-main" }}</h1>
       {{ template "deleted-table" . }}
+		{{ else if eq .Type 3 }}
+			<h1>{{ .LiveTitle }}{{ T "notifications.live-added-suffix-main" }}</h1>
+			{{ template "added-table" . }}
     {{ end }}
   </div>
+{{ end }}
+
+{{ define "added-table" }}
+<table class="bottom-item">
+	<tbody>
+		{{ range $notificationField := .NotificationFields.Sort }}
+			<tr>
+				<td>{{ T $notificationField.Type.String }}</td>
+				<td>{{ $notificationField.NewValue }}</td>
+			</tr>
+		{{ end }}
+	</tbody>
+</table>
 {{ end }}
 
 {{ define "deleted-table" }}
