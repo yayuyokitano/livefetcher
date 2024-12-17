@@ -22,6 +22,8 @@
 {{ end }}
 
 {{ define "searchFilterDialog" }}
+	{{ $user := GetUser }}
+	{{ $loggedIn := $user.ID }}
   <form
     class="search-filters"
     action="/search"
@@ -43,16 +45,22 @@
     {{ template "areas" . }}
     <br />
     <button class="brand-button" type="submit">{{ T "general.search" }}</button>
-    <br /><br />
-    <button
-      class="brand-button"
-      type="button"
-      hx-post="/api/savedsearch"
-      hx-target="#saved-search-status"
-    >
-      Save Search
-    </button>
-    <div id="saved-search-status"></div>
+		<br /><br />
+		{{ if not $loggedIn }}
+			<p>{{ T "notifications.please-login-to-save-search" }}</p>
+		{{ end }}
+		<button
+			class="brand-button"
+			type="button"
+			hx-post="/api/savedsearch"
+			hx-target="#saved-search-status"
+			{{ if not $loggedIn }}
+				disabled
+			{{ end }}
+		>
+			{{ T "general.save-search" }}
+		</button>
+		<div id="saved-search-status"></div>
   </form>
 {{ end }}
 

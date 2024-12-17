@@ -54,6 +54,7 @@ func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request
 	fp := filepath.Join("web", "template", "notification.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"GetFieldLines": getFieldLines,
+		"ParseSlice":    parseSlice,
 	}, lp, fp)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -79,6 +80,11 @@ func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request
 		w.Write([]byte(res))
 	*/
 	return nil
+}
+
+func parseSlice(s string) (v []string) {
+	json.Unmarshal([]byte(s), &v)
+	return
 }
 
 func getFieldLines(notificationField datastructures.NotificationField) (lines []datastructures.FieldLine) {

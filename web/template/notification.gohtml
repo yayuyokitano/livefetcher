@@ -21,10 +21,17 @@
   <table class="bottom-item">
     <tbody>
       {{ range $notificationField := .NotificationFields.Sort }}
-        <tr>
-          <td>{{ T $notificationField.Type.String }}</td>
-          <td>{{ $notificationField.NewValue }}</td>
-        </tr>
+				{{ if not (eq $notificationField.Type 8) }}
+					<tr>
+						<td>{{ T $notificationField.Type.String }}</td>
+						<td>{{ $notificationField.NewValue }}</td>
+					</tr>
+				{{ else }}
+					<tr>
+						<td>{{ T $notificationField.Type.String }}</td>
+						<td>{{ template "artist-list" ParseSlice $notificationField.NewValue }}</td>
+					</tr>
+				{{ end }}
       {{ end }}
     </tbody>
   </table>
@@ -55,6 +62,14 @@
       {{ end }}
     </tbody>
   </table>
+{{ end }}
+
+{{ define "artist-list" }}
+	<ul class="artist-list">
+		{{ range $line := . }}
+			<li>{{ $line }}</li>
+		{{ end }}
+	</ul>
 {{ end }}
 
 {{ define "artist-table-row" }}

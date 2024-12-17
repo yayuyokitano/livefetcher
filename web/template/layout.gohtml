@@ -65,7 +65,9 @@
               {{ T "notifications.live-edited-suffix" }}
             {{- else if eq .Type 2 -}}
               {{ T "notifications.live-deleted-suffix" }}
-            {{- end -}}
+            {{- else if eq .Type 3 -}}
+							{{ T "notifications.live-added-suffix" }}
+						{{- end -}}
           </a>
         </li>
       {{ end }}

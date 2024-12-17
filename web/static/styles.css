@@ -109,8 +109,10 @@ td {
   background-color: var(--brand-focus);
 }
 
-.brand-button[readonly] {
+.brand-button[readonly],
+.brand-button[disabled] {
   background-color: var(--brand-disabled);
+	cursor: default;
 }
 
 .nav-search-wrapper button {
