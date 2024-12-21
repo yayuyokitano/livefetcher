@@ -38,7 +38,23 @@
 {{ end }}
 
 {{ define "deleted-table" }}
-  wat
+<table class="bottom-item">
+	<tbody>
+		{{ range $notificationField := .NotificationFields.Sort }}
+			{{ if not (eq $notificationField.Type 8) }}
+				<tr>
+					<td>{{ T $notificationField.Type.String }}</td>
+					<td class="old-table-data">{{ $notificationField.OldValue }}</td>
+				</tr>
+			{{ else }}
+				<tr>
+					<td>{{ T $notificationField.Type.String }}</td>
+					<td class="old-table-data">{{ template "artist-list" ParseSlice $notificationField.OldValue }}</td>
+				</tr>
+			{{ end }}
+		{{ end }}
+	</tbody>
+</table>
 {{ end }}
 
 {{ define "edited-table" }}

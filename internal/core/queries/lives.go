@@ -51,8 +51,17 @@ func isSameLive(live datastructures.Live, oldLive datastructures.Live, oldLives 
 	return false
 }
 
-func deleteLives(tx pgx.Tx, ctx context.Context, liveIDs []int64) (deleted int64, err error) {
-	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE id=ANY($1)", liveIDs)
+func deleteLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live) (deleted int64, err error) {
+	liveIds := make([]int64, 0)
+	for _, live := range lives {
+		liveIds = append(liveIds, live.ID)
+		err = notifyDeletedLive(ctx, tx, live)
+		if err != nil {
+			return
+		}
+	}
+
+	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE id=ANY($1)", liveIds)
 	if err != nil {
 		return
 	}
@@ -287,10 +296,10 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Li
 			added += a
 		}
 	}
-	oldLivesToDelete := make([]int64, 0)
+	oldLivesToDelete := make([]datastructures.Live, 0)
 	for i, oldLive := range oldLives {
 		if !oldLiveFoundIndices[i] {
-			oldLivesToDelete = append(oldLivesToDelete, oldLive.ID)
+			oldLivesToDelete = append(oldLivesToDelete, oldLive)
 		}
 	}
 	deleted, err = deleteLives(tx, ctx, oldLivesToDelete)
@@ -615,6 +624,39 @@ func createNewLiveNotificationFields(live datastructures.Live) (fields []datastr
 	}}, nil
 }
 
+func createOldLiveNotificationFields(live datastructures.Live) (fields []datastructures.NotificationField, err error) {
+	artists, err := json.Marshal(live.Artists)
+	if err != nil {
+		return
+	}
+
+	return []datastructures.NotificationField{{
+		Type:     datastructures.NotificationFieldTitle,
+		OldValue: live.Title,
+	}, {
+		Type:     datastructures.NotificationFieldOpenTime,
+		OldValue: live.OpenTime.Format(time.RFC3339),
+	}, {
+		Type:     datastructures.NotificationFieldStartTime,
+		OldValue: live.StartTime.Format(time.RFC3339),
+	}, {
+		Type:     datastructures.NotificationFieldPrice,
+		OldValue: live.Price,
+	}, {
+		Type:     datastructures.NotificationFieldPriceEnglish,
+		OldValue: live.PriceEnglish,
+	}, {
+		Type:     datastructures.NotificationFieldURL,
+		OldValue: live.URL,
+	}, {
+		Type:     datastructures.NotificationFieldVenue,
+		OldValue: live.Venue.ID,
+	}, {
+		Type:     datastructures.NotificationFieldArtists,
+		OldValue: string(artists),
+	}}, nil
+}
+
 func getUnnotifiedUsers(ctx context.Context, tx pgx.Tx, userIds []int64, live datastructures.Live) (unnotifiedUserIds []int64, err error) {
 	rows, err := tx.Query(ctx, `
 	SELECT un.users_id FROM usernotifications un
@@ -685,6 +727,27 @@ func notifyNewLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (er
 	userIds := make([]int64, 0)
 	for _, s := range ss {
 		userIds = append(userIds, s.UserId)
+	}
+
+	err = pushNotificationToUsers(ctx, tx, notificationId, userIds, nf)
+	return
+}
+
+func notifyDeletedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (err error) {
+
+	nf, err := createOldLiveNotificationFields(live)
+	if err != nil {
+		return
+	}
+
+	userIds, err := GetLiveFavoritedUsers(ctx, tx, live.ID)
+	if err != nil {
+		return
+	}
+
+	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeDeleted)
+	if err != nil {
+		return
 	}
 
 	err = pushNotificationToUsers(ctx, tx, notificationId, userIds, nf)

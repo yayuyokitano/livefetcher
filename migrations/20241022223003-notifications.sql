@@ -3,7 +3,7 @@ CREATE TABLE notifications (
 	id BIGSERIAL PRIMARY KEY,
 	lives_id BIGINT,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	FOREIGN KEY (lives_id) REFERENCES lives(id) ON DELETE CASCADE
+	FOREIGN KEY (lives_id) REFERENCES lives(id) ON DELETE SET NULL
 );
 CREATE INDEX idx_notifications_id ON notifications(id);
 
@@ -29,7 +29,7 @@ CREATE INDEX idx_notification_fields_notifications_id ON notification_fields(not
 -- +migrate Down
 DROP INDEX idx_notification_fields_notifications_id;
 DROP TABLE notification_fields;
-DROP INDEX dx_usernotifications_users_id;
+DROP INDEX idx_usernotifications_users_id;
 DROP INDEX idx_notifications_seen;
 DROP TABLE usernotifications;
 DROP INDEX idx_notifications_id;

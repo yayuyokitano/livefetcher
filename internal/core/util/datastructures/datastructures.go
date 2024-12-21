@@ -206,7 +206,7 @@ type NotificationsWrapper struct {
 type Notification struct {
 	ID                 int64
 	Type               NotificationType
-	LiveID             int64
+	LiveID             *int64
 	LiveTitle          string
 	Seen               bool
 	CreatedAt          time.Time

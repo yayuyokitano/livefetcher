@@ -19,13 +19,14 @@ func GetUserNotifications(ctx context.Context, userID int64) (notifications data
 
 	notifications.Notifications = make([]datastructures.Notification, 0)
 	rows, err := tx.Query(ctx, `
-		SELECT notifications_id, seen, created_at, notification_type, lives.id, title
+		SELECT usernotifications.notifications_id, seen, created_at, notification_type, lives.id, COALESCE(NULLIF(new_value, ''), old_value) AS title
 		FROM usernotifications
 		INNER JOIN notifications ON notifications.id = usernotifications.notifications_id
-		INNER JOIN lives ON notifications.lives_id = lives.id
-		WHERE users_id = $1
+		INNER JOIN notification_fields ON notifications.id = notification_fields.notifications_id AND field_type = $1
+		LEFT JOIN lives ON notifications.lives_id = lives.id
+		WHERE users_id = $2
 		ORDER BY seen DESC, created_at DESC
-	`, userID)
+	`, datastructures.NotificationFieldTitle, userID)
 	if err != nil {
 		return
 	}
@@ -53,13 +54,14 @@ func GetNotification(ctx context.Context, notificationID int64, userID int64, la
 	}
 
 	err = tx.QueryRow(ctx, `
-		SELECT lives_id, created_at, title, notification_type, seen
+		SELECT lives_id, created_at, COALESCE(NULLIF(new_value, ''), old_value) AS title, notification_type, seen
 		FROM notifications
-		INNER JOIN lives ON notifications.lives_id = lives.id
+		LEFT JOIN lives ON notifications.lives_id = lives.id
 		INNER JOIN usernotifications ON notifications.id = usernotifications.notifications_id AND usernotifications.users_id = $1
-		WHERE notifications.id = $2
+		INNER JOIN notification_fields ON notifications.id = notification_fields.notifications_id AND field_type = $2
+		WHERE notifications.id = $3
 		ORDER BY seen ASC, created_at DESC
-	`, userID, notificationID).Scan(&notification.LiveID, &notification.CreatedAt, &notification.LiveTitle, &notification.Type, &notification.Seen)
+	`, userID, datastructures.NotificationFieldTitle, notificationID).Scan(&notification.LiveID, &notification.CreatedAt, &notification.LiveTitle, &notification.Type, &notification.Seen)
 	if err != nil {
 		return
 	}
@@ -78,6 +80,7 @@ func GetNotification(ctx context.Context, notificationID int64, userID int64, la
 		}
 		switch f.Type {
 		case datastructures.NotificationFieldOpenTime:
+			fallthrough
 		case datastructures.NotificationFieldStartTime:
 			if notification.Type == datastructures.NotificationTypeDeleted || notification.Type == datastructures.NotificationTypeEdited {
 				var ot time.Time
