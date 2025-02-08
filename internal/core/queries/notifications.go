@@ -12,10 +12,10 @@ import (
 
 func GetUserNotifications(ctx context.Context, userID int64) (notifications datastructures.NotificationsWrapper, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	notifications.Notifications = make([]datastructures.Notification, 0)
 	rows, err := tx.Query(ctx, `
@@ -48,10 +48,10 @@ func GetUserNotifications(ctx context.Context, userID int64) (notifications data
 
 func GetNotification(ctx context.Context, notificationID int64, userID int64, langs []string) (notification datastructures.Notification, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	err = tx.QueryRow(ctx, `
 		SELECT lives_id, created_at, COALESCE(NULLIF(new_value, ''), old_value) AS title, notification_type, seen

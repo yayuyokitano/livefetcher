@@ -432,7 +432,7 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 			queue <- job
 		}
 		close(queue)
-		for i := 0; i < util.Min(10, len(overview)); i++ {
+		for i := 0; i < min(10, len(overview)); i++ {
 			wg.Add(1)
 			go fetchLiveConcurrent(overviewURL, queue, s.ExpandedLiveSelector, &wg)
 		}

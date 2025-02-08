@@ -134,10 +134,11 @@ func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 	fp := filepath.Join("web", "template", "livelist.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
 
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
-	}, lp, fp, favoriteButtonPartial, livesPartial)
+	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

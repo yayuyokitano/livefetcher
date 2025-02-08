@@ -1,0 +1,17 @@
+{{ define "title" }}{{ .Nickname }}{{ end }}
+
+{{ define "head" }}
+{{ end }}
+
+{{ define "body" }}
+  <h2>Calendar</h2>
+  {{ if .CalendarProperties.Token }}
+    <a href="{{ GetAuthUrl }}" target="_blank" rel="noopener noreferrer"
+      >Force Authorize</a
+    >
+  {{ else }}
+    <a href="{{ GetAuthUrl }}" target="_blank" rel="noopener noreferrer"
+      >Authorize</a
+    >
+  {{ end }}
+{{ end }}

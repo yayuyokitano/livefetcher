@@ -20,6 +20,7 @@ remove-from-favorites = "Remove from favorites"
 confirm = "Confirm"
 cancel = "Cancel"
 save-search = "Save Search"
+settings = "Settings"
 
 [login]
 nickname = "Nickname"
@@ -64,6 +65,8 @@ author = "Author: "
 no-lives-found = "No lives were found"
 add-to-livelist-label = "Add to live list"
 remove-from-livelist-label = "Remove from live list"
+conflict-warning-prefix = "Might conflict with "
+conflict-warning-suffix = "!"
 
 [label]
 artist = "Participating Artist"

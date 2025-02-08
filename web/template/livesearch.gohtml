@@ -1,6 +1,8 @@
 {{ define "title" }}{{ SearchTitle }}{{ end }}
 
-{{ define "head" }}{{ end }}
+{{ define "head" }}
+  <script src="/static/calendarDisplay.js"></script>
+{{ end }}
 
 {{ define "body" }}
   <h2 class="general-header">{{ SearchHeader }}</h2>
@@ -22,8 +24,8 @@
 {{ end }}
 
 {{ define "searchFilterDialog" }}
-	{{ $user := GetUser }}
-	{{ $loggedIn := $user.ID }}
+  {{ $user := GetUser }}
+  {{ $loggedIn := $user.ID }}
   <form
     class="search-filters"
     action="/search"
@@ -45,22 +47,22 @@
     {{ template "areas" . }}
     <br />
     <button class="brand-button" type="submit">{{ T "general.search" }}</button>
-		<br /><br />
-		{{ if not $loggedIn }}
-			<p>{{ T "notifications.please-login-to-save-search" }}</p>
-		{{ end }}
-		<button
-			class="brand-button"
-			type="button"
-			hx-post="/api/savedsearch"
-			hx-target="#saved-search-status"
-			{{ if not $loggedIn }}
-				disabled
-			{{ end }}
-		>
-			{{ T "general.save-search" }}
-		</button>
-		<div id="saved-search-status"></div>
+    <br /><br />
+    {{ if not $loggedIn }}
+      <p>{{ T "notifications.please-login-to-save-search" }}</p>
+    {{ end }}
+    <button
+      class="brand-button"
+      type="button"
+      hx-post="/api/savedsearch"
+      hx-target="#saved-search-status"
+      {{ if not $loggedIn }}
+        disabled
+      {{ end }}
+    >
+      {{ T "general.save-search" }}
+    </button>
+    <div id="saved-search-status"></div>
   </form>
 {{ end }}
 

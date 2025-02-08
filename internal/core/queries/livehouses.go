@@ -11,10 +11,10 @@ import (
 
 func PostLiveHouses(ctx context.Context, livehouses []datastructures.LiveHouse) (n int, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	// This will pretty much always be just one livehouse, but just in case...
 	// We don't bother with any optimization for multiple inserts.

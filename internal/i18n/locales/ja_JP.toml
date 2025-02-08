@@ -20,6 +20,7 @@ remove-from-favorites = "お気に入りから削除"
 confirm = "確認"
 cancel = "キャンセル"
 save-search = "検索を保存"
+settings = "設定"
 
 [login]
 nickname = "ニックネーム"
@@ -64,6 +65,8 @@ author = "作成者："
 no-lives-found = "一致するライブは見つかりませんでした"
 add-to-livelist-label = "ライブリストに追加"
 remove-from-livelist-label = "ライブリストから削除"
+conflict-warning-prefix = "ご注意："
+conflict-warning-suffix = "と重なる可能性あり"
 
 [label]
 artist = "出演アーティスト"

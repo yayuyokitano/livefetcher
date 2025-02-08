@@ -12,10 +12,11 @@ import (
 
 func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
+
 	for _, artist := range artists {
 		var cmd pgconn.CommandTag
 		cmd, err = tx.Exec(ctx, "INSERT INTO artists (name) VALUES ($1) ON CONFLICT DO NOTHING", artist)

@@ -66,8 +66,8 @@
             {{- else if eq .Type 2 -}}
               {{ T "notifications.live-deleted-suffix" }}
             {{- else if eq .Type 3 -}}
-							{{ T "notifications.live-added-suffix" }}
-						{{- end -}}
+              {{ T "notifications.live-added-suffix" }}
+            {{- end -}}
           </a>
         </li>
       {{ end }}
@@ -155,14 +155,16 @@
     >
       <ul class="non-bullet-list">
         <li>
-          <span>{{ .Nickname }}</span>
-        </li>
-        <li>
           <a
             href="/user/{{ .Username }}"
             hx-boost="false"
             class="menu-link-button"
             >{{ T "general.profile" }}</a
+          >
+        </li>
+        <li>
+          <a href="/settings" hx-boost="false" class="menu-link-button"
+            >{{ T "general.settings" }}</a
           >
         </li>
         <li>

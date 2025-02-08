@@ -5,36 +5,6 @@ import (
 	"time"
 )
 
-func TestMax(t *testing.T) {
-	if Max(1, 2) != 2 {
-		t.Errorf("Max(1, 2) != 2, got %d", Max(1, 2))
-	}
-	if Max(2, 1) != 2 {
-		t.Errorf("Max(2, 1) != 2, got %d", Max(2, 1))
-	}
-	if Max(1, 1) != 1 {
-		t.Errorf("Max(1, 1) != 1, got %d", Max(1, 1))
-	}
-	if Max(-1, -2) != -1 {
-		t.Errorf("Max(-1, -2) != -1, got %d", Max(-1, -2))
-	}
-}
-
-func TestMin(t *testing.T) {
-	if Min(1, 2) != 1 {
-		t.Errorf("Min(1, 2) != 1, got %d", Min(1, 2))
-	}
-	if Min(2, 1) != 1 {
-		t.Errorf("Min(2, 1) != 1, got %d", Min(2, 1))
-	}
-	if Min(1, 1) != 1 {
-		t.Errorf("Min(1, 1) != 1, got %d", Min(1, 1))
-	}
-	if Min(-1, -2) != -2 {
-		t.Errorf("Min(-1, -2) != -2, got %d", Min(-1, -2))
-	}
-}
-
 func TestStripNonNumeric(t *testing.T) {
 	if stripNonNumeric("a1b2c3") != "123" {
 		t.Errorf("stripNonNumeric(\"a1b2c3\") != \"123\", got %s", stripNonNumeric("a1b2c3"))

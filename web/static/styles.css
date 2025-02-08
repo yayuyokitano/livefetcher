@@ -112,7 +112,7 @@ td {
 .brand-button[readonly],
 .brand-button[disabled] {
   background-color: var(--brand-disabled);
-	cursor: default;
+  cursor: default;
 }
 
 .nav-search-wrapper button {
@@ -335,6 +335,28 @@ td {
 .live-button span {
   fill: var(--brand);
   color: var(--brand);
+}
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.conflict-wrapper {
+  position: relative;
+}
+
+.conflict-list {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 0;
+  width: max-content;
+  background-color: rgba(40, 40, 40, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem 0 0.5rem 0.5rem;
 }
 
 #search-container {

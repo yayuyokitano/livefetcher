@@ -2,6 +2,7 @@ package templatebuilder
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -67,6 +68,16 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 				return datastructures.NotificationsWrapper{}
 			}
 			return notifications
+		},
+		"MustMarshal": func(v any) string {
+			b, err := json.Marshal(v)
+			if err != nil {
+				return ""
+			}
+			return string(b)
+		},
+		"FormatTime": func(t time.Time) string {
+			return t.Format(time.RFC3339)
 		},
 	}).Funcs(funcMap).ParseFiles(paths...)
 	return

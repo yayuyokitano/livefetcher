@@ -13,10 +13,10 @@ import (
 
 func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	rows, err := tx.Query(ctx, `SELECT livelist.id, title, list_description, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
@@ -50,10 +50,10 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastruct
 
 func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	rows, err := tx.Query(ctx, `SELECT livelist.id, title, list_description, live_description, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
@@ -88,10 +88,10 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastruct
 
 func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	var userID int64
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelists WHERE id=$1", liveListID).Scan(&userID)
@@ -107,10 +107,10 @@ func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser datast
 
 func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	var userID int64
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelistlives INNER JOIN livelists ON (livelists.id = livelistlives.livelists_id) WHERE livelistlives.id=$1", liveListLiveID).Scan(&userID)
@@ -126,10 +126,10 @@ func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUse
 
 func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) (liveList datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	err = tx.QueryRow(ctx, `SELECT livelist.id, title, list_description, livelist.created_at, livelist.updated_at, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
@@ -188,10 +188,10 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructu
 
 func PostLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (id int64, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	err = tx.QueryRow(ctx, "INSERT INTO livelists (users_id, title, list_description) VALUES ($1, $2, $3) RETURNING id", livelist.UserID, livelist.Title, livelist.Desc).Scan(&id)
 	if err != nil {
@@ -204,10 +204,10 @@ func PostLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequ
 
 func PutLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "UPDATE livelists SET title=$1, list_description=$2 WHERE id=$3", livelist.Title, livelist.Desc, livelist.ID)
 	if err != nil {
@@ -220,10 +220,10 @@ func PutLiveList(ctx context.Context, livelist datastructures.LiveListWriteReque
 
 func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "DELETE FROM livelists WHERE id=$1", liveListID)
 	if err != nil {
@@ -236,10 +236,10 @@ func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
 
 func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc string) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "INSERT INTO livelistlives (livelists_id, lives_id, live_description) VALUES ($1, $2, $3)", liveListID, liveID, desc)
 	if err != nil {
@@ -252,10 +252,10 @@ func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc 
 
 func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "DELETE FROM livelistlives WHERE id=$1", liveListLiveID)
 	if err != nil {
@@ -268,10 +268,10 @@ func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
 
 func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "INSERT INTO livelistfavorites (users_id, livelists_id) VALUES ($1, $2)", userid, livelistid)
 	if err != nil {
@@ -293,10 +293,10 @@ func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favo
 
 func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "DELETE FROM livelistfavorites WHERE users_id=$1 AND livelists_id=$2", userid, livelistid)
 	if err != nil {
@@ -318,16 +318,17 @@ func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64)
 
 func GetUserFavoriteLiveLists(ctx context.Context, user datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
+	if err != nil {
+		return
+	}
 	defer counters.RollbackTransaction(ctx, tx)
-	if err != nil {
-		return
-	}
 
+	// TODO: only use one transaction
 	favoriteTx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, favoriteTx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, favoriteTx)
 
 	rows, err := tx.Query(ctx, `SELECT livelist.id, title, list_description, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist

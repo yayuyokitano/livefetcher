@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,36 +12,23 @@ import (
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/services/calendar"
 )
 
-func Max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func Min(a, b int) int {
-	if b > a {
-		return a
-	}
-	return b
-}
-
-func GetTimeFromString(s string) (hour string, min string, nextDay bool) {
+func GetTimeFromString(s string) (hour string, minute string, nextDay bool) {
 	colon := strings.Index(s, ":")
 	if colon == -1 {
 		hour = "03"
-		min = "24"
+		minute = "24"
 		return
 	}
-	hour = fmt.Sprintf("%02s", stripNonNumeric(s[Max(colon-2, 0):colon]))
-	min = fmt.Sprintf("%02s", stripNonNumeric(s[colon+1:Min(colon+3, len(s))]))
+	hour = fmt.Sprintf("%02s", stripNonNumeric(s[max(colon-2, 0):colon]))
+	minute = fmt.Sprintf("%02s", stripNonNumeric(s[colon+1:min(colon+3, len(s))]))
 
 	nhour, err := strconv.Atoi(hour)
 	if err != nil {
 		hour = "03"
-		min = "24"
+		minute = "24"
 		return
 	}
 	if nhour >= 24 {
@@ -76,8 +64,8 @@ func GetDate(md []rune, sep rune) (month string, day string, err error) {
 		err = errors.New("No separator found in date string " + string(md))
 		return
 	}
-	month = fmt.Sprintf("%02s", stripNonNumeric(string(md[Max(sepIndex-2, 0):sepIndex])))
-	day = fmt.Sprintf("%02s", stripNonNumeric(string(md[sepIndex+1:Min(sepIndex+3, len(md))])))
+	month = fmt.Sprintf("%02s", stripNonNumeric(string(md[max(sepIndex-2, 0):sepIndex])))
+	day = fmt.Sprintf("%02s", stripNonNumeric(string(md[sepIndex+1:min(sepIndex+3, len(md))])))
 	return
 }
 
@@ -432,3 +420,30 @@ func GetJSON(url string, target interface{}) error {
 }
 
 var JapanTime = time.FixedZone("UTC+9", +9*60*60)
+
+func Pointer[T any](v T) *T {
+	return &v
+}
+
+func GetCalendarData(ctx context.Context, user datastructures.AuthUser) chan datastructures.CalendarEvents {
+
+	// run the calendar query immediately, as it can run in the background.
+	calendarService, calendarProps, err := calendar.InitializeCalendar(ctx, user.ID)
+	calendarResults := make(chan datastructures.CalendarEvents, 1)
+
+	// if there is no calendar, send an empty message, else execute goroutine
+	if err != nil {
+		err = nil
+		calendarResults <- make(datastructures.CalendarEvents, 0)
+	} else {
+		go func() {
+			events, err := calendarService.GetAllEvents(ctx, calendarProps, user.ID)
+			if err != nil {
+				calendarResults <- make(datastructures.CalendarEvents, 0)
+				return
+			}
+			calendarResults <- events
+		}()
+	}
+	return calendarResults
+}

@@ -12,10 +12,10 @@ import (
 
 func GetUserByID(ctx context.Context, id int) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 	return getUserByIDQuery(ctx, tx, id)
 }
 
@@ -27,21 +27,21 @@ func getUserByIDQuery(ctx context.Context, tx pgx.Tx, id int) (user datastructur
 
 func GetUserByUsername(ctx context.Context, username string) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
-	row := tx.QueryRow(ctx, "SELECT id, email, username, nickname, password_hash, bio, location, is_verified FROM users WHERE username=$1", username)
-	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.Nickname, &user.PasswordHash, &user.Bio, &user.Location, &user.IsVerified)
+	defer counters.RollbackTransaction(ctx, tx)
+	row := tx.QueryRow(ctx, "SELECT id, email, username, nickname, password_hash, bio, location, is_verified, calendar_id, calendar_type, calendar_token FROM users WHERE username=$1", username)
+	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.Nickname, &user.PasswordHash, &user.Bio, &user.Location, &user.IsVerified, &user.CalendarProperties.Id, &user.CalendarProperties.Type, &user.CalendarProperties.Token)
 	return
 }
 
 func GetUserByUsernameOrEmail(ctx context.Context, query string) (user datastructures.User, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 	row := tx.QueryRow(ctx, "SELECT id, email, username, nickname, password_hash, bio, location, is_verified FROM users WHERE username=$1 OR email=$1", query)
 	err = row.Scan(&user.ID, &user.Email, &user.Username, &user.Nickname, &user.PasswordHash, &user.Bio, &user.Location, &user.IsVerified)
 	return
@@ -49,10 +49,10 @@ func GetUserByUsernameOrEmail(ctx context.Context, query string) (user datastruc
 
 func PostUser(ctx context.Context, user datastructures.User) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	cmd, err := tx.Exec(ctx, "INSERT INTO users (email, username, nickname, password_hash, bio, location) VALUES ($1, $2, $3, $4, $5, $6)", user.Email, user.Username, user.Nickname, user.PasswordHash, user.Bio, user.Location)
 	if err != nil {
@@ -68,10 +68,10 @@ func PostUser(ctx context.Context, user datastructures.User) (err error) {
 
 func PatchUser(ctx context.Context, patchInfo datastructures.User) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	user, err := getUserByIDQuery(ctx, tx, int(patchInfo.ID))
 	if err != nil {
@@ -100,8 +100,17 @@ func PatchUser(ctx context.Context, patchInfo datastructures.User) (err error) {
 	if patchInfo.Location != "" {
 		user.Location = patchInfo.Location
 	}
+	if patchInfo.CalendarProperties.Id != nil && *patchInfo.CalendarProperties.Id != "" {
+		user.CalendarProperties.Id = patchInfo.CalendarProperties.Id
+	}
+	if patchInfo.CalendarProperties.Type != nil && *patchInfo.CalendarProperties.Type != 0 {
+		user.CalendarProperties.Type = patchInfo.CalendarProperties.Type
+	}
+	if patchInfo.CalendarProperties.Token != nil && *patchInfo.CalendarProperties.Token != "" {
+		user.CalendarProperties.Token = patchInfo.CalendarProperties.Token
+	}
 
-	_, err = tx.Exec(ctx, "UPDATE users SET email=$1, username=$2, nickname=$3, password_hash=$4, bio=$5, location=$6, is_verified=$7 WHERE id=$8", user.Email, user.Username, user.Nickname, user.PasswordHash, user.Bio, user.Location, user.IsVerified, user.ID)
+	_, err = tx.Exec(ctx, "UPDATE users SET email=$1, username=$2, nickname=$3, password_hash=$4, bio=$5, location=$6, is_verified=$7, calendar_id=$8, calendar_type=$9, calendar_token=$10 WHERE id=$11", user.Email, user.Username, user.Nickname, user.PasswordHash, user.Bio, user.Location, user.IsVerified, user.CalendarProperties.Id, user.CalendarProperties.Type, user.CalendarProperties.Token, user.ID)
 	if err != nil {
 		return
 	}
@@ -131,10 +140,10 @@ func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid in
 
 func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "INSERT INTO userfavorites (users_id, lives_id) VALUES ($1, $2)", userid, liveid)
 	if err != nil {
@@ -156,10 +165,10 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 
 func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+	defer counters.RollbackTransaction(ctx, tx)
 
 	_, err = tx.Exec(ctx, "DELETE FROM userfavorites WHERE users_id=$1 AND lives_id=$2", userid, liveid)
 	if err != nil {
@@ -181,10 +190,11 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 
 func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds []int64) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
-	defer counters.RollbackTransaction(ctx, tx)
 	if err != nil {
 		return
 	}
+
+	defer counters.RollbackTransaction(ctx, tx)
 
 	var searchId int64
 	if search[0] == '"' && search[len(search)-1] == '"' {

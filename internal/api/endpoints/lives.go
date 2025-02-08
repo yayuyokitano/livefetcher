@@ -18,6 +18,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
+	"github.com/yayuyokitano/livefetcher/internal/services/calendar"
 )
 
 type liveTemplateMetadata struct {
@@ -50,6 +51,8 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
+	calendarResults := util.GetCalendarData(r.Context(), user)
+
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -60,10 +63,13 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
+	calendarEvents := <-calendarResults
+
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "livesearch.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"SearchTitle": func() string {
 			return searchTitle(query, r, "title")
@@ -71,7 +77,10 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		"SearchHeader": func() string {
 			return searchTitle(query, r, "header")
 		},
-	}, lp, fp, favoriteButtonPartial, livesPartial)
+		"GetCalendarEvents": func() string {
+			return calendarEvents.ToDataMap()
+		},
+	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -171,16 +180,25 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
+	calendarResults := util.GetCalendarData(r.Context(), user)
+
 	lives, err := queries.GetUserFavoriteLives(r.Context(), user.ID)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
+	calendarEvents := <-calendarResults
+
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "favoritelives.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
 	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
-	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp, favoriteButtonPartial, livesPartial)
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
+		"GetCalendarEvents": func() string {
+			return calendarEvents.ToDataMap()
+		},
+	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -273,5 +291,92 @@ func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request,
 	}
 
 	w.Write([]byte("Successfully saved search for " + query.Artist))
+	return nil
+}
+
+func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
+		Id: int64(id),
+	}, user)
+	if err != nil || len(lives) != 1 {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	calendar, calendarProperties, err := calendar.InitializeCalendar(r.Context(), user.ID)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	lives[0].Venue.Name = i18nloader.GetLocalizer(r).Localize("livehouse." + lives[0].Venue.ID)
+	newLive, err := calendar.PostEvent(r.Context(), calendarProperties, user.ID, lives[0])
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	layout := filepath.Join("web", "template", "layout.gohtml")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{}, livePartial, favoriteButtonPartial, layout)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	err = tmpl.ExecuteTemplate(w, "live", newLive)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	return nil
+}
+
+func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	calendar, calendarProperties, err := calendar.InitializeCalendar(r.Context(), user.ID)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	err = calendar.DeleteEvent(r.Context(), calendarProperties, user.ID, int64(id))
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
+		Id: int64(id),
+	}, user)
+	if err != nil || len(lives) != 1 {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	layout := filepath.Join("web", "template", "layout.gohtml")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{}, livePartial, favoriteButtonPartial, layout)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	err = tmpl.ExecuteTemplate(w, "live", lives[0])
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
 	return nil
 }

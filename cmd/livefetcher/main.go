@@ -163,6 +163,10 @@ func startServer() {
 	router.Handle("/notification/{id}", router.Methods{
 		GET: endpoints.ShowNotification,
 	})
+	router.Handle("/calendarEvent/{id}", router.Methods{
+		POST:   endpoints.AddToCalendar,
+		DELETE: endpoints.RemoveFromCalendar,
+	})
 	router.Handle("/api/lives", router.Methods{
 		GET: endpoints.GetLives,
 	})
@@ -192,6 +196,12 @@ func startServer() {
 	})
 	router.Handle("/api/unfavorite", router.Methods{
 		POST: endpoints.Unfavorite,
+	})
+	router.Handle("/settings", router.Methods{
+		GET: endpoints.ShowSettings,
+	})
+	router.Handle("/authorizeGoogleCalendar", router.Methods{
+		GET: endpoints.AuthorizeGoogleCalendar,
 	})
 	router.Handle("/api/updateTestLive", router.Methods{
 		GET: func(au datastructures.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) *logging.StatusError {

@@ -1,6 +1,9 @@
 {{ define "lives" }}
   {{ if . }}
-    <ul class="live-list non-bullet-list">
+    <ul
+      class="live-list non-bullet-list"
+      x-data="{ calendarEvents : {{ GetCalendarEvents }} }"
+    >
       {{ range $live := . }}
         {{ template "live" $live }}
       {{ end }}
@@ -8,90 +11,4 @@
   {{ else }}
     <p>{{ T "live.no-lives-found" }}</p>
   {{ end }}
-{{ end }}
-
-{{ define "live" }}
-  <li class="live-entry">
-    <a class="live-main" href="{{ .URL }}" target="_blank">
-      {{ if .Desc }}
-        <div class="live-comment">
-          <span>{{ T "livelist.comment" }}</span>
-          <p>{{ .Desc }}</p>
-        </div>
-      {{ end }}
-      <h3>{{ .Title }}</h3>
-      <h4>{{ T "general.artists" }}</h4>
-      <ul class="live-artist-list non-bullet-list">
-        {{ range $artist := .Artists }}
-          <li class="live-artist">{{ $artist }}</li>
-        {{ end }}
-      </ul>
-      <div class="live-details">
-        <p>{{ T "util.open" "Open" (FormatDate .OpenTime) }}</p>
-        <p>{{ T "util.start" "Start" (FormatDate .StartTime) }}</p>
-        <p class="live-livehouse">{{ T (printf "livehouse.%s" .Venue.ID) }}</p>
-        <div class="location-wrapper">
-          {{ template "locationOn" }}
-          <span
-            >{{ T "util.prefecture-area" "Prefecture" (T (printf "prefecture.%s" .Venue.Area.Prefecture)) "Area" (T (printf "area.%s.%s" .Venue.Area.Prefecture .Venue.Area.Area)) }}</span
-          >
-        </div>
-      </div>
-    </a>
-    <div class="live-button-wrapper">
-      {{ template "favoriteButton" . }}
-      {{ template "livelistActionButton" . }}
-    </div>
-  </li>
-{{ end }}
-
-{{ define "livelistActionButton" }}
-  {{ $authUser := GetUser }}
-  {{ if and .LiveListOwnerID ( eq $authUser.ID .LiveListOwnerID ) }}
-    {{ template "removeFromListButton" . }}
-  {{ else }}
-    {{ template "addToListButton" . }}
-  {{ end }}
-{{ end }}
-
-{{ define "addToListButton" }}
-  <button
-    hx-target="#main-modal-inner"
-    hx-get="/modal/livelist"
-    @click="$refs.modalInner.innerHTML = ''; isModalOpen = true"
-    class="live-button"
-    name="liveid"
-    value="{{ .ID }}"
-    title="{{ T "live.add-to-livelist-label" }}"
-    aria-label="{{ T "live.add-to-livelist-label" }}"
-  >
-    {{ template "addToListIcon" }}
-  </button>
-{{ end }}
-
-{{ define "removeFromListButton" }}
-  <button
-    hx-target="closest .live-entry"
-    hx-swap="outerHTML"
-    hx-delete="/livelistlive/{{ .LiveListLiveID }}"
-    class="live-button"
-    title="{{ T "live.remove-from-livelist-label" }}"
-    aria-label="{{ T "live.remove-from-livelist-label" }}"
-  >
-    {{ template "removeFromListIcon" }}
-  </button>
-{{ end }}
-
-{{ define "removeFromListIcon" }}
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    height="24px"
-    viewBox="0 -960 960 960"
-    width="24px"
-    fill="#5f6368"
-  >
-    <path
-      d="M579.85-107.69 551.54-136l104-104-104-104 28.31-28.31 104 104 104-104 28.3 28.31-104 104 104 104-28.3 28.31-104-104-104 104ZM143.85-340v-40h280v40h-280Zm0-160v-40h440v40h-440Zm0-160v-40h440v40h-440Z"
-    />
-  </svg>
 {{ end }}

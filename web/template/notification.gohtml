@@ -21,40 +21,44 @@
   <table class="bottom-item">
     <tbody>
       {{ range $notificationField := .NotificationFields.Sort }}
-				{{ if not (eq $notificationField.Type 8) }}
-					<tr>
-						<td>{{ T $notificationField.Type.String }}</td>
-						<td>{{ $notificationField.NewValue }}</td>
-					</tr>
-				{{ else }}
-					<tr>
-						<td>{{ T $notificationField.Type.String }}</td>
-						<td>{{ template "artist-list" ParseSlice $notificationField.NewValue }}</td>
-					</tr>
-				{{ end }}
+        {{ if not (eq $notificationField.Type 8) }}
+          <tr>
+            <td>{{ T $notificationField.Type.String }}</td>
+            <td>{{ $notificationField.NewValue }}</td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td>{{ T $notificationField.Type.String }}</td>
+            <td>
+              {{ template "artist-list" ParseSlice $notificationField.NewValue }}
+            </td>
+          </tr>
+        {{ end }}
       {{ end }}
     </tbody>
   </table>
 {{ end }}
 
 {{ define "deleted-table" }}
-<table class="bottom-item">
-	<tbody>
-		{{ range $notificationField := .NotificationFields.Sort }}
-			{{ if not (eq $notificationField.Type 8) }}
-				<tr>
-					<td>{{ T $notificationField.Type.String }}</td>
-					<td class="old-table-data">{{ $notificationField.OldValue }}</td>
-				</tr>
-			{{ else }}
-				<tr>
-					<td>{{ T $notificationField.Type.String }}</td>
-					<td class="old-table-data">{{ template "artist-list" ParseSlice $notificationField.OldValue }}</td>
-				</tr>
-			{{ end }}
-		{{ end }}
-	</tbody>
-</table>
+  <table class="bottom-item">
+    <tbody>
+      {{ range $notificationField := .NotificationFields.Sort }}
+        {{ if not (eq $notificationField.Type 8) }}
+          <tr>
+            <td>{{ T $notificationField.Type.String }}</td>
+            <td class="old-table-data">{{ $notificationField.OldValue }}</td>
+          </tr>
+        {{ else }}
+          <tr>
+            <td>{{ T $notificationField.Type.String }}</td>
+            <td class="old-table-data">
+              {{ template "artist-list" ParseSlice $notificationField.OldValue }}
+            </td>
+          </tr>
+        {{ end }}
+      {{ end }}
+    </tbody>
+  </table>
 {{ end }}
 
 {{ define "edited-table" }}
@@ -81,11 +85,11 @@
 {{ end }}
 
 {{ define "artist-list" }}
-	<ul class="artist-list">
-		{{ range $line := . }}
-			<li>{{ $line }}</li>
-		{{ end }}
-	</ul>
+  <ul class="artist-list">
+    {{ range $line := . }}
+      <li>{{ $line }}</li>
+    {{ end }}
+  </ul>
 {{ end }}
 
 {{ define "artist-table-row" }}

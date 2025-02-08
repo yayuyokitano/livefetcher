@@ -28,8 +28,8 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 
 ### Search improvements
 - [x] implement search within distance from point
-- [ ] implement saved searches with notification functionality
-- [ ] add live to calendar (google calendar, maybe more)
+- [x] implement saved searches with notification functionality
+- [x] add live to calendar (google calendar, maybe more)
 - [x] bookmark lives
 - [x] bookmarked lives notifications
 - [x] add live lists
