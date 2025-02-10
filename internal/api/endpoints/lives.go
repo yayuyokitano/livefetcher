@@ -182,7 +182,9 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
-	lives, err := queries.GetUserFavoriteLives(r.Context(), user.ID)
+	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
+		UserFavoritesId: user.ID,
+	}, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

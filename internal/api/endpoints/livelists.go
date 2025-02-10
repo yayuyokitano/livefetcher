@@ -12,6 +12,7 @@ import (
 	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
@@ -125,11 +126,14 @@ func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
+	calendarResults := util.GetCalendarData(r.Context(), user)
+
 	livelist, err := queries.GetLiveList(r.Context(), int64(id), user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
+	calendarEvents := <-calendarResults
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "livelist.gohtml")
 	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
@@ -138,6 +142,9 @@ func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
+		"GetCalendarEvents": func() string {
+			return calendarEvents.ToDataMap()
+		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)

@@ -308,12 +308,6 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Li
 }
 
 func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64, added int64, modified int64, addedArtists int64, err error) {
-	tx, err := counters.FetchTransaction(ctx)
-	if err != nil {
-		return
-	}
-	defer counters.RollbackTransaction(ctx, tx)
-
 	venues := make([]datastructures.LiveHouse, 0)
 	for _, live := range lives {
 		venues = append(venues, live.Venue)
@@ -340,16 +334,26 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 			lastLive = live.StartTime
 		}
 	}
+
+	oldLives, err := GetLives(ctx, LiveQuery{
+		IncludeOldLives: true,
+		LiveHouses:      livehouses,
+	}, datastructures.AuthUser{})
+	if err != nil {
+		return
+	}
+
+	tx, err := counters.FetchTransaction(ctx)
+	if err != nil {
+		return
+	}
+	defer counters.RollbackTransaction(ctx, tx)
+
 	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1) AND starttime < NOW()", util.GetUniqueVenueIDs(venues))
 	if err != nil {
 		return
 	}
 	deleted += cmd.RowsAffected()
-
-	oldLives, err := getLiveHouseLives(ctx, tx, livehouses)
-	if err != nil {
-		return
-	}
 
 	artists, liveartists, editedLives, added, modified, d, err := updateAndAddLives(tx, ctx, lives, oldLives)
 	if err != nil {
@@ -406,11 +410,15 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 }
 
 type LiveQuery struct {
-	Areas  map[int]bool
-	Artist string
-	From   time.Time
-	To     time.Time
-	Id     int64
+	Areas           map[int]bool
+	Artist          string
+	From            time.Time
+	To              time.Time
+	Id              int64
+	IncludeOldLives bool
+	LiveHouses      []string
+	UserFavoritesId int64
+	LiveListId      int64
 }
 
 func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser) (lives []datastructures.Live, err error) {
@@ -420,21 +428,58 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
+	index := 0
+	whereUsed := false
+	incIndex := func() int {
+		index++
+		return index
+	}
+	args := []any{}
+
 	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id
+		SELECT live.id AS id, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id`
+	if query.LiveListId != 0 {
+		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
+	}
+
+	queryStr += `
 		FROM lives AS live
 		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
 		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
 		INNER JOIN areas area ON (area.id = livehouse.areas_id)
 		INNER JOIN artistaliases alias ON (alias.artists_name = liveartists.artists_name)
-		LEFT JOIN calendarevents event ON (event.lives_id = live.id)
-		WHERE starttime > NOW()`
-	args := []any{}
+		`
 
-	index := 0
-	incIndex := func() int {
-		index++
-		return index
+	if query.UserFavoritesId != 0 {
+		queryStr += `INNER JOIN userfavorites uf ON (uf.lives_id = live.id)
+		`
+	}
+
+	if query.LiveListId != 0 {
+		queryStr += `INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id AND livelistlive.livelists_id=$1)
+			INNER JOIN livelists livelist ON (livelistlive.livelists_id = livelist.id)
+		`
+		args = append(args, query.LiveListId)
+	}
+
+	queryStr += `LEFT JOIN calendarevents event ON (event.lives_id = live.id)`
+
+	addCondition := func(condition string, conditionArgs ...any) {
+		argInts := make([]any, 0)
+		args = append(args, conditionArgs...)
+		for i := 0; i < len(conditionArgs); i++ {
+			argInts = append(argInts, incIndex())
+		}
+		if !whereUsed {
+			queryStr += " WHERE " + fmt.Sprintf(condition, argInts...)
+			whereUsed = true
+		} else {
+			queryStr += " AND " + fmt.Sprintf(condition, argInts...)
+		}
+	}
+
+	if !query.IncludeOldLives {
+		addCondition("starttime > NOW()")
 	}
 
 	if len(query.Areas) != 0 {
@@ -444,40 +489,54 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 				areaArray = append(areaArray, area)
 			}
 		}
-		args = append(args, areaArray)
-		queryStr += fmt.Sprintf(" AND livehouse.areas_id = ANY($%d)", incIndex())
+		addCondition("livehouse.areas_id = ANY($%d)", areaArray)
 	}
 
 	if query.Artist != "" {
 		if query.Artist[0] == '"' && query.Artist[len(query.Artist)-1] == '"' {
-			args = append(args, query.Artist[1:len(query.Artist)-1])
+			addCondition("alias.alias ILIKE $%d", query.Artist[1:len(query.Artist)-1])
 		} else {
-			args = append(args, query.Artist+"%")
+			addCondition("alias.alias ILIKE $%d", query.Artist+"%")
 		}
-
-		queryStr += fmt.Sprintf(" AND alias.alias ILIKE $%d", incIndex())
 	}
 
 	if !query.From.IsZero() {
-		args = append(args, query.From)
-		queryStr += fmt.Sprintf(" AND live.starttime >= $%d", incIndex())
+		addCondition("live.starttime >= $%d", query.From)
 	}
 
 	if !query.To.IsZero() {
-		args = append(args, query.To)
-		queryStr += fmt.Sprintf(" AND live.starttime <= $%d", incIndex())
+		addCondition("live.starttime <= $%d", query.To)
 	}
 
 	if query.Id != 0 {
-		args = append(args, query.Id)
-		queryStr += fmt.Sprintf(" AND live.id = $%d", incIndex())
+		addCondition("live.id = $%d", query.Id)
+	}
+
+	if len(query.LiveHouses) != 0 {
+		addCondition("livehouses_id=ANY($%d)", query.LiveHouses)
+	}
+
+	if query.UserFavoritesId != 0 {
+		addCondition("uf.users_id=$%d", query.UserFavoritesId)
 	}
 
 	queryStr += `)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id`
+
+	if query.LiveListId != 0 {
+		queryStr += ", livelistlive_id, livelist_owner_id, live_description"
+	}
+
+	queryStr += `
 	FROM queriedlives
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id
+	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
+
+	if query.LiveListId != 0 {
+		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
+	}
+
+	queryStr += `
 	ORDER BY starttime`
 	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
@@ -486,7 +545,12 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	defer rows.Close()
 	for rows.Next() {
 		var l datastructures.Live
-		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId)
+		scans := make([]any, 0)
+		scans = append(scans, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId)
+		if query.LiveListId != 0 {
+			scans = append(scans, &l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc)
+		}
+		err = rows.Scan(scans...)
 		if err != nil {
 			return
 		}
@@ -506,36 +570,6 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	return
 }
 
-func getLiveHouseLives(ctx context.Context, tx pgx.Tx, livehouses []string) (lives []datastructures.Live, err error) {
-	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
-		FROM lives AS live
-		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
-		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
-		INNER JOIN areas area ON (area.id = livehouse.areas_id)
-		WHERE livehouses_id=ANY($1)
-	)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
-	FROM queriedlives
-	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
-	ORDER BY starttime`
-	rows, err := tx.Query(ctx, queryStr, livehouses)
-	if err != nil {
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var l datastructures.Live
-		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
-		if err != nil {
-			return
-		}
-		lives = append(lives, l)
-	}
-	return
-}
-
 func GetLiveFavoritedUsers(ctx context.Context, tx pgx.Tx, liveID int64) (userIDs []int64, err error) {
 	rows, err := tx.Query(ctx, "SELECT users_id FROM userfavorites WHERE lives_id = $1", liveID)
 	if err != nil {
@@ -550,53 +584,6 @@ func GetLiveFavoritedUsers(ctx context.Context, tx pgx.Tx, liveID int64) (userID
 		}
 		userIDs = append(userIDs, userID)
 	}
-	return
-}
-
-func GetUserFavoriteLives(ctx context.Context, userid int64) (lives []datastructures.Live, err error) {
-	tx, err := counters.FetchTransaction(ctx)
-	if err != nil {
-		return
-	}
-	defer counters.RollbackTransaction(ctx, tx)
-
-	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url
-		FROM lives AS live
-		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
-		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
-		INNER JOIN areas area ON (area.id = livehouse.areas_id)
-		INNER JOIN userfavorites uf ON (uf.lives_id = live.id)
-		WHERE uf.users_id=$1
-	)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
-	FROM queriedlives
-	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url
-	ORDER BY starttime`
-	rows, err := tx.Query(ctx, queryStr, userid)
-	if err != nil {
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var l datastructures.Live
-		err = rows.Scan(&l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL)
-		if err != nil {
-			return
-		}
-		lives = append(lives, l)
-	}
-	for i, l := range lives {
-		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, userid, l.ID)
-		if err == nil {
-			lives[i].FavoriteCount = int(favoriteCount)
-			lives[i].IsFavorited = isFavorited
-		}
-		err = nil
-	}
-
-	err = counters.CommitTransaction(ctx, tx)
 	return
 }
 
