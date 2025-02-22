@@ -13,11 +13,10 @@ func CreateWWWFetcher(
 ) Simple {
 	return Simple{
 		BaseURL:              "https://www-shibuya.jp/",
-		InitialURL:           "https://www-shibuya.jp/schedule/",
+		ShortYearIterableURL: "https://www-shibuya.jp/schedule/20%d%02d.php",
 		LiveSelector:         fmt.Sprintf("//div[@id='eventList']//article[%s]", articleCondition),
-		NextSelector:         "//ul[@class='navigation']/li[@class='next']/a",
 		ExpandedLiveSelector: "//a[@class='pageLink']",
-		TitleQuerier:         *htmlquerier.Q("//header//div[@class='event']/p"),
+		TitleQuerier:         *htmlquerier.QAll(`//*[self::h2[@class='title'] or self::p[@class='exp']]`).FilterTitle(" / ", 1),
 		ArtistsQuerier:       *htmlquerier.QAll("//dt[text()='LINE UP']/following-sibling::dd/a | //dt[text()='LINE UP']/following-sibling::dd/text()").ReplaceAllRegex(`^｜.*｜$`, "").ReplaceAllRegex("^◾️WWW(.*)", ""),
 		PriceQuerier:         *htmlquerier.Q("//dt[text()='ADV./DOOR']/following-sibling::dd"),
 
@@ -197,6 +196,40 @@ func CreateDaisyBarFetcher(
 	prefecture string,
 	area string,
 	venue string,
+	testInfo TestInfo,
+) Simple {
+	return Simple{
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: shortYearIterableURL,
+		LiveSelector:         "//article[@class='schedule-ticket']",
+		TitleQuerier:         *htmlquerier.Q("//h2"),
+		ArtistsQuerier:       *htmlquerier.Q("//p[@class='artist']").Split("／").Split(" ゲスト:").Before("【ONE MAN】"),
+		PriceQuerier:         *htmlquerier.QAll("//div[@class='schedule-list-content_mid']/div[position()=3 or position()=4]").Join(" / ").ReplaceAllRegex(`\s+`, " "),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//span[@class='year']"),
+			MonthQuerier:     *htmlquerier.Q("//span[@class='month']"),
+			DayQuerier:       *htmlquerier.Q("//span[@class='day']"),
+			OpenTimeQuerier:  *htmlquerier.Q("//div[@class='schedule-list-content_mid']/div[1]"),
+			StartTimeQuerier: *htmlquerier.Q("//div[@class='schedule-list-content_mid']/div[2]"),
+		},
+
+		PrefectureName: prefecture,
+		AreaName:       area,
+		VenueID:        venue,
+		Latitude:       35.659562,
+		Longitude:      139.668063,
+
+		TestInfo: testInfo,
+	}
+}
+
+func CreateOldDaisyBarFetcher(
+	baseUrl string,
+	shortYearIterableURL string,
+	prefecture string,
+	area string,
+	venue string,
 	yearColor string,
 	testInfo TestInfo,
 ) Simple {
@@ -264,7 +297,16 @@ func CreateBassOnTopFetcher(
 		Latitude:       latitude,
 		Longitude:      longitude,
 
-		TestInfo: testInfo,
+		TestInfo: TestInfo{
+			NumberOfLives:         testInfo.NumberOfLives,
+			FirstLiveTitle:        testInfo.FirstLiveTitle,
+			FirstLiveArtists:      testInfo.FirstLiveArtists,
+			FirstLivePrice:        testInfo.FirstLivePrice,
+			FirstLivePriceEnglish: testInfo.FirstLivePriceEnglish,
+			FirstLiveOpenTime:     testInfo.FirstLiveOpenTime,
+			FirstLiveStartTime:    testInfo.FirstLiveStartTime,
+			SkipOfflineTest:       true,
+		},
 	}
 }
 
@@ -305,6 +347,43 @@ func CreateCycloneFetcher(
 }
 
 func CreateLoftFetcher(
+	baseUrl string,
+	shortYearIterableURL string,
+	prefecture string,
+	area string,
+	venue string,
+	testInfo TestInfo,
+	latitude float64,
+	longitude float64,
+) Simple {
+	return Simple{
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: shortYearIterableURL,
+		LiveSelector:         "//section[contains(@class, 'block_schedule_list')]/div/div[contains(@class, 'list')]/div",
+		TitleQuerier:         *htmlquerier.Q("//h1").CutWrapper("『", "』"),
+		ArtistsQuerier:       *htmlquerier.QAll("//div[contains(@class, 'entry')]/p").SplitIgnoreWithin("(\n)|( / )", '（', '）'),
+		PriceQuerier:         *htmlquerier.Q("//dd[contains(@class, 'ticket_detail_box')]/text()[1]"),
+		ExpandedLiveSelector: "//a[contains(@class, 'js-cursor-elm')]",
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//nav[contains(@class, 'navi_month')]//div[contains(@class, 'year')]"),
+			MonthQuerier:     *htmlquerier.Q("//nav[contains(@class, 'navi_month')]//div[contains(@class, 'month')]/text()[1]"),
+			DayQuerier:       *htmlquerier.Q("//time/div[contains(@class, 'day')]"),
+			OpenTimeQuerier:  *htmlquerier.Q("//div[contains(@class, 'open')]"),
+			StartTimeQuerier: *htmlquerier.Q("//div[contains(@class, 'open')]").After("START"),
+		},
+
+		PrefectureName: prefecture,
+		AreaName:       area,
+		VenueID:        venue,
+		Latitude:       latitude,
+		Longitude:      longitude,
+
+		TestInfo: testInfo,
+	}
+}
+
+func CreateOldLoftFetcher(
 	baseUrl string,
 	shortYearIterableURL string,
 	prefecture string,

@@ -334,6 +334,7 @@ var ShinsaibashiHillsPanFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 6, 14, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 6, 14, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://livehillspankojyo.com/detail.cgi?code=naPZtnvX",
+		SkipOfflineTest:       true,
 	},
 }
 
@@ -440,7 +441,7 @@ var ShinsaibashiKanonFetcher = fetchers.Simple{
 	InitialURL:           fmt.Sprintf("https://kanon-art.jp/wp-admin/admin-ajax.php?action=get_events_ajax&security=%s", shinsaibashiKanonGetSecurity()),
 	LiveSelector:         "//div[@id='event_archive_list']/article",
 	ExpandedLiveSelector: "//a",
-	TitleQuerier:         *htmlquerier.Q("//h2[@id='event_title']"),
+	TitleQuerier:         *htmlquerier.Q("//h1[@id='event_title']"),
 	ArtistsQuerier:       *htmlquerier.Q("//div[@id='spec_field']//text()[contains(., '出演： ')]").After("出演： ").Split("、"),
 	DetailQuerier:        *htmlquerier.Q("//div[@id='spec_field']"),
 
@@ -468,6 +469,7 @@ var ShinsaibashiKanonFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 3, 16, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 16, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://kanon-art.jp/schedule/20240316/",
+		SkipOfflineTest:       true,
 	},
 }
 
@@ -639,7 +641,7 @@ var ShinsaibashiKurageFetcher = fetchers.Simple{
 	},
 }
 
-var ShinsaibashiLoftPlusOneWestFetcher = fetchers.CreateLoftFetcher(
+var ShinsaibashiLoftPlusOneWestFetcher = fetchers.CreateOldLoftFetcher(
 	"https://www.loft-prj.co.jp/",
 	"https://www.loft-prj.co.jp/schedule/west/date/20%d/%02d",
 	"osaka",
@@ -852,6 +854,7 @@ var ShinsaibashiQupeFetcher = fetchers.Simple{
 	Longitude:      135.495938,
 
 	TestInfo: fetchers.TestInfo{
+		IgnoreTest:            true, // TEMPORARY: site is down for maintenance
 		NumberOfLives:         2,
 		FirstLiveTitle:        "ONE SHOT‼︎",
 		FirstLiveArtists:      []string{"JUU(Section U.G）", "カッチョ (Xmas Eileen)", "Shige-Bitch (HARVEST)", "ナオミチ（KNOCK OUT MONKEY）", "kimists (THE GAME SHOP)", "Da!sK (OXYMORPHONN)", "tAiki", "爆裂", "RiKU(Junk Story)", "大和 (I CRY RED)"},
@@ -860,6 +863,7 @@ var ShinsaibashiQupeFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2024, 3, 15, 23, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 15, 23, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.skqupe.com/live/22009bd7-c3de-4f00-be81-bc29b8780d4c",
+		SkipOfflineTest:       true,
 	},
 }
 

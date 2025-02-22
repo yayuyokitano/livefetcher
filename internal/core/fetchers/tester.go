@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	"golang.org/x/net/html"
 )
 
@@ -37,7 +38,11 @@ func (s *Simple) getCurrentShortURL() string {
 	}
 }
 
-func (s *Simple) Test(t *testing.T) {
+func (s *Simple) Test(t *testing.T, errorCreator *util.ConnectorTestErrorCreator) {
+	if s.TestInfo.IgnoreTest {
+		return
+	}
+
 	var n *html.Node
 	var err error
 	var testDocument []byte
@@ -47,14 +52,14 @@ func (s *Simple) Test(t *testing.T) {
 		path := fmt.Sprintf("../../../test/%s/%s/%s.html", s.PrefectureName, s.AreaName, s.VenueID)
 		n, err = htmlquery.LoadDoc(path)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 	} else {
 		path := fmt.Sprintf("../../../test/%s/%s/%s.txt", s.PrefectureName, s.AreaName, s.VenueID)
 		testDocument, err = os.ReadFile(path)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 	}
@@ -62,21 +67,22 @@ func (s *Simple) Test(t *testing.T) {
 	if s.InitialURL != "" && s.NextSelector != "" {
 		err = s.testStaticLive(n, s.InitialURL, nil)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 
 		err = s.testHasNextURL(n)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 
 		err = s.testRemoteInitialNext()
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
+		errorCreator.Succeed()
 		return
 	}
 
@@ -85,46 +91,49 @@ func (s *Simple) Test(t *testing.T) {
 
 		err = s.testStaticLive(n, url, nil)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 
 		err = s.testRemoteShortYearIterable(url)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 		}
+		errorCreator.Succeed()
 		return
 	}
 
 	if s.InitialURL != "" {
 		err = s.testStaticLive(n, s.InitialURL, nil)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 
 		err = s.testRemoteShortYearIterable(s.InitialURL)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 		}
+		errorCreator.Succeed()
 		return
 	}
 
 	if s.LiveHTMLFetcher != nil {
 		err = s.testStaticLive(nil, s.BaseURL, testDocument)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 			return
 		}
 
 		err = s.testNotEmpty(nil, s.BaseURL)
 		if err != nil {
-			t.Error(err)
+			errorCreator.Error(err)
 		}
+		errorCreator.Succeed()
 		return
 	}
 
-	t.Error("no appropriate fetching mechanism detected")
+	errorCreator.Error("no appropriate fetching mechanism detected")
 }
 
 func (s *Simple) testRemoteShortYearIterable(url string) (err error) {
@@ -170,12 +179,17 @@ func (s *Simple) testHasNextURL(n *html.Node) (err error) {
 }
 
 func (s *Simple) testStaticLive(n *html.Node, path string, testDocument []byte) (err error) {
+	if s.TestInfo.SkipOfflineTest {
+		return
+	}
+
 	var pathURL *url.URL
 	pathURL, err = url.Parse(path)
 	if err != nil {
 		return
 	}
 	l, err := s.fetchLives(n, pathURL, testDocument)
+
 	if err != nil {
 		return
 	}

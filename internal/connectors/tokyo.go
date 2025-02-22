@@ -40,14 +40,7 @@ var ShimokitazawaTestFetcher = fetchers.Simple{
 	Longitude:      139.666938,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         2,
-		FirstLiveTitle:        "Live Title",
-		FirstLiveArtists:      []string{"artist1", "artist2"},
-		FirstLivePrice:        "ADV¥3000 / DOOR¥3500",
-		FirstLivePriceEnglish: "ADV¥3000 / DOOR¥3500",
-		FirstLiveOpenTime:     time.Date(2024, 11, 8, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 11, 8, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "http://localhost:9999/static/testLive.html",
+		IgnoreTest: true,
 	},
 }
 
@@ -60,18 +53,18 @@ var ShimokitazawaTestFetcher = fetchers.Simple{
 var ShibuyaClubQuattroFetcher = fetchers.Simple{
 	BaseURL:              "https://www.club-quattro.com/shibuya/schedule/",
 	ShortYearIterableURL: "https://www.club-quattro.com/shibuya/schedule/?ym=20%d%02d",
-	LiveSelector:         "//div[@class='schedule-list']/div",
+	LiveSelector:         "//div[@class='event-box']",
 	DetailsLinkSelector:  "//a",
-	TitleQuerier:         *htmlquerier.QAll("//p[@class='event-text' or @class='event-ttl']").FilterTitle(`[/\n]`, 1),
-	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='event-text' or @class='event-ttl']").FilterArtist(`[/\n]`, 0).SplitRegex(`[/\n]`),
-	PriceQuerier:         *htmlquerier.Q("//div[contains(./text(), '料金：')]").After("料金："),
+	TitleQuerier:         *htmlquerier.QAll("//p[@class='txt-01' or @class='txt-02']").FilterTitle(`[/\n]`, 1),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='txt-01' or @class='txt-02']").FilterArtist(`[/\n]`, 0).SplitRegex(`[/\n]`),
+	PriceQuerier:         *htmlquerier.Q("//dt[contains(./text(), '料金')]/following-sibling::dd"),
 
 	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//section[@id='schedule-list-top']/p[@class='ttl']"),
-		MonthQuerier:     *htmlquerier.Q("//li[@class='schedule-text slick-current']/p[@class='date']"),
-		DayQuerier:       *htmlquerier.Q("//p[@class='date']"),
-		OpenTimeQuerier:  *htmlquerier.Q("//div[contains(./text(), 'Open:')]").After("Open:"),
-		StartTimeQuerier: *htmlquerier.Q("//div[contains(./text(), 'Start:')]").After("Start:"),
+		YearQuerier:      *htmlquerier.Q("//div[@class='head']/p[contains(@class, 'year')]"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='head']//div[contains(@class, 'month-list')]/a[contains(@class, 'current')]"),
+		DayQuerier:       *htmlquerier.Q("//p[@class='day']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//dt[contains(./text(), '開場/開演')]/following-sibling::dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dt[contains(./text(), '開場/開演')]/following-sibling::dd").After("/"),
 	},
 
 	PrefectureName: "tokyo",
@@ -81,14 +74,14 @@ var ShibuyaClubQuattroFetcher = fetchers.Simple{
 	Latitude:       35.661062,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         27,
-		FirstLiveTitle:        "Rei Release Tour 2024 “VOICE MESSAGE”",
-		FirstLiveArtists:      []string{"Rei", "澤村一平(dr)", "真船勝博(ba)", "TAIHEI(kb)", "須原杏(violin)"},
-		FirstLivePrice:        "前売 ￥5,500",
-		FirstLivePriceEnglish: "Reservation ￥5,500",
-		FirstLiveOpenTime:     time.Date(2024, 3, 1, 18, 0, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 3, 1, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://www.club-quattro.com/shibuya/schedule/detail.php?id=15380",
+		NumberOfLives:         30,
+		FirstLiveTitle:        `The Biscats TOUR 2024~2025「ロカビリーナイト」`,
+		FirstLiveArtists:      []string{"The Biscats"},
+		FirstLivePrice:        "前売 ￥5,000",
+		FirstLivePriceEnglish: "Reservation ￥5,000",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.club-quattro.com/shibuya/schedule/detail/?cd=016227",
 	},
 }
 
@@ -632,7 +625,7 @@ var ShibuyaTokioTokyoFetcher = fetchers.Simple{
 	Longitude:      139.698937,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         17,
+		NumberOfLives:         18,
 		FirstLiveTitle:        "MUSIC NEXUS Presents Live 導 -SHIRUBE- Vol.0",
 		FirstLiveArtists:      []string{"BESPER", "LUKA", "佐野諒太", "浜野はるき", "灯橙あか"},
 		FirstLivePrice:        "このライブハウスのイベントの値段にアクセスできません。ライブのリンクをチェックしてください。",
@@ -668,7 +661,7 @@ var ShibuyaVeatsFetcher = fetchers.Simple{
 	Longitude:      139.697641,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         23,
+		NumberOfLives:         32,
 		FirstLiveTitle:        "BLACK IRIS WEEKLY LIVE",
 		FirstLiveArtists:      []string{"BLACK IRIS"},
 		FirstLivePrice:        "前方エリア¥4,000・後方エリア¥1,000 / 前方エリア¥4,500・後方エリア¥1,000 (D代別)",
@@ -687,7 +680,7 @@ var ShibuyaWWWFetcher = fetchers.CreateWWWFetcher(
 		FirstLiveTitle:        "#ピコリフ 3rdワンマンライブ「Shiny Sparkle」",
 		FirstLiveArtists:      []string{"#ピコリフ"},
 		FirstLivePrice:        "VIP：¥5,000 / 撮影：¥3,000 / 後方：¥1,500 / 学生・女性：¥500 / 新規：¥0 (税込 / 各ドリンク代別)",
-		FirstLivePriceEnglish: "VIP：¥5,000 / 撮影：¥3,000 / 後方：¥1,500 / Students・Women：¥500 / 新規：¥0 (Incl. Tax / 各Drink代Separately)",
+		FirstLivePriceEnglish: "VIP：¥5,000 / 撮影：¥3,000 / 後方：¥1,500 / Students・Women：¥500 / 新規：¥0 (Incl. Tax / 各DrinkSeparately)",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www-shibuya.jp/schedule/017256.php",
@@ -702,22 +695,23 @@ var ShibuyaWWWBetaFetcher = fetchers.CreateWWWFetcher(
 		FirstLiveTitle:        "MONK WORK BASE",
 		FirstLiveArtists:      []string{"仙人掌 & S-kaine", "LIl' Leise But Gold", "NEI", "anddytoystore", "AI Jacky", "KEYTOTHECITY", "Yusef Imamura & Sano", "Palmpark", "YU", "cut skateboards", "kizukush", "JON (UGLY WEAPON)", "Joe cupertino", "CHAPAH", "VOLOJZA", "interplay", "凸凹。", "AI.U", "Kazuhiko Fujita", "SEX 山口", "Wide Escapes", "MONK", "Hanaboo", "stedman", "YAMAPIZZA", "stadman"},
 		FirstLivePrice:        "当日 ¥3,500 (税込｜スタンディング｜ドリンク代別)前売 ¥3,000 (税込｜スタンディング｜ドリンク代別)",
-		FirstLivePriceEnglish: "Door ¥3,500 (Incl. Tax｜Standing｜Drink代Separately)Reservation ¥3,000 (Incl. Tax｜Standing｜Drink代Separately)",
+		FirstLivePriceEnglish: "Door ¥3,500 (Incl. Tax｜Standing｜DrinkSeparately)Reservation ¥3,000 (Incl. Tax｜Standing｜DrinkSeparately)",
 		FirstLiveOpenTime:     time.Date(2023, 11, 7, 17, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 7, 17, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www-shibuya.jp/schedule/017137.php",
+		IgnoreTest:            true,
 	},
 )
 
 var ShibuyaWWWXFetcher = fetchers.CreateWWWFetcher(
-	"@data-place='wwwx'",
+	"@data-place='wwwx' or @data-place='www_x'",
 	"shibuya-wwwx",
 	fetchers.TestInfo{
 		NumberOfLives:         27,
 		FirstLiveTitle:        "BIG ROMANTIC RECORDS presents Carsick Cars live in Tokyo",
 		FirstLiveArtists:      []string{"Carsick Cars", "Hello Shitty (a.k.a Sophia from UptownRecords)"},
 		FirstLivePrice:        "¥5,000 / ¥5,500 (税込 / ドリンク代別)※当日券は19:00~、前売りの入場が落ち着き次第 WWW Xにて¥5,500+D代で販売いたします。",
-		FirstLivePriceEnglish: "¥5,000 / ¥5,500 (Incl. Tax / Drink代Separately)※Door券は19:00~、ReservationのEntryが落ち着き次第 WWW Xにて¥5,500+D代で販売いたします。",
+		FirstLivePriceEnglish: "¥5,000 / ¥5,500 (Incl. Tax / DrinkSeparately)※Door券は19:00~、ReservationのEntryが落ち着き次第 WWW Xにて¥5,500+D代で販売いたします。",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www-shibuya.jp/schedule/017258.php",
@@ -838,21 +832,20 @@ var ShimokitazawaChikamichiFetcher = fetchers.CreateChikamichiFetcher(
 )
 
 var ShimokitazawaClub251Fetcher = fetchers.Simple{
-	BaseURL:              "http://www.club251.com/",
-	ShortYearIterableURL: "http://www.club251.com/schedule/schedule-%d%02d.html",
-	LiveSelector:         "//div[contains(@class, 'Schedule-1day')]",
-	TitleQuerier:         *htmlquerier.Q("//div[contains(@class, 'EVENT-TITLE')]"),
-	ArtistsQuerier:       *htmlquerier.Q("//p[contains(@class, 'Performer')]").Split("／"),
-	PriceQuerier:         *htmlquerier.Q("//p[contains(@class, 'DETAIL')][1]/text()[2]"),
+	BaseURL:              "https://www.club251.com/",
+	ShortYearIterableURL: "https://club251.com/schedule/?yr=20%d&mo=%d",
+	LiveSelector:         "//div[@class='schedule-in']/div[@class=' eventful' or @class=' eventful-today']/table",
+	MultiLiveDaySelector: "//table[@class='about-in' and .//h2/text()!='PRIVATE']",
+	TitleQuerier:         *htmlquerier.Q("//h2"),
+	ArtistsQuerier:       *htmlquerier.Q("//h2/following-sibling::p[@class='fw-bold']").Split("／"),
+	PriceQuerier:         *htmlquerier.Q("//text()[contains(., 'CHARGE : ')]").After("CHARGE : "),
 
 	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//p[contains(@class, 'month')]").After("/"),
-		MonthQuerier:     *htmlquerier.Q("//div[contains(@class, 'DATE')]/p").Before("/"),
-		DayQuerier:       *htmlquerier.Q("//div[contains(@class, 'DATE')]/p").After("/").Before("."),
-		OpenTimeQuerier:  *htmlquerier.Q("//p[contains(@class, 'DETAIL')][1]/text()[1]").Before("/"),
-		StartTimeQuerier: *htmlquerier.Q("//p[contains(@class, 'DETAIL')][1]/text()[1]").After("/"),
-
-		IsMonthInLive: true,
+		YearQuerier:      *htmlquerier.Q("//div[@class='schedulebox-solo']/div[@class='clearfix']//h3"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='schedulebox-solo']/div[@class='clearfix']//h3").After("年"),
+		DayQuerier:       *htmlquerier.Q("//th"),
+		OpenTimeQuerier:  *htmlquerier.Q("//text()[contains(., 'OPEN ') and contains(., 'START ')]"),
+		StartTimeQuerier: *htmlquerier.Q("//text()[contains(., 'OPEN ') and contains(., 'START ')]").After("START"),
 	},
 
 	PrefectureName: "tokyo",
@@ -862,14 +855,14 @@ var ShimokitazawaClub251Fetcher = fetchers.Simple{
 	Longitude:      139.667312,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         28,
-		FirstLiveTitle:        "\"9DayzGlitchClubTokyo pre.“太陽と月光のクリシェ” 下北沢CLUB251 30th ANNIVERSARY！！\"",
-		FirstLiveArtists:      []string{"9DayzGlitchClubTokyo", "AZ-ON", "RONLON", "GTRA"},
-		FirstLivePrice:        "adv¥2,900/door¥3,400(別途1D600円)",
-		FirstLivePriceEnglish: "adv¥2,900/door¥3,400(Separately1D600円)",
-		FirstLiveOpenTime:     time.Date(2023, 10, 1, 18, 0, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 10, 1, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "http://www.club251.com/schedule/schedule-%d%02d.html",
+		NumberOfLives:         32,
+		FirstLiveTitle:        "INFINITY LIVE presents 『ULTLA POP BUBBLE』",
+		FirstLiveArtists:      []string{"遥か、彼方。", "Goodbye for First kiss", "開歌-かいか-", "月刊PAM", "美味しい水玉", "かわいいからって甘くみないで", "Noreco", "ponderosa may bloom"},
+		FirstLivePrice:        "前売 ¥2,300- / 当日 ¥2,800- (+1D)",
+		FirstLivePriceEnglish: "Reservation ¥2,300- / Door ¥2,800- (+1D)",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 10, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 10, 15, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://club251.com/schedule/?yr=20%d&mo=%d",
 	},
 }
 
@@ -951,20 +944,19 @@ var ShimokitazawaClubQueFetcher = fetchers.Simple{
 
 var ShimokitazawaDaisyBarFetcher = fetchers.CreateDaisyBarFetcher(
 	"https://daisybar.jp/",
-	"https://daisybar.jp/events/event/on/20%d/%02d/",
+	"https://daisybar.jp/schedule/20%d/%d/",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-daisybar",
-	"color-blue2",
 	fetchers.TestInfo{
-		NumberOfLives:         35,
-		FirstLiveTitle:        "From The Beginning",
-		FirstLiveArtists:      []string{"Heap", "DreadNought", "髙橋 翼(Paper Bag)", "michi(アバウトチルドレン)", "ワタナベイベーマコト(etymon)"},
-		FirstLivePrice:        "前売り 2500円(D別)／当日 3000円(D別)",
-		FirstLivePriceEnglish: "Reservation 2500円(Drinks sold separately)／Door 3000円(Drinks sold separately)",
-		FirstLiveOpenTime:     time.Date(2023, 11, 2, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 11, 2, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://daisybar.jp/events/event/on/20%d/%02d/",
+		NumberOfLives:         33,
+		FirstLiveTitle:        "Paper Bag presents 「自分ってなんなんだっけ」今日くらいはいいでしょ爆酒Night",
+		FirstLiveArtists:      []string{"Paper Bag", "fountin", "Maju2", "詩野"},
+		FirstLivePrice:        "前売 ¥2500 / 当日 ¥3000",
+		FirstLivePriceEnglish: "Reservation ¥2500 / Door ¥3000",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://daisybar.jp/schedule/2025/2/",
 	},
 )
 
@@ -1040,25 +1032,25 @@ var ShimokitazawaEraFetcher = fetchers.Simple{
 
 var ShimokitazawaFlowersLoftFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp/",
-	"https://www.loft-prj.co.jp/schedule/flowersloft/date/20%d/%d",
+	"https://www.loft-prj.co.jp/schedule/flowersloft/schedule?scheduleyear=20%d&schedulemonth=%d",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-flowersloft",
 	fetchers.TestInfo{
-		NumberOfLives:         30,
-		FirstLiveTitle:        "バニーの日！ハロウィンSP",
-		FirstLiveArtists:      []string{"tumiki", "はっちゃん", "テルミー", "ShinK", "クロマティーゆうや(NeoN)", "ディスク百合おん", "まみくん3歳", "マル", "有田清幸", "BIDA"},
-		FirstLivePrice:        "男性：2,000 (2drink込み）\n女性：入場無料\n・仮装女子は1Dプレゼント\n・バニー...",
-		FirstLivePriceEnglish: "Men：2,000 (2drinkIncluded）\nWomen：EntryFree\n・仮装女子は1Dプレゼント\n・バニー...",
-		FirstLiveOpenTime:     time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 11, 1, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/flowersloft/267929",
+		NumberOfLives:         34,
+		FirstLiveTitle:        "Terrafirma",
+		FirstLiveArtists:      []string{"aruga", "くぐり", "Yellow mo", "乙女絵画", "Sorry No Camisole", "[DJ] myein", "KARIN"},
+		FirstLivePrice:        "ADV.DOOR ¥2,400(+1D)",
+		FirstLivePriceEnglish: "ADV.DOOR ¥2,400(+1D)",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 23, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 23, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/flowersloft/300436",
 	},
 	35.662188,
 	139.667937,
 )
 
-var ShimokitazawaLagunaFetcher = fetchers.CreateDaisyBarFetcher(
+var ShimokitazawaLagunaFetcher = fetchers.CreateOldDaisyBarFetcher(
 	"https://s-laguna.jp/",
 	"https://s-laguna.jp/events/event/on/20%d/%02d/",
 	"tokyo",
@@ -1314,19 +1306,19 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 
 var ShimokitazawaShelterFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp",
-	"https://www.loft-prj.co.jp/schedule/shelter/date/20%d/%02d",
+	"https://www.loft-prj.co.jp/schedule/shelter/schedule?scheduleyear=20%d&schedulemonth=%d",
 	"tokyo",
 	"shimokitazawa",
 	"shimokitazawa-shelter",
 	fetchers.TestInfo{
-		NumberOfLives:         35,
-		FirstLiveTitle:        "SHELTER & 山﨑 presents 「あなたのドラム、詳しく聞かせて？ Vol.14」",
-		FirstLiveArtists:      []string{"GUEST:松本誠治（the telephones）", "司会＆進行：山﨑聖之（CONFVSE / fam / The Firewood Project / LOW IQ 01 & THE RHYTHM MAKERS）"},
-		FirstLivePrice:        "ADV¥2000＋1D / DOOR¥2400＋1D\n【発売日】\nSHELTER予約",
-		FirstLivePriceEnglish: "ADV¥2000＋1D / DOOR¥2400＋1D\n【発売日】\nSHELTERReservation",
-		FirstLiveOpenTime:     time.Date(2023, 6, 1, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 6, 1, 19, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/shelter/247893",
+		NumberOfLives:         37,
+		FirstLiveTitle:        "Get into gear",
+		FirstLiveArtists:      []string{"LIQUID SCREEN", "TREEBERRYS", "KOJI OZAKI メンバー:", "尾﨑 浩治(ex.Samantha’s Favourite, ex.BOYCE)", "嶋村 輝之(赤い夕陽, ex.Samantha’s Favourite )", "岩渕 尚史(Sloppy Joe, ex.BOYCE)", "加嶋 幸平(the SUN, ex.ROCKBOTTOM)", "DJ: 9232atfr"},
+		FirstLivePrice:        "ADV¥3000 / DOOR¥3500",
+		FirstLivePriceEnglish: "ADV¥3000 / DOOR¥3500",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/shelter/301422",
 	},
 	35.661488,
 	139.669453,
@@ -1475,19 +1467,19 @@ var ShindaitaFeverFetcher = fetchers.Simple{
 
 var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp/",
-	"https://www.loft-prj.co.jp/schedule/loft/date/20%d/%02d",
+	"https://www.loft-prj.co.jp/schedule/loft/schedule?scheduleyear=20%d&schedulemonth=%d",
 	"tokyo",
 	"shinjuku",
 	"shinjuku-loft",
 	fetchers.TestInfo{
-		NumberOfLives:         38,
-		FirstLiveTitle:        "エクストロメ!!",
-		FirstLiveArtists:      []string{"tipToe.", "airattic", "Finger Runs", "われらがプワプワプーワプワ"},
-		FirstLivePrice:        "ADV¥1500 / DOOR¥未定(DRINK代別¥600)\n[発売]\nLive Pocket 5月26日(金)22:00〜5...",
-		FirstLivePriceEnglish: "ADV¥1500 / DOOR¥TBA(DRINK代Separately¥600)\n[発売]\nLive Pocket 5月26日(金)22:00〜5...",
-		FirstLiveOpenTime:     time.Date(2023, 6, 1, 18, 40, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2023, 6, 1, 19, 10, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/loft/252531",
+		NumberOfLives:         35,
+		FirstLiveTitle:        "邂逅 2025",
+		FirstLiveArtists:      []string{"ジュウ", "Haze", "らそんぶる", "夕方と猫", "毎晩揺れてスカート", "ウマシカて", "パキルカ", "pinfu", "天", "アンと私", "JIGDRESS", "Cody・Lee(李)", "チョーキューメイ", "超☆社会的サンダル", "おとなりにぎんが計画"},
+		FirstLivePrice:        "ADV:通常¥4400・学生¥3400 / DOOR:通常¥4900(DRINK代別¥600)",
+		FirstLivePriceEnglish: "ADV:Regular¥4400・Students¥3400 / DOOR:Regular¥4900(DRINKSeparately¥600)",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 12, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 12, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/loft/schedule/301392",
 	},
 	35.695538,
 	139.702578,

@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"testing"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
@@ -183,6 +184,7 @@ var bannedSubstrings = []string{
 	"【food】",
 	"出演者",
 	"and more.",
+	"【最終】",
 }
 
 var bannedRegexes = []string{
@@ -195,6 +197,7 @@ var bannedRegexes = []string{
 	`start.*open`,                 // labels
 	`\d{2}[/. ]\s*\d{2}[/. ]`,     // date
 	`\d{2}[/. ]\s*\d{2}\s*\(.*\)`, // date
+	`【第.弾】`,                       // part
 }
 
 var removable = []string{
@@ -446,4 +449,58 @@ func GetCalendarData(ctx context.Context, user datastructures.AuthUser) chan dat
 		}()
 	}
 	return calendarResults
+}
+
+type ConnectorTestResult struct {
+	Name string
+	Err  string
+}
+
+type ConnectorTestResults []ConnectorTestResult
+
+func (testResults ConnectorTestResults) String() string {
+	testsRan := len(testResults)
+	testsFailed := 0
+	body := "\n"
+	for _, t := range testResults {
+		if t.Err == "" {
+			continue
+		}
+
+		body += t.Name + ": " + t.Err + "\n───────────────────────────────────────────────────────────────\n"
+		testsFailed++
+	}
+
+	testSummary := fmt.Sprintf("Test Summary:\nTests Failed: %d/%d\nDetails:\n", testsFailed, testsRan)
+	return testSummary + body
+}
+
+type ConnectorTestErrorCreator struct {
+	T    *testing.T
+	Chan chan ConnectorTestResult
+	Name string
+}
+
+func (c ConnectorTestErrorCreator) Error(err any) {
+	c.T.Helper()
+	c.Chan <- ConnectorTestResult{
+		Name: c.Name,
+		Err:  fmt.Sprint(err),
+	}
+	c.T.Error(err)
+}
+
+func (c ConnectorTestErrorCreator) Errorf(format string, args ...any) {
+	c.T.Helper()
+	c.Chan <- ConnectorTestResult{
+		Name: c.Name,
+		Err:  fmt.Sprintf(format, args...),
+	}
+	c.T.Errorf(format, args...)
+}
+
+func (c ConnectorTestErrorCreator) Succeed() {
+	c.Chan <- ConnectorTestResult{
+		Name: c.Name,
+	}
 }

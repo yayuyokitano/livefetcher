@@ -85,6 +85,14 @@ type TestInfo struct {
 	//
 	// TODO: Find a better way to handle this.
 	KnownEmpty bool
+
+	// Skips the offline tests and only checks online test
+	// Some live houses have external links that die once a live passes, making testing it offline annoying.
+	// TODO: Find a better way to handle this
+	SkipOfflineTest bool
+
+	// Ignores testing this connector, only use for test connector
+	IgnoreTest bool
 }
 
 // Simple is the basic fetcher, which currently all fetchers base themselves off of.

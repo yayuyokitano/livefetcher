@@ -59,6 +59,7 @@ func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(price, "無制限飲み放題", "Unlimited drinks")
 	price = strings.ReplaceAll(price, "飲み放題", "All-you-can-drink")
 	price = strings.ReplaceAll(price, "代別途", "Not included in ticket")
+	price = strings.ReplaceAll(price, "代別", "Separately")
 	price = strings.ReplaceAll(price, "別途", "Separately")
 	price = strings.ReplaceAll(price, "2D別", "2 Drink purchases required")
 	price = strings.ReplaceAll(price, "1D別", "1 Drink purchase required")
@@ -73,6 +74,7 @@ func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(price, "必要", "Necessary")
 	price = strings.ReplaceAll(price, "来場", "In Person")
 	price = strings.ReplaceAll(price, "配信", "Livestream")
+	price = strings.ReplaceAll(price, "通常", "Regular")
 	price = strings.ReplaceAll(price, "前", "ADV ")
 	price = strings.ReplaceAll(price, "当", "DOOR ")
 	return
