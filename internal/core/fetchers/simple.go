@@ -672,7 +672,6 @@ func (s *Simple) FetchArtists(n *html.Node) (a []string, err error) {
 		if err != nil || len(a) == 0 {
 			return
 		}
-		fmt.Println(a[0])
 		a = util.ProcessArtists(strings.Split(a[0], "\n"))
 	}
 	return

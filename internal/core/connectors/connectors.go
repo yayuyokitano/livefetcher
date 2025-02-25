@@ -53,6 +53,7 @@ var Connectors = ConnectorsType{
 	"ShinjukuLoft":                connectors.ShinjukuLoftFetcher,
 	"ShinjukuMarble":              connectors.ShinjukuMarbleFetcher,
 	"ShinjukuMarz":                connectors.ShinjukuMarzFetcher,
+	"ShinjukuSamurai":             connectors.ShinjukuSamuraiFetcher,
 	"ShinjukuZircoTokyo":          connectors.ShinjukuZircoTokyoFetcher,
 	"ShinsaibashiAnima":           connectors.ShinsaibashiAnimaFetcher,
 	"ShinsaibashiBeyond":          connectors.ShinsaibashiBeyondFetcher,

@@ -1539,8 +1539,8 @@ var ShinjukuMarbleFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shinjuku",
 	VenueID:        "shinjuku-marble",
-	Latitude:       35.662813,
-	Longitude:      139.660062,
+	Latitude:       35.696313,
+	Longitude:      139.700562,
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:   *htmlquerier.Q("//span[@class='mec-start-date-label']").Split(" ").KeepIndex(-1),
@@ -1633,8 +1633,8 @@ var ShinjukuMarzFetcher = fetchers.Simple{
 	PrefectureName: "tokyo",
 	AreaName:       "shinjuku",
 	VenueID:        "shinjuku-marz",
-	Latitude:       35.662813,
-	Longitude:      139.660062,
+	Latitude:       35.696313,
+	Longitude:      139.700688,
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         4,
@@ -1645,6 +1645,41 @@ var ShinjukuMarzFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2025, 4, 21, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2025, 4, 21, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://www.marz.jp/schedule/2025/04/post_613.html",
+	},
+}
+
+var ShinjukuSamuraiFetcher = fetchers.Simple{
+	BaseURL:              "https://live-samurai.jp/",
+	ShortYearIterableURL: "https://live-samurai.jp/20%d/%02d/",
+	LiveSelector:         "//table[@class='post']",
+	TitleQuerier:         *htmlquerier.Q("//h4[@class='entryTitle']"),
+	ArtistsQuerier:       *htmlquerier.Q("//table[@class='post2']/tbody/tr[3]/td[2]").SplitRegex(`/`).Trim(),
+	PriceQuerier:         *htmlquerier.QAll("//table[@class='post2']/tbody/tr[2]/td").Join(" "),
+	DetailsLinkSelector:  "//h4/a",
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//h1"),
+		MonthQuerier:     *htmlquerier.Q("//h1").After("年"),
+		DayQuerier:       *htmlquerier.Q("//font[@color='#ffffff']/b/text()[1]").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//table[@class='post2']/tbody/tr[1]/td[2]"),
+		StartTimeQuerier: *htmlquerier.Q("//table[@class='post2']/tbody/tr[1]/td[2]").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-samurai",
+	Latitude:       35.697938,
+	Longitude:      139.701813,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         24,
+		FirstLiveTitle:        "Shinjuku SAMURAI pre. うてばひびく vol.118",
+		FirstLiveArtists:      []string{"歌田真紀", "Spit Lulu's", "花酔い"},
+		FirstLivePrice:        "ADV./DOOR  ￥2,500/￥3,000　※入場時1ドリンク￥600別",
+		FirstLivePriceEnglish: "ADV./DOOR  ￥2,500/￥3,000　※When entering1Drink￥600Separately",
+		FirstLiveOpenTime:     time.Date(2025, 2, 3, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 3, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://live-samurai.jp/2025/02/03/__trashed-2-34/",
 	},
 }
 
