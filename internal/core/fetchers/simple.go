@@ -384,15 +384,15 @@ func (s *Simple) iterateUsingShortYear() (err error) {
 }
 
 type LiveQueueElement struct {
-	live *html.Node
-	res  *html.Node
-	url  *url.URL
+	Live *html.Node
+	Res  *html.Node
+	Url  *url.URL
 }
 
-func fetchLiveConcurrent(baseURL *url.URL, queue chan *LiveQueueElement, expandedLiveSelector string, wg *sync.WaitGroup) {
+func FetchLiveConcurrent(baseURL *url.URL, queue chan *LiveQueueElement, expandedLiveSelector string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for job := range queue {
-		liveAnchor, err := htmlquery.Query(job.live, expandedLiveSelector)
+		liveAnchor, err := htmlquery.Query(job.Live, expandedLiveSelector)
 		if err != nil || liveAnchor == nil {
 			return
 		}
@@ -403,12 +403,12 @@ func fetchLiveConcurrent(baseURL *url.URL, queue chan *LiveQueueElement, expande
 		if err != nil {
 			return
 		}
-		job.url = url
+		job.Url = url
 		liveDetails, err = htmlquery.LoadURL(url.String())
 		if err != nil || liveDetails == nil {
 			return
 		}
-		job.res = liveDetails
+		job.Res = liveDetails
 	}
 }
 
@@ -435,32 +435,32 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 		queue := make(chan *LiveQueueElement, len(overview))
 		var res []*LiveQueueElement
 		for _, live := range overview {
-			job := &LiveQueueElement{live: live}
+			job := &LiveQueueElement{Live: live}
 			res = append(res, job)
 			queue <- job
 		}
 		close(queue)
 		for i := 0; i < min(10, len(overview)); i++ {
 			wg.Add(1)
-			go fetchLiveConcurrent(overviewURL, queue, s.ExpandedLiveSelector, &wg)
+			go FetchLiveConcurrent(overviewURL, queue, s.ExpandedLiveSelector, &wg)
 		}
 		wg.Wait()
 		for _, liveDetails := range res {
 			if s.ExpandedLiveGroupSelector == "" {
 				lives = append(lives, LiveContext{
-					n:   liveDetails.res,
-					url: liveDetails.url,
+					n:   liveDetails.Res,
+					url: liveDetails.Url,
 				})
 			} else {
 				var liveNodes []*html.Node
-				liveNodes, err = htmlquery.QueryAll(liveDetails.res, s.ExpandedLiveGroupSelector)
+				liveNodes, err = htmlquery.QueryAll(liveDetails.Res, s.ExpandedLiveGroupSelector)
 				if err != nil || len(liveNodes) == 0 {
 					continue
 				}
 				for _, liveNode := range liveNodes {
 					lives = append(lives, LiveContext{
 						n:   liveNode,
-						url: liveDetails.url,
+						url: liveDetails.Url,
 					})
 				}
 			}
@@ -672,6 +672,7 @@ func (s *Simple) FetchArtists(n *html.Node) (a []string, err error) {
 		if err != nil || len(a) == 0 {
 			return
 		}
+		fmt.Println(a[0])
 		a = util.ProcessArtists(strings.Split(a[0], "\n"))
 	}
 	return

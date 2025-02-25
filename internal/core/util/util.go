@@ -208,11 +208,15 @@ var removable = []string{
 	"スペシャルゲスト：",
 	"GUEST：",
 	"【ゲスト】",
+	"【LIVE】",
 }
 
 var prefixes = []string{
+	"●",
 	"•",
+	"・",
 	"✰",
+	"■",
 }
 
 func ProcessArtists(a []string) (artists []string) {
@@ -391,7 +395,11 @@ func FindPrice(arr []string) string {
 	for _, s := range arr {
 		arr := re.FindAllString(s, 2)
 		if arr != nil {
-			return strings.Join(arr, "、")
+			str := strings.Join(arr, "、")
+			for _, prefix := range prefixes {
+				str = strings.TrimPrefix(str, prefix)
+			}
+			return str
 		}
 	}
 	return ""

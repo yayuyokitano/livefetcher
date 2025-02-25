@@ -3,11 +3,16 @@ package connectors
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/antchfx/htmlquery"
 	"github.com/yayuyokitano/livefetcher/internal/core/fetchers"
 	"github.com/yayuyokitano/livefetcher/internal/core/htmlquerier"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
@@ -1484,6 +1489,164 @@ var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 	35.695538,
 	139.702578,
 )
+
+var ShinjukuMarbleFetcher = fetchers.Simple{
+	BaseURL: "https://shinjuku-marble.com/",
+	LiveHTMLFetcher: func(testDocument []byte) (nodes []*html.Node, err error) {
+		nodes = make([]*html.Node, 0)
+		var newNodes []*html.Node
+		offset := 0
+		endDate := time.Now().Format("2006-01-02")
+		hasMoreEvent := true
+		if testDocument == nil {
+			for i := 0; i < 20 && hasMoreEvent; i++ {
+				client := &http.Client{Timeout: 10 * time.Second}
+				reqBody := fmt.Sprintf("action=mec_grid_load_more&mec_start_date=%s&mec_offset=%d&atts%%5Bsk-options%%5D%%5Bgrid%%5D%%5Bstyle%%5D=classic&atts%%5Bid%%5D=314&apply_sf_date=0", endDate, offset)
+				var req *http.Request
+				req, err = http.NewRequest("POST", "https://shinjuku-marble.com/wp-admin/admin-ajax.php", strings.NewReader(reqBody))
+				if err != nil {
+					return
+				}
+				req.Header.Set("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
+				var res *http.Response
+				res, err = client.Do(req)
+				if err != nil {
+					return
+				}
+				defer res.Body.Close()
+
+				var b []byte
+				b, err = io.ReadAll(res.Body)
+				if err != nil {
+					return
+				}
+				newNodes, offset, endDate, hasMoreEvent = parseShinjukuMarbleResponse(b)
+				if newNodes != nil {
+					nodes = append(nodes, newNodes...)
+				}
+			}
+		} else {
+			newNodes, _, _, _ = parseShinjukuMarbleResponse(testDocument)
+			nodes = newNodes
+		}
+		return
+	},
+	TitleQuerier:        *htmlquerier.Q("//h1"),
+	DetailQuerier:       *htmlquerier.QAll("//div[contains(@class, 'mec-single-event-description')]/p/text()").Join("\n"),
+	ArtistsQuerier:      *htmlquerier.QAll("//div[contains(@class, 'mec-single-event-description')]/p/text()").DeleteUntil("●出演"),
+	DetailsLinkSelector: "//link[@rel='canonical']",
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-marble",
+	Latitude:       35.662813,
+	Longitude:      139.660062,
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:   *htmlquerier.Q("//span[@class='mec-start-date-label']").Split(" ").KeepIndex(-1),
+		MonthQuerier:  *htmlquerier.Q("//span[@class='mec-start-date-label']").Before("月"),
+		DayQuerier:    *htmlquerier.Q("//span[@class='mec-start-date-label']").After("月").Trim().Before(" "),
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         12,
+		FirstLiveTitle:        "THURSDAY’S YOUTH 8th Anniversary Live”Just after dark”",
+		FirstLiveArtists:      []string{"THURSDAY’S YOUTH"},
+		FirstLivePrice:        "前売り¥3500、当日¥3900",
+		FirstLivePriceEnglish: "Reservation¥3500、Door¥3900",
+		FirstLiveOpenTime:     time.Date(2025, 3, 9, 17, 00, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 9, 17, 43, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://shinjuku-marble.com/calender/thursdays-youth-8th-anniversary-livejust-after-dark/",
+	},
+}
+
+type ShinjukuMarbleResponse struct {
+	EndDate      string `json:"end_date"`
+	HasMoreEvent int    `json:"has_more_event"`
+	Html         string `json:"html"`
+	Offset       int    `json:"offset"`
+}
+
+func parseShinjukuMarbleResponse(s []byte) (nodes []*html.Node, offset int, endDate string, hasMoreEvent bool) {
+	nodes = make([]*html.Node, 0)
+	var res ShinjukuMarbleResponse
+	if err := json.Unmarshal(s, &res); err != nil {
+		return
+	}
+
+	offset = res.Offset
+	hasMoreEvent = res.HasMoreEvent == 1
+	endDate = res.EndDate
+
+	n, err := htmlquery.Parse(strings.NewReader(res.Html))
+	if err != nil {
+		return
+	}
+	links, err := htmlquery.QueryAll(n, "//article")
+	if err != nil {
+		return
+	}
+	baseUrl, err := url.Parse("https://shinjuku-marble.com/")
+	if err != nil {
+		return
+	}
+
+	var wg sync.WaitGroup
+	queue := make(chan *fetchers.LiveQueueElement, len(links))
+	var liveSlice []*fetchers.LiveQueueElement
+	for _, live := range links {
+		job := &fetchers.LiveQueueElement{Live: live}
+		liveSlice = append(liveSlice, job)
+		queue <- job
+	}
+	close(queue)
+	for i := 0; i < min(10, len(links)); i++ {
+		wg.Add(1)
+		go fetchers.FetchLiveConcurrent(baseUrl, queue, "//a", &wg)
+	}
+	wg.Wait()
+	for _, liveDetails := range liveSlice {
+		nodes = append(nodes, liveDetails.Res)
+	}
+	return
+}
+
+var ShinjukuMarzFetcher = fetchers.Simple{
+	BaseURL:              "http://www.marz.jp/",
+	ShortYearIterableURL: "http://www.marz.jp/schedule/20%d/%02d/",
+	LiveSelector:         "//article",
+	TitleQuerier:         *htmlquerier.Q("//h1"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='entrybody']/a/p/text()"),
+	PriceQuerier:         *htmlquerier.Q("//div[@class='entryex']/p/text()[2]"),
+	DetailsLinkSelector:  "//h1/a",
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div[@id='h']/h1").Before("."),
+		MonthQuerier:     *htmlquerier.Q("//div[@id='h']/h1").After("."),
+		DayQuerier:       *htmlquerier.Q("//time").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='entryex']/p/text()[1]").Before(" / "),
+		StartTimeQuerier: *htmlquerier.Q("//div[@class='entryex']/p/text()[1]").After(" / "),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-marz",
+	Latitude:       35.662813,
+	Longitude:      139.660062,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         4,
+		FirstLiveTitle:        "少女脱兎１周年ライブ 「惑星探査機、乗車」",
+		FirstLiveArtists:      []string{"少女脱兎", "MAPA", "赤いくらげ"},
+		FirstLivePrice:        "adv ¥3,000 / door ¥3,500 (+1drink¥600)",
+		FirstLivePriceEnglish: "adv ¥3,000 / door ¥3,500 (+1drink¥600)",
+		FirstLiveOpenTime:     time.Date(2025, 4, 21, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 4, 21, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://www.marz.jp/schedule/2025/04/post_613.html",
+	},
+}
 
 var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
 	"https://zirco-tokyo.jp/",
