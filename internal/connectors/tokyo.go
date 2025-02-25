@@ -1470,6 +1470,40 @@ var ShindaitaFeverFetcher = fetchers.Simple{
  *						*
  **************/
 
+var ShinjukuAcbHallFetcher = fetchers.Simple{
+	BaseURL:              "https://acb-hall.jp/",
+	ShortYearIterableURL: "https://acb-hall.jp/schedule.php?year=20%d&month=%d",
+	LiveSelector:         "//article[@class='cal']/table/tbody/tr[.//li[@class='band']/text()!='TBA']",
+	TitleQuerier:         *htmlquerier.Q("//li/b"),
+	ArtistsQuerier:       *htmlquerier.Q("//li[@class='band']").Split(" / "),
+	PriceQuerier:         *htmlquerier.QAll("//li[@class='adv-door']/span").Join(" / "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//ul[@class='pager']/li[2]"),
+		MonthQuerier:     *htmlquerier.Q("//ul[@class='pager']/li[2]").After("年"),
+		DayQuerier:       *htmlquerier.Q("//th/text()[1]"),
+		OpenTimeQuerier:  *htmlquerier.Q("//li[@class='open-start']/span[1]").After("OPEN:"),
+		StartTimeQuerier: *htmlquerier.Q("//li[@class='open-start']/span[2]").After("START:"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-acbhall",
+	Latitude:       35.695937,
+	Longitude:      139.702437,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         10,
+		FirstLiveTitle:        "Overwhelming LIBERTY TOUR 2024 Final series",
+		FirstLiveArtists:      []string{"OwL", "GOOD4NOTHING"},
+		FirstLivePrice:        "前売: 3,000円 / 当日: 3,500円",
+		FirstLivePriceEnglish: "Reservation: 3,000円 / Door: 3,500円",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertShortYearMonth("https://acb-hall.jp/schedule.php?year=20%d&month=%d"),
+	},
+}
+
 var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp/",
 	"https://www.loft-prj.co.jp/schedule/loft/schedule?scheduleyear=20%d&schedulemonth=%d",
