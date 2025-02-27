@@ -117,6 +117,8 @@ var bannedArtists = map[string]bool{
 	"◉live◉":          true,
 	"live :":          true,
 	"【出演】":            true,
+	"＜出演＞":            true,
+	"他":               true,
 	"【ゲスト】":           true,
 	"【司会】":            true,
 	"転換dj":            true,

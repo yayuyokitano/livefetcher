@@ -1504,6 +1504,41 @@ var ShinjukuAcbHallFetcher = fetchers.Simple{
 	},
 }
 
+var ShinjukuHeistFetcher = fetchers.Simple{
+	BaseURL:              "https://heist.tokyo/",
+	ShortYearIterableURL: "https://heist.tokyo/schedule/20%d/%02d/",
+	LiveSelector:         "//div[@class='sche-archives-flex']/a",
+	ExpandedLiveSelector: ".",
+	TitleQuerier:         *htmlquerier.Q("//h2[@class='detail-single']"),
+	ArtistsQuerier:       *htmlquerier.Q("//h4[@class='act-name']").Split("\n").Split(" / "),
+	PriceQuerier:         *htmlquerier.QAll("//td[@class='table-title'][./text()='ADV:' or ./text()='DOOR:']/following-sibling::td[@class='table-detail']").Join(" / DOOR: ").Prefix("ADV: "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//li[@class='achives-year']"),
+		MonthQuerier:     *htmlquerier.Q("//li[@class='achives-year']").After("/"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='date-text']").After("/").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("//td[@class='table-title'][./text()='OPEN:']/following-sibling::td[@class='table-detail']"),
+		StartTimeQuerier: *htmlquerier.Q("//td[@class='table-title'][./text()='START:']/following-sibling::td[@class='table-detail']"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-heist",
+	Latitude:       35.695437,
+	Longitude:      139.703562,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         24,
+		FirstLiveTitle:        "『アイプラアイドルパーティー #17』",
+		FirstLiveArtists:      []string{"ギミラブ！", "シェリー"},
+		FirstLivePrice:        "ADV: 2400 / DOOR: 2900",
+		FirstLivePriceEnglish: "ADV: 2400 / DOOR: 2900",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 10, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 10, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://heist.tokyo/schedule/schedule-3042/",
+	},
+}
+
 var ShinjukuLoftFetcher = fetchers.CreateLoftFetcher(
 	"https://www.loft-prj.co.jp/",
 	"https://www.loft-prj.co.jp/schedule/loft/schedule?scheduleyear=20%d&schedulemonth=%d",

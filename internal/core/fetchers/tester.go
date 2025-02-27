@@ -188,11 +188,12 @@ func (s *Simple) testStaticLive(n *html.Node, path string, testDocument []byte) 
 	if err != nil {
 		return
 	}
-	l, err := s.fetchLives(n, pathURL, testDocument)
 
+	l, err := s.fetchLives(n, pathURL, testDocument)
 	if err != nil {
 		return
 	}
+
 	if len(l) != s.TestInfo.NumberOfLives {
 		err = fmt.Errorf("expected %d lives, got %d", s.TestInfo.NumberOfLives, len(l))
 		return
