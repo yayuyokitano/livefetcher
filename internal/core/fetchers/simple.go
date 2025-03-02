@@ -576,9 +576,6 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 				if !s.isTesting && appL.StartTime.Before(timeCutoff) {
 					continue
 				}
-				if len(appL.Artists) == 0 {
-					continue
-				}
 				l = append(l, appL)
 			}
 		}

@@ -1448,6 +1448,25 @@ var ShimokitazawaWaverFetcher = fetchers.Simple{
  *						 *
  ***************/
 
+var NishieifukuJamFetcher = fetchers.CreateOmatsuriFetcher(
+	"https://jam.rinky.info/",
+	"tokyo",
+	"setagaya",
+	"nishieifuku-jam",
+	35.678313,
+	139.635063,
+	fetchers.TestInfo{
+		NumberOfLives:         34,
+		FirstLiveTitle:        "DAY EVENT] Momo♡Ai Solo Performance -Thank you for meeting me",
+		FirstLiveArtists:      []string{"もも♡あい"},
+		FirstLivePrice:        "Sチケット¥8,000 / Aチケット¥5,000 / 一般¥2,000 / 学生¥1,500 ＋ DRINK¥600",
+		FirstLivePriceEnglish: "S-Ticket¥8,000 / A-Ticket¥5,000 / Ordinary Ticket¥2,000 / Students¥1,500 ＋ DRINK¥600",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 9, 45, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 10, 45, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://jam.rinky.info/events/26435",
+	},
+)
+
 var ShindaitaFeverFetcher = fetchers.Simple{
 	BaseURL:        "https://www.fever-popo.com/",
 	InitialURL:     util.InsertYearMonth("https://www.fever-popo.com/schedule/%d/%02d/"),
@@ -1776,7 +1795,7 @@ var ShinjukuSamuraiFetcher = fetchers.Simple{
 var ShinjukuScienceFetcher = fetchers.Simple{
 	BaseURL:              "https://club-science.com/",
 	ShortYearIterableURL: "https://club-science.com/schedule/20%d/%02d/",
-	LiveSelector:         "//div[contains(@class, 'schedule_box')]",
+	LiveSelector:         "//div[contains(@class, 'schedule_box')][not(contains(.//div[@class='sche_ttl'], '株式会社'))]",
 	MultiLiveDaySelector: "//div[@class='schedule_center_list']",
 	TitleQuerier:         *htmlquerier.Q("//div[@class='sche_ttl']"),
 	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='sche_detail'][1]//text()").Split("\n").Split(" / ").DeleteFrom("＜FOOD＞").DeleteFrom("【FOOD】").DeleteFrom("【FOOD BOOTH】"),

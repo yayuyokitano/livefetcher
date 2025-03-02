@@ -798,7 +798,7 @@ var ShinsaibashiSomaFetcher = fetchers.Simple{
 		}
 		return newArr
 	}).SplitIgnoreWithin("[/\n]", '(', ')'),
-	DetailQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p/text()").PreserveWhitespace(),
+	DetailQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p/text()").PreserveWhitespace().Verbose(),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:  *htmlquerier.Q("//span[@class='date']"),

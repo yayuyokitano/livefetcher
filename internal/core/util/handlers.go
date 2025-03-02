@@ -43,6 +43,7 @@ func EnglishPriceHandler(p string) (price string) {
 	price = strings.ReplaceAll(price, "ドリンク別", "Drinks sold separately")
 	price = strings.ReplaceAll(price, "ドリンク", "Drink")
 	price = strings.ReplaceAll(price, "Sチケット", "S-Ticket")
+	price = strings.ReplaceAll(price, "Aチケット", "A-Ticket")
 	price = strings.ReplaceAll(price, "高校生以下", "High School Students and Below")
 	price = strings.ReplaceAll(price, "高校生", "High School Students")
 	price = strings.ReplaceAll(price, "大学生・専門学生", "College Students")

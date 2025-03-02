@@ -425,7 +425,7 @@ func CreateOmatsuriFetcher(baseUrl string, prefectureName, areaName, venueID str
 	return Simple{
 		BaseURL:              baseUrl,
 		ShortYearIterableURL: baseUrl + "events?date=20%d%%2F%02d",
-		LiveSelector:         "//div[@class='blog-entry event-wrap row']",
+		LiveSelector:         "//div[@class='blog-entry event-wrap row'][not(contains(.//h2, 'HALL RENTAL'))]",
 		DetailsLinkSelector:  "//h2/a",
 		TitleQuerier:         *htmlquerier.Q("//h2"),
 		ArtistsQuerier:       *htmlquerier.QAll("//p[@class='act']/span"),
