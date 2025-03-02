@@ -420,3 +420,31 @@ func CreateOldLoftFetcher(
 		TestInfo: testInfo,
 	}
 }
+
+func CreateOmatsuriFetcher(baseUrl string, prefectureName, areaName, venueID string, latitude, longitude float64, testInfo TestInfo) Simple {
+	return Simple{
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: baseUrl + "events?date=20%d%%2F%02d",
+		LiveSelector:         "//div[@class='blog-entry event-wrap row']",
+		DetailsLinkSelector:  "//h2/a",
+		TitleQuerier:         *htmlquerier.Q("//h2"),
+		ArtistsQuerier:       *htmlquerier.QAll("//p[@class='act']/span"),
+		PriceQuerier:         *htmlquerier.QAll("//p[@class='charge']"),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//ul[@class='pagination']/li[@class='active']"),
+			MonthQuerier:     *htmlquerier.Q("//ul[@class='pagination']/li[@class='active']").After("."),
+			DayQuerier:       *htmlquerier.Q("//span[@class='day']"),
+			OpenTimeQuerier:  *htmlquerier.Q("//p[@class='time']"),
+			StartTimeQuerier: *htmlquerier.Q("//p[@class='time']").After("START"),
+		},
+
+		PrefectureName: prefectureName,
+		AreaName:       areaName,
+		VenueID:        venueID,
+		Latitude:       latitude,
+		Longitude:      longitude,
+
+		TestInfo: testInfo,
+	}
+}

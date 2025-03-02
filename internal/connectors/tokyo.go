@@ -185,30 +185,14 @@ var ShibuyaEggmanNightFetcher = fetchers.CreateEggmanFetcher(
 	},
 )
 
-var ShibuyaFowsFetcher = fetchers.Simple{
-	BaseURL:              "https://shibuya-fows.jp/",
-	ShortYearIterableURL: "https://shibuya-fows.jp/events?date=20%d%%2F%02d",
-	LiveSelector:         "//div[@class='blog-entry event-wrap row']",
-	DetailsLinkSelector:  "//h2/a",
-	TitleQuerier:         *htmlquerier.Q("//h2"),
-	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='act']/span"),
-	PriceQuerier:         *htmlquerier.QAll("//p[@class='charge']"),
-
-	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//ul[@class='pagination']/li[@class='active']"),
-		MonthQuerier:     *htmlquerier.Q("//ul[@class='pagination']/li[@class='active']").After("."),
-		DayQuerier:       *htmlquerier.Q("//span[@class='day']"),
-		OpenTimeQuerier:  *htmlquerier.Q("//p[@class='time']"),
-		StartTimeQuerier: *htmlquerier.Q("//p[@class='time']").After("START"),
-	},
-
-	PrefectureName: "tokyo",
-	AreaName:       "shibuya",
-	VenueID:        "shibuya-fows",
-	Latitude:       35.661563,
-	Longitude:      139.697938,
-
-	TestInfo: fetchers.TestInfo{
+var ShibuyaFowsFetcher = fetchers.CreateOmatsuriFetcher(
+	"https://shibuya-fows.jp/",
+	"tokyo",
+	"shibuya",
+	"shibuya-fows",
+	35.661563,
+	139.697938,
+	fetchers.TestInfo{
 		NumberOfLives:         3,
 		FirstLiveTitle:        "Hype The Rock Vol.3",
 		FirstLiveArtists:      []string{"Dannie May", "NOMELON NOLEMON", "紫 今"},
@@ -218,7 +202,7 @@ var ShibuyaFowsFetcher = fetchers.Simple{
 		FirstLiveStartTime:    time.Date(2025, 3, 2, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://shibuya-fows.jp/events/25457",
 	},
-}
+)
 
 var ShibuyaGarretFetcher = fetchers.CreateCycloneFetcher(
 	"http://www.cyclone1997.com/",
