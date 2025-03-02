@@ -49,6 +49,31 @@ var ShimokitazawaTestFetcher = fetchers.Simple{
 	},
 }
 
+/************
+ *          *
+ *  Otsuka  *
+ *          *
+ ************/
+
+var OtsukaMeetsFetcher = fetchers.CreateOmatsuriFetcher(
+	"https://meets.rinky.info/",
+	"tokyo",
+	"otsuka",
+	"otsuka-meets",
+	35.730187,
+	139.728187,
+	fetchers.TestInfo{
+		NumberOfLives:         29,
+		FirstLiveTitle:        "Part 1] WOYATSU BIRTHDAY LIVE~2025",
+		FirstLiveArtists:      []string{"をやつ", "ちワ", "ニケ", "あつや"},
+		FirstLivePrice:        "￥5000(+Drink)",
+		FirstLivePriceEnglish: "￥5000(+Drink)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 12, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 12, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://meets.rinky.info/events/25956",
+	},
+)
+
 /*************
  *           *
  *  Shibuya  *

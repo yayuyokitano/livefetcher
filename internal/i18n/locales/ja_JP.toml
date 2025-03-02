@@ -74,6 +74,7 @@ area = "場所"
 
 [livehouse]
 nishieifuku-jam = "西永福JAM"
+otsuka-meets = "MEETS"
 shibuya-clubquattro = "SHIBUYA CLUB QUATTRO"
 shibuya-cyclone = "SHIBUYA CYCLONE"
 shibuya-dive = "SHIBUYA DIVE"
@@ -162,6 +163,7 @@ setagaya = "世田谷（下北沢外）"
 shibuya = "渋谷"
 shimokitazawa = "下北沢"
 shinjuku = "新宿"
+otsuka = "大塚"
 
 [util]
 prefecture-area = "{{.Prefecture}}{{.Area}}"
