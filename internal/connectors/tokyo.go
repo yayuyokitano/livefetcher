@@ -769,6 +769,25 @@ var ShibuyaWWWXFetcher = fetchers.CreateWWWFetcher(
 	},
 )
 
+var YoyogiBarbaraFetcher = fetchers.CreateOmatsuriFetcher(
+	"https://barbara.omatsuri.tech/",
+	"tokyo",
+	"shibuya",
+	"yoyogi-barbara",
+	35.682688,
+	139.699563,
+	fetchers.TestInfo{
+		NumberOfLives:         20,
+		FirstLiveTitle:        "GOTCHA MIX!!!!",
+		FirstLiveArtists:      []string{"森口しゅな", "ゆみちぃ", "みほりょうすけ", "スギムラリョウイチ", "金子TKO"},
+		FirstLivePrice:        "ADV/DOOR 3,000/3,500 配信2,000",
+		FirstLivePriceEnglish: "ADV/DOOR 3,000/3,500 Livestream2,000",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://barbara.omatsuri.tech/events/26505",
+	},
+)
+
 /*******************
  * 								 *
  *	Shimokitazawa	 *
