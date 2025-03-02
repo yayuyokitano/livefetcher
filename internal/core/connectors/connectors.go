@@ -14,6 +14,7 @@ var Connectors = ConnectorsType{
 	"ShibuyaDive":                 connectors.ShibuyaDiveFetcher,
 	"ShibuyaEggmanDay":            connectors.ShibuyaEggmanDayFetcher,
 	"ShibuyaEggmanNight":          connectors.ShibuyaEggmanNightFetcher,
+	"ShibuyaFows":                 connectors.ShibuyaFowsFetcher,
 	"ShibuyaGarret":               connectors.ShibuyaGarretFetcher,
 	"ShibuyaGeeGe":                connectors.ShibuyaGeeGeFetcher,
 	"ShibuyaLaDonna":              connectors.ShibuyaLaDonnaFetcher,
