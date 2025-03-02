@@ -204,7 +204,7 @@ func CreateDaisyBarFetcher(
 		LiveSelector:         "//article[@class='schedule-ticket']",
 		TitleQuerier:         *htmlquerier.Q("//h2"),
 		ArtistsQuerier:       *htmlquerier.Q("//p[@class='artist']").Split("／").Split(" ゲスト:").Before("【ONE MAN】"),
-		PriceQuerier:         *htmlquerier.QAll("//div[@class='schedule-list-content_mid']/div[position()=3 or position()=4]").Join(" / ").ReplaceAllRegex(`\s+`, " "),
+		PriceQuerier:         *htmlquerier.QAll("//div[@class='schedule-list-content_mid']/div[position()=3 or position()=4]").Join(" / "),
 
 		TimeHandler: TimeHandler{
 			YearQuerier:      *htmlquerier.Q("//span[@class='year']"),
@@ -276,7 +276,7 @@ func CreateBassOnTopFetcher(
 		ShortYearIterableURL: shortYearIterableURL,
 		LiveSelector:         "//div[@class='container scheduleList']/ul/li[.//h1/text()!='HALL RENTAL']",
 		ExpandedLiveSelector: "//a[@class='btnStyle01']",
-		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").ReplaceAllRegex(`\s+`, " ").CutWrapper("【", "】"),
+		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").CutWrapper("【", "】"),
 		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("(/|(【MC】))", '(', ')'),
 		PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
 
@@ -324,9 +324,9 @@ func CreateCycloneFetcher(
 		ShortYearIterableURL: shortYearIterableURL,
 		LiveSelector:         "//body/table",
 		// trust
-		TitleQuerier:   *htmlquerier.QAll("//td/p/span[1]/descendant::text()[not(preceding-sibling::*[self::span or self::strong]) and normalize-space(.)!='' and (not(ancestor::strong or ancestor::a) or ancestor::span[last()]/text()[1]/preceding-sibling::*[self::span or self::strong])]").Join(" ").ReplaceAllRegex(`\s+`, " "),
+		TitleQuerier:   *htmlquerier.QAll("//td/p/span[1]/descendant::text()[not(preceding-sibling::*[self::span or self::strong]) and normalize-space(.)!='' and (not(ancestor::strong or ancestor::a) or ancestor::span[last()]/text()[1]/preceding-sibling::*[self::span or self::strong])]").Join(" "),
 		ArtistsQuerier: *htmlquerier.QAll("//span/strong").Trim().TrimSuffix("PRESENTS").SplitIgnoreWithin("[\n/]", '(', ')'),
-		PriceQuerier:   *htmlquerier.Q("//td/p/span[1]/text()[last()-1]").ReplaceAllRegex(`\s+`, " "),
+		PriceQuerier:   *htmlquerier.Q("//td/p/span[1]/text()[last()-1]"),
 
 		TimeHandler: TimeHandler{
 			YearQuerier:      *htmlquerier.Q("//b"),

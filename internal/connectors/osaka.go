@@ -26,7 +26,7 @@ var ShinsaibashiAnimaFetcher = fetchers.Simple{
 	DetailsLinkSelector: "//a",
 	TitleQuerier:        *htmlquerier.Q("//a/span"),
 	ArtistsQuerier:      *htmlquerier.Q("//span[text()='出演者']/following-sibling::text()").SplitIgnoreWithin("[/\n]", '(', ')'),
-	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
+	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//h5/span[@class='animabadge mont']"),
@@ -83,7 +83,7 @@ var ShinsaibashiBigcatFetcher = fetchers.Simple{
 	LiveSelector:         "//div[contains(@class, 'archive_block')]",
 	TitleQuerier:         *htmlquerier.Q("//h3[@class='ttl']"),
 	ArtistsQuerier:       *htmlquerier.Q("//dt[text()='LIVE INFO']/following-sibling::dd/p").Split("/"),
-	PriceQuerier:         *htmlquerier.QAll("//dt[text()='ADV' or text()='DOOR']/ancestor::dl").Join(" ").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.QAll("//dt[text()='ADV' or text()='DOOR']/ancestor::dl").Join(" "),
 
 	TimeHandler: fetchers.TimeHandler{
 		MonthQuerier:     *htmlquerier.Q("//span[@class='date_txt']"),
@@ -116,7 +116,7 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	BaseURL:              "http://osakabronze.com",
 	ShortYearIterableURL: "http://osakabronze.com/schedule20%d%02d.php",
 	LiveSelector:         "//div[@class='eventbox']",
-	TitleQuerier:         *htmlquerier.Q("//p[@class='midashi']").ReplaceAllRegex(`\s+`, " "), // 10/10
+	TitleQuerier:         *htmlquerier.Q("//p[@class='midashi']"),
 	ArtistsQuerier:       *htmlquerier.Q("//p[@class='bandlist']").SplitIgnoreWithin(`\n|( \/ )`, '(', ')'),
 	PriceQuerier:         *htmlquerier.Q("//p[@class='openstart']/text()[2]").After("TICKET "),
 
@@ -381,7 +381,7 @@ var ShinsaibashiJanusFetcher = fetchers.Simple{
 	LiveSelector:         "//article[@class='c-scheduleList']",
 	TitleQuerier:         *htmlquerier.Q("//div[@class='c-scheduleList__head--title']"),
 	ArtistsQuerier:       *htmlquerier.Q("//div[@class='c-scheduleList__head--act']").SplitIgnoreWithin(`( / )|(【?((opening)|(Opening)|(OPENING))?\s*((Guest)|(guest)|(GUEST)|(ゲスト)|(artist)|(Artist)|(ARTIST)|(act)|(Act)|(ACT))\s*((artist)|(Artist)|(ARTIST)|(act)|(Act)|(ACT))?】?((\s*):)?)|(O.A.(\s*):)|(【DJ/MC】)|(【LIVE】)|(\(O.A.\))`, '(', ')'), // dont worry about it
-	PriceQuerier:         *htmlquerier.Q("//dt[text()='ADV/DOOR']/following-sibling::dd").Prefix("ADV/DOOR: ").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.Q("//dt[text()='ADV/DOOR']/following-sibling::dd").Prefix("ADV/DOOR: "),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//div[@id='c-breadcrumb']//li[last()]"),
@@ -477,9 +477,9 @@ var ShinsaibashiKingCobraFetcher = fetchers.Simple{
 	BaseURL:              "http://king-cobra.net/",
 	ShortYearIterableURL: "http://king-cobra.net/schedule/20%d_%d.html",
 	LiveSelector:         "//font[@color='#00CCFF' and string-length(normalize-space(text())) > 10]",
-	TitleQuerier:         *htmlquerier.Q("/.").Trim().CutWrapper("『", "』").ReplaceAllRegex(`\s+`, " "),
+	TitleQuerier:         *htmlquerier.Q("/.").Trim().CutWrapper("『", "』"),
 	ArtistsQuerier:       *htmlquerier.QAll("/ancestor::tr[1]/following-sibling::tr[1]/td[1]//text()").DeleteFrom("[FOOD]"),
-	PriceQuerier:         *htmlquerier.QAll("/ancestor::tr[1]/following-sibling::tr[1]/td[3]//text()").Join("").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.QAll("/ancestor::tr[1]/following-sibling::tr[1]/td[3]//text()").Join(""),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//font[@color='#FF33CC']"),
@@ -651,8 +651,8 @@ var ShinsaibashiLoftPlusOneWestFetcher = fetchers.CreateOldLoftFetcher(
 		NumberOfLives:         25,
 		FirstLiveTitle:        "はっぴー空間",
 		FirstLiveArtists:      []string{"ChanceMovement"},
-		FirstLivePrice:        "◎観覧について\n前売,当日共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
-		FirstLivePriceEnglish: "◎観覧について\nReservation,Door共に￥1,500(共に1オーダー必須（￥500以上）)\n■観覧チ...",
+		FirstLivePrice:        "◎観覧について 前売,当日共に￥1,500(共に1オーダー必須（￥500以上）) ■観覧チ...",
+		FirstLivePriceEnglish: "◎観覧について Reservation,Door共に￥1,500(共に1オーダー必須（￥500以上）) ■観覧チ...",
 		FirstLiveOpenTime:     time.Date(2024, 3, 2, 12, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2024, 3, 2, 12, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://www.loft-prj.co.jp/schedule/west/277016",
@@ -667,7 +667,7 @@ var ShinsaibashiMuseFetcher = fetchers.Simple{
 	LiveSelector:         "//article[@class='media schedule']",
 	TitleQuerier:         *htmlquerier.Q("//h3"),
 	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='schedule_content']/p[1]/a"),
-	PriceQuerier:         *htmlquerier.Q("//ul[@class='schedule_info_list']/li[2]/span[2]").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.Q("//ul[@class='schedule_info_list']/li[2]/span[2]"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//div[@class='schedule_date']/span"),
@@ -704,7 +704,7 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	DetailsLinkSelector: "//a",
 	TitleQuerier:        *htmlquerier.Q("//a").CutWrapper(`"`, `"`),
 	ArtistsQuerier:      *htmlquerier.Q("//span[text()='出演者']/following-sibling::p").SplitIgnoreWithin("[/\n]", '(', ')'),
-	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()").ReplaceAllRegex(`(\s| )+`, " "),
+	PriceQuerier:        *htmlquerier.Q("//span[text()='PRICE']/following-sibling::text()"),
 
 	TimeHandler: fetchers.TimeHandler{
 		MonthQuerier:     *htmlquerier.Q("//p[contains(@class,'live_mom')]"),
@@ -738,9 +738,9 @@ var ShinsaibashiSocoreFactoryFetcher = fetchers.Simple{
 	ShortYearIterableURL: "https://socorefactory.com/schedule/20%d/%02d/",
 	LiveSelector:         "//div[@class='schedule']",
 	ExpandedLiveSelector: "//a",
-	TitleQuerier:         *htmlquerier.Q("//h1").ReplaceAllRegex(`\s+`, " "),
+	TitleQuerier:         *htmlquerier.Q("//h1"),
 	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='act']/text()"),
-	PriceQuerier:         *htmlquerier.Q("//p[@class='act']/following-sibling::p[1]").SplitIndex("Adv:", 1).Prefix("Adv:").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.Q("//p[@class='act']/following-sibling::p[1]").SplitIndex("Adv:", 1).Prefix("Adv:"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//span[@class='singledate']"),
@@ -798,7 +798,7 @@ var ShinsaibashiSomaFetcher = fetchers.Simple{
 		}
 		return newArr
 	}).SplitIgnoreWithin("[/\n]", '(', ')'),
-	DetailQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p/text()"),
+	DetailQuerier: *htmlquerier.QAll("//div[@class='event_detail']/p/text()").PreserveWhitespace(),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:  *htmlquerier.Q("//span[@class='date']"),
@@ -817,7 +817,7 @@ var ShinsaibashiSomaFetcher = fetchers.Simple{
 
 	TestInfo: fetchers.TestInfo{
 		NumberOfLives:         18,
-		FirstLiveTitle:        "『TATSUNORI YAGI presents  LIVE and LIVEPHOTO EXHIBITION  光が鳴り響く瞬間 vol.5』",
+		FirstLiveTitle:        "『TATSUNORI YAGI presents LIVE and LIVEPHOTO EXHIBITION 光が鳴り響く瞬間 vol.5』",
 		FirstLiveArtists:      []string{"くぴぽ", "Cosmoslay", "sui sui", "0番線と夜明け前", "望まひろ", "まちだガールズ・クワイア", "都の国のアリス"},
 		FirstLivePrice:        "チケット：前売3,300円+1D/当日3,800円+1D",
 		FirstLivePriceEnglish: "Ticket：Reservation3,300円+1D/Door3,800円+1D",

@@ -136,6 +136,8 @@ var ShibuyaDiveFetcher = fetchers.Simple{
 	Longitude:      139.708562,
 
 	TestInfo: fetchers.TestInfo{
+		// Currently, there are no lives available
+		IgnoreTest:            true,
 		NumberOfLives:         3,
 		FirstLiveTitle:        "HEY! BIRTHDAY LIVE & PARTY! ～ゆーりーとあーいーの秘密の花園～ 秋元悠里　作島藍　生誕イベント開催！！！",
 		FirstLiveArtists:      []string{"Hey!Mommy!"},
@@ -210,7 +212,7 @@ var ShibuyaGeeGeFetcher = fetchers.Simple{
 	ExpandedLiveGroupSelector: "//div[@class='box']/div[contains(@class, 'sche_box') and child::table]",
 	TitleQuerier:              *htmlquerier.Q("//strong").ReplaceAll("\n", "").Trim().CutWrapper("『", "』").CutWrapper("【", "】").CutWrapper("「", "」"), // lol
 	ArtistsQuerier:            *htmlquerier.Q("//img[contains(@src, 'artist_sche_ttl.gif')]/parent::td/following-sibling::td").SplitIgnoreWithin("[\n、/]", '(', ')').After("◎").After("・"),
-	PriceQuerier:              *htmlquerier.Q("//img[contains(@src, 'sche_adv_ttl.gif')]/parent::td/following-sibling::td").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:              *htmlquerier.Q("//img[contains(@src, 'sche_adv_ttl.gif')]/parent::td/following-sibling::td"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//img[contains(@src, 'sche_date_ttl.gif')]/parent::td/following-sibling::td"),
@@ -248,7 +250,7 @@ var ShibuyaLaDonnaFetcher = fetchers.Simple{
 	LiveSelector:         "//div[@class='sec01']/div[.//dd[@class='bigTxt'][.!='電話受付' and .!='店舗休業日' and .!='企業様イベントご利用']]",
 	TitleQuerier:         *htmlquerier.Q("//dd[@class='bigTxt']"),
 	ArtistsQuerier:       *htmlquerier.QAll("//dt[.='出演アーティスト']/following-sibling::dd/text()").SplitIgnoreWithin("・", '【', '】'),
-	PriceQuerier:         *htmlquerier.Q("//dt[.='前売り / 当日']/parent::*").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:         *htmlquerier.Q("//dt[.='前売り / 当日']/parent::*"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//div[@class='monthly']/div[@class='date']"),
@@ -961,7 +963,7 @@ var ShimokitazawaDaisyBarFetcher = fetchers.CreateDaisyBarFetcher(
 		FirstLivePriceEnglish: "Reservation ¥2500 / Door ¥3000",
 		FirstLiveOpenTime:     time.Date(2025, 2, 1, 18, 0, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2025, 2, 1, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          "https://daisybar.jp/schedule/2025/2/",
+		FirstLiveURL:          util.InsertYearMonth("https://daisybar.jp/schedule/%d/%d/"),
 	},
 )
 
@@ -969,7 +971,7 @@ var ShimokitazawaDyCubeFetcher = fetchers.Simple{
 	BaseURL:              "https://dycube.tokyo/",
 	ShortYearIterableURL: "https://dycube.tokyo/schedule/?ext_num-year=20%d&ext_num-month=%02d",
 	LiveSelector:         "//article[@class='schedule-article']",
-	TitleQuerier:         *htmlquerier.Q("//h3").ReplaceAllRegex(`\s+`, " "),
+	TitleQuerier:         *htmlquerier.Q("//h3"),
 	ArtistsQuerier:       *htmlquerier.Q("//div[@class='schedule-article-body__txt']/p[1]").Split("\n"),
 	PriceQuerier:         *htmlquerier.Q("//div[@class='schedule-article-body__txt']/p[2]/text()[2]"),
 
@@ -1004,7 +1006,7 @@ var ShimokitazawaEraFetcher = fetchers.Simple{
 	InitialURL:     util.InsertYearMonth("http://s-era.jp/schedule_cat/%d-%02d/"),
 	NextSelector:   "//section[contains(@class, 'schedule-navigation')]/div[2]/p[2]/a",
 	LiveSelector:   "//article[contains(@class, 'schedule-box')]",
-	TitleQuerier:   *htmlquerier.Q("//h4").ReplaceAllRegex(`\s+`, " "),
+	TitleQuerier:   *htmlquerier.Q("//h4"),
 	ArtistsQuerier: *htmlquerier.Q("//div[contains(@class, 'w-flyer')]").BeforeSelector("//div[contains(@class, 'detail-texts')]").Before("\n\n").Before("/OPEN ").SplitIgnoreWithin("/", '（', '）').Trim().TrimSuffix("/"),
 	PriceQuerier:   *htmlquerier.Q("//div[contains(@class, 'detail-grid')]/p[2]"),
 
@@ -1080,7 +1082,7 @@ var ShimokitazawaLiveHausFetcher = fetchers.Simple{
 	NextSelector:        "//a[contains(@class, 'tribe-events-c-nav__next')]",
 	LiveSelector:        "//article[contains(@class, 'tribe-events-calendar-list__event')]",
 	TitleQuerier:        *htmlquerier.Q("//h3"),
-	DetailQuerier:       *htmlquerier.Q("//div[contains(@class, 'tribe-events-calendar-list__event-description')]"),
+	DetailQuerier:       *htmlquerier.Q("//div[contains(@class, 'tribe-events-calendar-list__event-description')]").PreserveWhitespace(),
 	DetailsLinkSelector: "//a[contains(@class, 'tribe-events-calendar-list__event-featured-image-link')]",
 
 	TimeHandler: fetchers.TimeHandler{
@@ -1280,7 +1282,7 @@ var ShimokitazawaShangrilaFetcher = fetchers.Simple{
 	LiveSelector:   "//div[@id='content']/div[contains(@class, 'hentry')]",
 	TitleQuerier:   *htmlquerier.Q("//strong"),
 	ArtistsQuerier: *htmlquerier.Q("//div[@class='post-content-content']/p[2]").Split("\n"),
-	PriceQuerier:   *htmlquerier.Q("//div[@class='post-content-content']/p[3]").After("START ").After("\n").ReplaceAllRegex(`\s+`, " "),
+	PriceQuerier:   *htmlquerier.Q("//div[@class='post-content-content']/p[3]").After("START ").After("\n"),
 
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//table[@id='wp-calendar']/caption").Before("年"),
@@ -1333,7 +1335,7 @@ var ShimokitazawaSpreadFetcher = fetchers.Simple{
 	BaseURL:        "https://spread.tokyo/",
 	InitialURL:     "https://spread.tokyo/schedule.html",
 	LiveSelector:   "//div[@id='c7']/div[@class='box'][position()<200]", // not sure why 200 leads to 99 matches but it does
-	TitleQuerier:   *htmlquerier.Q("//u/b").ReplaceAllRegex(`\s+`, " ").CutWrapper(`"`, `"`),
+	TitleQuerier:   *htmlquerier.Q("//u/b").CutWrapper(`"`, `"`),
 	ArtistsQuerier: *htmlquerier.QAll("//div/span[last()]/text()"),
 	PriceQuerier:   *htmlquerier.Q("//div/span[4]"),
 
@@ -1456,8 +1458,8 @@ var ShindaitaFeverFetcher = fetchers.Simple{
 		NumberOfLives:         32,
 		FirstLiveTitle:        "『百々和宏presents ～Drunk51～』",
 		FirstLiveArtists:      []string{"百々和宏（MO’SOME TONEBENDER）", "ホリエアツシ（STRAIGHTENER）", "佐々木亮介（a flood of circle）", "ヤマジカズヒデ（dip）", "有江嘉典（VOLA&THE ORIENTAL MACHINE）", "ウエノコウジ（the HIATUS, Radio Caroline）", "クハラカズユキ（The Birthday）", "有松益男（BACK DROP BOMB）"},
-		FirstLivePrice:        "ADV ￥4800 (+1drink) THANK YOU SOLD OUT!!!\n※1drink ￥600",
-		FirstLivePriceEnglish: "ADV ￥4800 (+1drink) THANK YOU SOLD OUT!!!\n※1drink ￥600",
+		FirstLivePrice:        "ADV ￥4800 (+1drink) THANK YOU SOLD OUT!!! ※1drink ￥600",
+		FirstLivePriceEnglish: "ADV ￥4800 (+1drink) THANK YOU SOLD OUT!!! ※1drink ￥600",
 		FirstLiveOpenTime:     time.Date(2023, 11, 1, 18, 45, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 11, 1, 19, 30, 0, 0, util.JapanTime),
 		FirstLiveURL:          util.InsertYearMonth("https://www.fever-popo.com/schedule/%d/%02d/"),
@@ -1744,11 +1746,47 @@ var ShinjukuSamuraiFetcher = fetchers.Simple{
 		NumberOfLives:         24,
 		FirstLiveTitle:        "Shinjuku SAMURAI pre. うてばひびく vol.118",
 		FirstLiveArtists:      []string{"歌田真紀", "Spit Lulu's", "花酔い"},
-		FirstLivePrice:        "ADV./DOOR  ￥2,500/￥3,000　※入場時1ドリンク￥600別",
-		FirstLivePriceEnglish: "ADV./DOOR  ￥2,500/￥3,000　※When entering1Drink￥600Separately",
+		FirstLivePrice:        "ADV./DOOR ￥2,500/￥3,000　※入場時1ドリンク￥600別",
+		FirstLivePriceEnglish: "ADV./DOOR ￥2,500/￥3,000　※When entering1Drink￥600Separately",
 		FirstLiveOpenTime:     time.Date(2025, 2, 3, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2025, 2, 3, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://live-samurai.jp/2025/02/03/__trashed-2-34/",
+	},
+}
+
+var ShinjukuScienceFetcher = fetchers.Simple{
+	BaseURL:              "https://club-science.com/",
+	ShortYearIterableURL: "https://club-science.com/schedule/20%d/%02d/",
+	LiveSelector:         "//div[contains(@class, 'schedule_box')]",
+	MultiLiveDaySelector: "//div[@class='schedule_center_list']",
+	TitleQuerier:         *htmlquerier.Q("//div[@class='sche_ttl']"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='sche_detail'][1]//text()").Split("\n").Split(" / ").DeleteFrom("＜FOOD＞").DeleteFrom("【FOOD】").DeleteFrom("【FOOD BOOTH】"),
+	PriceQuerier:         *htmlquerier.Q("//div[@class='sche_detail'][2]/text()[2]"),
+	DetailsLinkSelector:  "//a",
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//div[@class='next_preview']/span[@class='sche-date']"),
+		MonthQuerier:     *htmlquerier.Q("//div[@class='next_preview']/span[@class='sche-date']").After("年"),
+		DayQuerier:       *htmlquerier.Q("//div[@class='sche-date']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='sche_detail'][2]/text()[1]"),
+		StartTimeQuerier: *htmlquerier.Q("//div[@class='sche_detail'][2]/text()[1]").After("START"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shinjuku",
+	VenueID:        "shinjuku-science",
+	Latitude:       35.695437,
+	Longitude:      139.703562,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         24,
+		FirstLiveTitle:        `OXYMORPHONN × バミューダ★バガボンド × Shinjuku club SCIENCE presents "SCIENTIFIC NIGHTMARE”vol.8`,
+		FirstLiveArtists:      []string{"OXYMORPHONN", "バミューダ★バガボンド", "THE DISASTER POINTS", "SOBUT", "STRIKE AGAIN", "kitsunevi", "HOTVOX", "You-suke Hirata(Kikoku/CLOCK CHANNEL/Anti Class/R.I.P CLEAR)", "$HUN (HOMEWARD TATTOO PARLOR)", "AREA"},
+		FirstLivePrice:        "ADV 2500 DOOR 3000",
+		FirstLivePriceEnglish: "ADV 2500 DOOR 3000",
+		FirstLiveOpenTime:     time.Date(2025, 2, 1, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 2, 1, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://club-science.com/detail/2025/02/01",
 	},
 }
 

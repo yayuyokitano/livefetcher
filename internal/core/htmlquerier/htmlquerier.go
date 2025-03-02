@@ -29,6 +29,10 @@ type Querier struct {
 	selector string
 	// selectAll determines fetch strategy. If selectAll is true, all matches are fetched and sent to arr; if selectAll is false, only first match is fetched and added to first index of array.
 	selectAll bool
+	// Whether to preserve whitespace or not
+	preserveWhitespace bool
+	// Whether to print extra logs
+	verbose bool
 	// filters contains the filters to apply to modify result.
 	filters []func([]string) []string
 }
@@ -54,9 +58,36 @@ func Q(selector string) *Querier {
 	}
 }
 
+// PreserveWhitespace disables the normalization of whitespace
+func (q *Querier) PreserveWhitespace() *Querier {
+	q.preserveWhitespace = true
+	return q
+}
+
+// Verbose enables verbose mode
+func (q *Querier) Verbose() *Querier {
+	q.verbose = true
+	return q
+}
+
 // trim is a splitter function that trims whitespace from the beginning and end of the string.
 func trim(s string) string {
 	return strings.TrimSpace(s)
+}
+
+func normalizeWhitespace(s string) string {
+	re, err := regexp.Compile(`(\s| )+`)
+	if err != nil {
+		return s
+	}
+	return re.ReplaceAllString(s, " ")
+}
+
+// Normalizes whitespace to all be spaces
+func (q *Querier) NormalizeWhitespace() *Querier {
+	return q.AddFilter(func(s string) string {
+		return normalizeWhitespace(s)
+	})
 }
 
 // Trim adds a filter to the querier that removes any leading and trailing whitespace.
@@ -143,7 +174,12 @@ func (q *Querier) Execute(n *html.Node) (a []string, err error) {
 
 	newArr := make([]string, 0)
 	for _, str := range q.arr {
-		newStr := trim(str)
+		newStr := str
+		if !q.preserveWhitespace {
+			newStr = normalizeWhitespace(newStr)
+		}
+		newStr = trim(newStr)
+
 		if newStr != "" {
 			newArr = append(newArr, newStr)
 		}
