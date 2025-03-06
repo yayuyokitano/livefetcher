@@ -477,3 +477,31 @@ func CreateProjectFamiryFetcher(baseUrl string, venueId string, latitude, longit
 		TestInfo: testInfo,
 	}
 }
+
+func CreateGrafFetcher(baseUrl string, venueId string, latitude, longitude float64, testInfo TestInfo, yearQuerier htmlquerier.Querier) Simple {
+	return Simple{
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: baseUrl + "20%d%02d.html",
+		LiveSelector:         "//div[@id='schedule']/div[contains(@class, 'days')]",
+		TitleQuerier:         *htmlquerier.Q("//div[@class='cat' and ./text()='TITLE']/following-sibling::div[@class='desc']"),
+		ArtistsQuerier:       *htmlquerier.Q("//div[@class='cat' and ./text()='CAST']/following-sibling::div[@class='desc']").Split(" / "),
+		PriceQuerier:         *htmlquerier.Q("//div[@class='cat' and ./text()='ADV / DOOR']/following-sibling::div[@class='desc']"),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      yearQuerier,
+			MonthQuerier:     *htmlquerier.Q("//div[contains(@class, 'date')]"),
+			DayQuerier:       *htmlquerier.Q("//div[contains(@class, 'date')]").After("/"),
+			OpenTimeQuerier:  *htmlquerier.Q("//div[@class='cat' and ./text()='OPEN / START']/following-sibling::div[@class='desc']"),
+			StartTimeQuerier: *htmlquerier.Q("//div[@class='cat' and ./text()='OPEN / START']/following-sibling::div[@class='desc']").After("/"),
+		},
+
+		PrefectureName: "fukuoka",
+		AreaName:       "tenjin",
+		VenueID:        venueId,
+		Latitude:       latitude,
+		Longitude:      longitude,
+		RequireArtists: true,
+
+		TestInfo: testInfo,
+	}
+}
