@@ -1891,3 +1891,14 @@ var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
 	35.693763,
 	139.703859,
 )
+
+var ZeppShinjukuFetcher = fetchers.CreateZeppFetcher("shinjuku", "tokyo", "shinjuku", "shinjuku-zepp", 35.695937, 139.700688, fetchers.TestInfo{
+	NumberOfLives:         17,
+	FirstLiveTitle:        "⼩久保柚乃⽣誕ソロライブ「炭素。」",
+	FirstLiveArtists:      []string{"小久保柚乃"},
+	FirstLivePrice:        "スタンディング/ ¥6,900 カメコ席/ ¥12,000",
+	FirstLivePriceEnglish: "Standing/ ¥6,900 カメコ席/ ¥12,000",
+	FirstLiveOpenTime:     time.Date(2025, 4, 3, 18, 0, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 4, 3, 19, 0, 0, 0, util.JapanTime),
+	FirstLiveURL:          "https://www.zepp.co.jp/hall/shinjuku/schedule/single/?rid=147339",
+})

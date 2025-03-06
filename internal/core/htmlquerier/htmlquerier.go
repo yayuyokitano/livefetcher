@@ -76,7 +76,7 @@ func trim(s string) string {
 }
 
 func normalizeWhitespace(s string) string {
-	re, err := regexp.Compile(`(\s| )+`)
+	re, err := regexp.Compile(`(\s| | )+`)
 	if err != nil {
 		return s
 	}

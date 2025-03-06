@@ -30,41 +30,6 @@ var FukuokaOpsFetcher = fetchers.CreateProjectFamiryFetcher("https://op-s.info/"
 	FirstLiveURL:          "https://op-s.info/schedule/hyakki-pre-%%e7%%99%%be%%e9%%ac%%bc%%e5%%a4%%9c%%e8%%a1%%8cvol-3/",
 })
 
-var FukuokaPublicBarBassicFetcher = fetchers.Simple{
-	BaseURL:              "https://freecalend.com/",
-	ShortYearIterableURL: "https://freecalend.com/open/mem82502",
-	LiveSelector:         "//div[@id='schedule']/div[contains(@class, 'days')]",
-	TitleQuerier:         *htmlquerier.Q("//div[@class='cat' and ./text()='TITLE']/following-sibling::div[@class='desc']"),
-	ArtistsQuerier:       *htmlquerier.Q("//div[@class='cat' and ./text()='CAST']/following-sibling::div[@class='desc']").Split(" / "),
-	PriceQuerier:         *htmlquerier.Q("//div[@class='cat' and ./text()='ADV / DOOR']/following-sibling::div[@class='desc']"),
-
-	TimeHandler: fetchers.TimeHandler{
-		YearQuerier:      *htmlquerier.Q("//div[@class='title']/text()[contains(., 'Schedule')]"),
-		MonthQuerier:     *htmlquerier.Q("//div[@class='title']/text()[contains(., 'Schedule')]").After("/"),
-		DayQuerier:       *htmlquerier.Q("//div[@class='date2']").After("/"),
-		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='cat' and ./text()='OPEN / START']/following-sibling::div[@class='desc']"),
-		StartTimeQuerier: *htmlquerier.Q("//div[@class='cat' and ./text()='OPEN / START']/following-sibling::div[@class='desc']").After("/"),
-	},
-
-	PrefectureName: "fukuoka",
-	AreaName:       "tenjin",
-	VenueID:        "fukuoka-graf",
-	Latitude:       33.593063,
-	Longitude:      130.394813,
-	RequireArtists: true,
-
-	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         12,
-		FirstLiveTitle:        `sea's line × FLAGS`,
-		FirstLiveArtists:      []string{"sea's line", "Amsterdamned", "the seadays", "elephant", "futurina", "犬のやすらぎ", "奏人心", "竹崎彰悟", "gn8mykitten", "藤山拓", "Etranger"},
-		FirstLivePrice:        "￥3000 / ￥3500 / 1DRINK ORDER",
-		FirstLivePriceEnglish: "￥3000 / ￥3500 / 1DRINK ORDER",
-		FirstLiveOpenTime:     time.Date(2025, 3, 1, 15, 0, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2025, 3, 1, 15, 30, 0, 0, util.JapanTime),
-		FirstLiveURL:          util.InsertShortYearMonth("https://fukuoka-graf.com/20%d%02d.html"),
-	},
-}
-
 var FukuokaVoodooLoungeFetcher = fetchers.CreateGrafFetcher("https://voodoolounge.jp/", "fukuoka-voodoolounge", 33.593063, 130.394687, fetchers.TestInfo{
 	NumberOfLives:         12,
 	FirstLiveTitle:        `香野子東名阪福ツアー`,
@@ -97,3 +62,39 @@ var ZeppFukuokaFetcher = fetchers.CreateZeppFetcher("fukuoka", "fukuoka", "fukuo
 	FirstLiveStartTime:    time.Date(2025, 4, 4, 19, 0, 0, 0, util.JapanTime),
 	FirstLiveURL:          "https://www.zepp.co.jp/hall/fukuoka/schedule/single/?rid=146915",
 })
+
+var KokuraFuseFetcher = fetchers.Simple{
+	BaseURL:              "https://kokurafuse.com/",
+	ShortYearIterableURL: "https://kokurafuse.com/monthly/?d=20%d-%02d-01",
+	LiveSelector:         "//article[@class='schedule-item']",
+	DetailsLinkSelector:  "//a",
+	TitleQuerier:         *htmlquerier.Q("//h2"),
+	ArtistsQuerier:       *htmlquerier.Q("//dl[@class='event__cast']/dd").Split(" / "),
+	PriceQuerier:         *htmlquerier.Q("//dl[@class='event__price']/dd").NormalizeWhitespace(),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//h3[@class='content-title']/small"),
+		MonthQuerier:     *htmlquerier.Q("//h3[@class='content-title']/small").After("年"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='event__date-day']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//dl[@class='event__time']//dd"),
+		StartTimeQuerier: *htmlquerier.Q("//dl[@class='event__time']//dd").After("開演"),
+	},
+
+	PrefectureName: "fukuoka",
+	AreaName:       "kokura",
+	VenueID:        "kokura-fuse",
+	Latitude:       33.886437,
+	Longitude:      130.879937,
+	RequireArtists: true,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         24,
+		FirstLiveTitle:        `MUZIC PUMP`,
+		FirstLiveArtists:      []string{"PSYCO LOGIC BOX", "BADWHY’s", "reo goble and his band", "珊々瑚々", "dop", "THEBIGDIPPER"},
+		FirstLivePrice:        "前売 2,500円 / 当日 3,000円",
+		FirstLivePriceEnglish: "Reservation 2,500円 / Door 3,000円",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://kokurafuse.com/schedule/schedule2697/",
+	},
+}
