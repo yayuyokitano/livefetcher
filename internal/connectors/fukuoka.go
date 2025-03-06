@@ -86,3 +86,14 @@ var FukuokaQueblickFetcher = fetchers.CreateProjectFamiryFetcher("https://quebli
 	FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 30, 0, 0, util.JapanTime),
 	FirstLiveURL:          "https://queblick.com/schedule/mix-box-60/",
 })
+
+var ZeppFukuokaFetcher = fetchers.CreateZeppFetcher("fukuoka", "fukuoka", "fukuoka", "fukuoka-zepp", 33.593563, 130.363187, fetchers.TestInfo{
+	NumberOfLives:         9,
+	FirstLiveTitle:        "04 Limited Sazabys「MOON tour 2025」",
+	FirstLiveArtists:      []string{"04Limited Sazabys"},
+	FirstLivePrice:        "1Fスタンディング（整理番号付）/ SOLD OUT 2F指定席/ SOLD OUT",
+	FirstLivePriceEnglish: "1FStanding（Numbered tickets (may affect entry order)）/ SOLD OUT 2FReserved Seating/ SOLD OUT",
+	FirstLiveOpenTime:     time.Date(2025, 4, 4, 18, 0, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 4, 4, 19, 0, 0, 0, util.JapanTime),
+	FirstLiveURL:          "https://www.zepp.co.jp/hall/fukuoka/schedule/single/?rid=146915",
+})

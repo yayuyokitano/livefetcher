@@ -505,3 +505,31 @@ func CreateGrafFetcher(baseUrl string, venueId string, latitude, longitude float
 		TestInfo: testInfo,
 	}
 }
+
+func CreateZeppFetcher(zeppVenueId, prefectureName, areaName, venueId string, latitude, longitude float64, testInfo TestInfo) Simple {
+	return Simple{
+		BaseURL:              "https://www.zepp.co.jp/",
+		ShortYearIterableURL: "https://www.zepp.co.jp/hall/" + zeppVenueId + "/schedule/?_y=20%d&_m=%d",
+		LiveSelector:         "//div[@class='sch-contentWrap']/a[contains(@class, 'sch-content')]",
+		DetailsLinkSelector:  ".",
+		TitleQuerier:         *htmlquerier.Q("//h3"),
+		ArtistsQuerier:       *htmlquerier.Q("//h2").Split(" / "),
+		PriceQuerier:         *htmlquerier.Q("//p[contains(./text(), '[PRICE]')]").After("[PRICE]"),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//table[@class='event-calendar-table']//h4"),
+			MonthQuerier:     *htmlquerier.Q("//table[@class='event-calendar-table']//h4").After("."),
+			DayQuerier:       *htmlquerier.Q("//p[@class='sch-content-date__month']").After("."),
+			OpenTimeQuerier:  *htmlquerier.Q("//span[@class='sch-content-text-date__open']"),
+			StartTimeQuerier: *htmlquerier.Q("//span[@class='sch-content-text-date__start']"),
+		},
+
+		PrefectureName: prefectureName,
+		AreaName:       areaName,
+		VenueID:        venueId,
+		Latitude:       latitude,
+		Longitude:      longitude,
+
+		TestInfo: testInfo,
+	}
+}
