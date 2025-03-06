@@ -73,6 +73,9 @@ artist = "出演アーティスト"
 area = "場所"
 
 [livehouse]
+fukuoka-graf = "graf"
+fukuoka-ops = "LIVE HOUSE OP's"
+fukuoka-queblick = "LIVE HOUSE Queblick"
 nishieifuku-jam = "西永福JAM"
 otsuka-meets = "MEETS"
 shibuya-clubquattro = "SHIBUYA CLUB QUATTRO"
@@ -155,6 +158,10 @@ yoyogi-barbara = "代々木Barbara"
 [prefecture]
 osaka = "大阪府"
 tokyo = "東京都"
+fukuoka = "福岡県"
+
+[area.fukuoka]
+tenjin = "天神・大名"
 
 [area.osaka]
 shinsaibashi = "心斎橋・堀江"

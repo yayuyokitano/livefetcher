@@ -9,6 +9,9 @@ type ConnectorsType map[string]fetchers.Simple
 
 var Connectors = ConnectorsType{
 	"ShimokitazawaTest":           connectors.ShimokitazawaTestFetcher,
+	"FukuokaGraf":                 connectors.FukuokaGrafFetcher,
+	"FukuokaOps":                  connectors.FukuokaOpsFetcher,
+	"FukuokaQueblick":             connectors.FukuokaQueblickFetcher,
 	"NishieifukuJam":              connectors.NishieifukuJamFetcher,
 	"OtsukaMeets":                 connectors.OtsukaMeetsFetcher,
 	"ShibuyaClubQuattro":          connectors.ShibuyaClubQuattroFetcher,

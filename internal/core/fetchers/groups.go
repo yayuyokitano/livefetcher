@@ -448,3 +448,32 @@ func CreateOmatsuriFetcher(baseUrl string, prefectureName, areaName, venueID str
 		TestInfo: testInfo,
 	}
 }
+
+func CreateProjectFamiryFetcher(baseUrl string, venueId string, latitude, longitude float64, testInfo TestInfo) Simple {
+	return Simple{
+		BaseURL:              baseUrl,
+		ShortYearIterableURL: baseUrl + "schedule/20%d/%02d/",
+		LiveSelector:         "//div[@class='sche-archives-flex']/a",
+		ExpandedLiveSelector: ".",
+		TitleQuerier:         *htmlquerier.Q("//h2"),
+		ArtistsQuerier:       *htmlquerier.Q("//dt[./text() = 'ACT:']/following-sibling::dd").Split(" / "),
+		PriceQuerier:         *htmlquerier.QAll("//dl[@class='Bbox'][contains(./dt/text(), 'ADV:') or contains(./dt/text(), 'DOOR:')]").Join(" / "),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:      *htmlquerier.Q("//li[@class='achives-year']"),
+			MonthQuerier:     *htmlquerier.Q("//li[@class='achives-year']").After("/"),
+			DayQuerier:       *htmlquerier.Q("//span[@class='date-text']").After("/").After("/"),
+			OpenTimeQuerier:  *htmlquerier.Q("//dt[contains(./text(), 'OPEN:')]/following-sibling::dd"),
+			StartTimeQuerier: *htmlquerier.Q("//dt[contains(./text(), 'START:')]/following-sibling::dd"),
+		},
+
+		PrefectureName: "fukuoka",
+		AreaName:       "tenjin",
+		VenueID:        venueId,
+		Latitude:       latitude,
+		Longitude:      longitude,
+		RequireArtists: true,
+
+		TestInfo: testInfo,
+	}
+}

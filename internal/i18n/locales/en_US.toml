@@ -73,6 +73,9 @@ artist = "Participating Artist"
 area = "Area"
 
 [livehouse]
+fukuoka-graf = "graf"
+fukuoka-ops = "LIVE HOUSE OP's"
+fukuoka-queblick = "LIVE HOUSE Queblick"
 nishieifuku-jam = "NISHIEIFUKU JAM"
 otsuka-meets = "MEETS"
 shibuya-clubquattro = "SHIBUYA CLUB QUATTRO"
@@ -155,6 +158,10 @@ yoyogi-barbara = "Yoyogi Barbara"
 [prefecture]
 osaka = "Osaka"
 tokyo = "Tokyo"
+fukuoka = "Fukuoka"
+
+[area.fukuoka]
+tenjin = "Tenjin/Daimyo"
 
 [area.osaka]
 shinsaibashi = "Shinsaibashi/Horie"

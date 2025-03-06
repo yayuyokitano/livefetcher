@@ -231,6 +231,9 @@ type Simple struct {
 	// Latitude is the north/south latitude coordinate of livehouse, -90/90
 	Latitude float64
 
+	// Whether to require an artist in a live.
+	RequireArtists bool
+
 	// TestInfo is a struct specifying expected values for some tests for the connector.
 	// See TestInfo documentation for details.
 	TestInfo TestInfo
@@ -560,6 +563,9 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 			if !s.isTesting && appL.StartTime.Before(timeCutoff) {
 				continue
 			}
+			if s.RequireArtists && (len(appL.Artists) == 0 || appL.Artists[0] == "") {
+				continue
+			}
 			l = append(l, appL)
 		} else {
 			dailyLives, err := htmlquery.QueryAll(live.n, s.MultiLiveDaySelector)
@@ -574,6 +580,9 @@ func (s *Simple) fetchLives(n *html.Node, overviewURL *url.URL, testDocument []b
 					continue
 				}
 				if !s.isTesting && appL.StartTime.Before(timeCutoff) {
+					continue
+				}
+				if s.RequireArtists && (len(appL.Artists) == 0 || appL.Artists[0] == "") {
 					continue
 				}
 				l = append(l, appL)
