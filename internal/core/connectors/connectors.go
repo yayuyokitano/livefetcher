@@ -15,6 +15,7 @@ var Connectors = ConnectorsType{
 	"FukuokaQueblick":     connectors.FukuokaQueblickFetcher,
 	"ZeppFukuoka":         connectors.ZeppFukuokaFetcher,
 	"ZeppShinjuku":        connectors.ZeppShinjukuFetcher,
+	"KichijojiClubSeata":  connectors.KichijojiClubSeataFetcher,
 	"KichijojiPlanetK":    connectors.KichijojiPlanetKFetcher,
 	"KichijojiWarp":       connectors.KichijojiWarpFetcher,
 	"KokuraFuse":          connectors.KokuraFuseFetcher,

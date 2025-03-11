@@ -83,6 +83,23 @@ var HachiojiMatchVoxFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("matchvox"
  *             *
  ***************/
 
+var KichijojiClubSeataFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://seata.jp/",
+	"https://seata.jp/schedule/calendar/20%d/%02d/",
+	"tokyo", "kichijoji", "kichijoji-clubseata",
+	fetchers.TestInfo{
+		NumberOfLives:         17,
+		FirstLiveTitle:        "Outstanding Vol.2",
+		FirstLiveArtists:      []string{"柘榴", "雫", "skip-A", "せな", "月乃", "成宮 亮", "ぽむ", "ゆあ"},
+		FirstLivePrice:        "1部：前売券4,200円/当日券4,300円　2部：前売券4,700円/当日券4,800円(1Drink代金￥700別途必要)",
+		FirstLivePriceEnglish: "1部：前売券4,200円/当日券4,300円　2部：前売券4,700円/当日券4,800円(1Drink代金￥700別途必要)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 2, 12, 15, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 2, 12, 45, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://seata.jp/schedule/detail/40625",
+	},
+	35.705813, 139.581813,
+)
+
 var KichijojiPlanetKFetcher = fetchers.Simple{
 	BaseURL:        "http://inter-planets.net/",
 	InitialURL:     "http://inter-planets.net/calendar",
