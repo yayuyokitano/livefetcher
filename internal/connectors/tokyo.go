@@ -77,6 +77,46 @@ var HachiojiMatchVoxFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("matchvox"
 	FirstLiveURL:          util.InsertYearMonth("http://matchvox.rinkydink.info/matchvox/schedule?yr=%d&month=%d"),
 })
 
+/***************
+ *             *
+ *  Kichijoji  *
+ *             *
+ ***************/
+
+var KichijojiWarpFetcher = fetchers.Simple{
+	BaseURL:              "http://warp.rinky.info/",
+	ShortYearIterableURL: "http://warp.rinky.info/schedules_cat/20%d-%02d",
+	LiveSelector:         "//article[@class='schedules-box'][not(contains(.//h4, 'ホールレンタル'))]",
+	TitleQuerier:         *htmlquerier.Q("//h4"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='w-flyer']/text()"),
+	PriceQuerier:         *htmlquerier.Q("//section[@class='notes-wrapper']/p[2]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//section[@class='schedules-navigation']//h3/text()"),
+		MonthQuerier:     *htmlquerier.Q("//section[@class='schedules-navigation']//h3/span"),
+		DayQuerier:       *htmlquerier.Q("//section[@data-aos='fade-up'][1]"),
+		OpenTimeQuerier:  *htmlquerier.Q("//section[@class='notes-wrapper']/p[1]/span"),
+		StartTimeQuerier: *htmlquerier.Q("//section[@class='notes-wrapper']/p[1]/span").After(" / "),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "kichijoji",
+	VenueID:        "kichijoji-warp",
+	Latitude:       35.704563,
+	Longitude:      139.583062,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         20,
+		FirstLiveTitle:        `Himeuzu 1st. album "Bouquet" release party`,
+		FirstLiveArtists:      []string{"ヒメウズ", "場末", "シノエフヒ", "メレ"},
+		FirstLivePrice:        "ADV / DOOR¥2400 / ¥2900 (+1D)",
+		FirstLivePriceEnglish: "ADV / DOOR¥2400 / ¥2900 (+1D)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 11, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 11, 50, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("http://warp.rinky.info/schedules_cat/%d-%02d"),
+	},
+}
+
 /************
  *          *
  *  Otsuka  *
