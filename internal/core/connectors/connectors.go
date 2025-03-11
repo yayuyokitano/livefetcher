@@ -8,14 +8,18 @@ import (
 type ConnectorsType map[string]fetchers.Simple
 
 var Connectors = ConnectorsType{
-	"ShimokitazawaTest":           connectors.ShimokitazawaTestFetcher,
-	"FukuokaGraf":                 connectors.FukuokaGrafFetcher,
-	"FukuokaOps":                  connectors.FukuokaOpsFetcher,
-	"FukuokaVoodooLounge":         connectors.FukuokaVoodooLoungeFetcher,
-	"FukuokaQueblick":             connectors.FukuokaQueblickFetcher,
-	"ZeppFukuoka":                 connectors.ZeppFukuokaFetcher,
-	"ZeppShinjuku":                connectors.ZeppShinjukuFetcher,
-	"KokuraFuse":                  connectors.KokuraFuseFetcher,
+	"ShimokitazawaTest":   connectors.ShimokitazawaTestFetcher,
+	"FukuokaGraf":         connectors.FukuokaGrafFetcher,
+	"FukuokaOps":          connectors.FukuokaOpsFetcher,
+	"FukuokaVoodooLounge": connectors.FukuokaVoodooLoungeFetcher,
+	"FukuokaQueblick":     connectors.FukuokaQueblickFetcher,
+	"ZeppFukuoka":         connectors.ZeppFukuokaFetcher,
+	"ZeppShinjuku":        connectors.ZeppShinjukuFetcher,
+	"KokuraFuse":          connectors.KokuraFuseFetcher,
+	// FIXME: chelsea hotel broklen
+	"ShibuyaChelseaHotel":         connectors.ShibuyaChelseaHotelFetcher,
+	"HachiojiRips":                connectors.HachiojiRipsFetcher,
+	"HachiojiMatchVox":            connectors.HachiojiMatchVoxFetcher,
 	"NishieifukuJam":              connectors.NishieifukuJamFetcher,
 	"OtsukaMeets":                 connectors.OtsukaMeetsFetcher,
 	"ShibuyaClubQuattro":          connectors.ShibuyaClubQuattroFetcher,

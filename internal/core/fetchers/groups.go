@@ -533,3 +533,27 @@ func CreateZeppFetcher(zeppVenueId, prefectureName, areaName, venueId string, la
 		TestInfo: testInfo,
 	}
 }
+
+func CreateHachiojiRinkyDinkFetcher(venueName string, latitude, longitude float64, testInfo TestInfo) Simple {
+	return Simple{
+		BaseURL:              "http://" + venueName + ".rinkydink.info/",
+		ShortYearIterableURL: "http://" + venueName + ".rinkydink.info/" + venueName + "/schedule?yr=20%d&month=%d",
+		LiveSelector:         "//ul[@class='mc-list']/li[.//h3/text() != 'HALL RENTAL']",
+		TitleQuerier:         *htmlquerier.Q("//h3"),
+		DetailQuerier:        *htmlquerier.QAll("//div[@class='longdesc description']//text()").PreserveWhitespace().Join("\n"),
+
+		TimeHandler: TimeHandler{
+			YearQuerier:  *htmlquerier.Q("//select[@name='yr']/option[@selected='selected']"),
+			MonthQuerier: *htmlquerier.Q("//select[@name='month']/option[@selected='selected']"),
+			DayQuerier:   *htmlquerier.Q("//strong[@class='event-date']").After("/"),
+		},
+
+		PrefectureName: "tokyo",
+		AreaName:       "hachioji",
+		VenueID:        "hachioji-" + venueName,
+		Latitude:       latitude,
+		Longitude:      longitude,
+
+		TestInfo: testInfo,
+	}
+}

@@ -49,6 +49,34 @@ var ShimokitazawaTestFetcher = fetchers.Simple{
 	},
 }
 
+/**************
+ *            *
+ *  Hachioji  *
+ *            *
+ **************/
+
+var HachiojiRipsFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("rips", 35.656937, 139.336687, fetchers.TestInfo{
+	NumberOfLives:         15,
+	FirstLiveTitle:        "“THE MESEEKS JAPAN TOUR 2025”",
+	FirstLiveArtists:      []string{"THE MESEEKS(Switzerland)", "LoG", "2STRIKE 3BALL", "clyde", "at field of school", "CAECUM"},
+	FirstLivePrice:        "adv:2500yen、door:3000yen",
+	FirstLivePriceEnglish: "adv:2500yen、door:3000yen",
+	FirstLiveOpenTime:     time.Date(2025, 3, 1, 17, 15, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 45, 0, 0, util.JapanTime),
+	FirstLiveURL:          util.InsertYearMonth("http://rips.rinkydink.info/rips/schedule?yr=%d&month=%d"),
+})
+
+var HachiojiMatchVoxFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("matchvox", 35.656937, 139.336687, fetchers.TestInfo{
+	NumberOfLives:         15,
+	FirstLiveTitle:        "Match Vox 21st anniversary-初日-",
+	FirstLiveArtists:      []string{"SAIHATE", "ザ・ドーベルマンション", "Jacob Jr.", "THE ERIC MARK'S", "サンカクスイ"},
+	FirstLivePrice:        "adv.¥2000、/door ¥2500",
+	FirstLivePriceEnglish: "adv.¥2000、/door ¥2500",
+	FirstLiveOpenTime:     time.Date(2025, 4, 1, 18, 0, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 4, 1, 18, 30, 0, 0, util.JapanTime),
+	FirstLiveURL:          util.InsertYearMonth("http://matchvox.rinkydink.info/matchvox/schedule?yr=%d&month=%d"),
+})
+
 /************
  *          *
  *  Otsuka  *
@@ -79,6 +107,41 @@ var OtsukaMeetsFetcher = fetchers.CreateOmatsuriFetcher(
  *  Shibuya  *
  *           *
  *************/
+
+var ShibuyaChelseaHotelFetcher = fetchers.Simple{
+	BaseURL:              "http://www.chelseahotel.jp/",
+	ShortYearIterableURL: "http://www.chelseahotel.jp/%d%02d.html",
+	LiveSelector:         "//body/p[@class='bold' and .//a]",
+	TitleQuerier:         *htmlquerier.QAll("./text()[not(./preceding-sibling::a) and position() > 1]").Join(" "),
+	ArtistsQuerier:       *htmlquerier.QAll("./a"),
+	PriceQuerier:         *htmlquerier.Q("./font/text()[not(./preceding-sibling::a) and position() > 1]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		MonthQuerier:     *htmlquerier.Q("./text()[1]"),
+		DayQuerier:       *htmlquerier.Q("./text()[1]").After("/"),
+		OpenTimeQuerier:  *htmlquerier.Q("./font/text()[1]"),
+		StartTimeQuerier: *htmlquerier.Q("./font/text()[1]").After("START"),
+		IsMonthInLive:    true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "shibuya",
+	VenueID:        "shibuya-chelseahotel",
+	Latitude:       35.662437,
+	Longitude:      139.697938,
+	RequireArtists: true,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         22,
+		FirstLiveTitle:        `Cha'R ONE-MAN Live in TOKYO 「New Glow」`,
+		FirstLiveArtists:      []string{"Cha'R"},
+		FirstLivePrice:        "前売り￥3,500/当日￥4,000(1ドリンク別)",
+		FirstLivePriceEnglish: "前売り￥3,500/当日￥4,000(1ドリンク別)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertShortYearMonth("http://www.chelseahotel.jp/%d%02d.html"),
+	},
+}
 
 var ShibuyaClubQuattroFetcher = fetchers.Simple{
 	BaseURL:              "https://www.club-quattro.com/shibuya/schedule/",
