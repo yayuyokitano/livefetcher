@@ -123,6 +123,7 @@ var bannedArtists = map[string]bool{
 	"live :":          true,
 	"【出演】":            true,
 	"＜出演＞":            true,
+	"〈出演〉":            true,
 	"他":               true,
 	"【ゲスト】":           true,
 	"【司会】":            true,
@@ -395,7 +396,7 @@ func FindTime(s string, prefix string) string {
 }
 
 func FindPrice(arr []string) string {
-	re, err := regexp.Compile(`[^\s]*\s?(?:(?:[¥￥][\d,]+)|(?:[\d,]+(?:円|(?:yen))))(?:\s*\+\d?(?:(?:D)|(?:ドリンク)))?`)
+	re, err := regexp.Compile(`[^\s]*\s?(?:(?:[¥￥][\d,]+)|(?:[\d,]+(?:円|(?:yen))))(?:(?:\s|\()*\+\d?(?:(?:D)|(?:ドリンク))(?:\))?)?`)
 	if err != nil {
 		return ""
 	}

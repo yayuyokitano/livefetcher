@@ -83,6 +83,42 @@ var HachiojiMatchVoxFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("matchvox"
  *             *
  ***************/
 
+var KichijojiPlanetKFetcher = fetchers.Simple{
+	BaseURL:        "http://inter-planets.net/",
+	InitialURL:     "http://inter-planets.net/calendar",
+	NextSelector:   "//div[contains(@class, 'ai1ec-pagination')]/a[contains(@class, 'ai1ec-next-page')]",
+	LiveSelector:   "//div[@class='ai1ec-agenda-view']/div[contains(@class, 'ai1ec-date')][not(contains(.//span[@class='ai1ec-event-title'], 'ホールレンタル'))]",
+	TitleQuerier:   *htmlquerier.Q("//span[@class='ai1ec-event-title']"),
+	ArtistsQuerier: *htmlquerier.QAll("//div[@class='ai1ec-event-description']/p[1]//strong"),
+	DetailQuerier:  *htmlquerier.Q("//div[@class='ai1ec-event-description']"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//div[@class='ai1ec-year']"),
+		MonthQuerier: *htmlquerier.Q("//div[@class='ai1ec-month']"),
+		DayQuerier:   *htmlquerier.Q("//div[@class='ai1ec-day']"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "kichijoji",
+	VenueID:        "kichijoji-planetk",
+	Latitude:       35.705312,
+	Longitude:      139.578688,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         27,
+		FirstLiveTitle:        "PLANET ATTACK!!!",
+		FirstLiveArtists:      []string{"ザ・ビンビンズ", "CAROLAN’S", "SHAKTPUNK", "カトウマサタカ", "マグロジェット"},
+		FirstLivePrice:        "TICKET ¥2,500、/ ¥3,000 (+1D)",
+		FirstLivePriceEnglish: "TICKET ¥2,500、/ ¥3,000 (+1D)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://inter-planets.net/calendar",
+	},
+}
+
 var KichijojiWarpFetcher = fetchers.Simple{
 	BaseURL:              "http://warp.rinky.info/",
 	ShortYearIterableURL: "http://warp.rinky.info/schedules_cat/20%d-%02d",
