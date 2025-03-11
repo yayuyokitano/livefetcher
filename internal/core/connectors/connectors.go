@@ -25,6 +25,7 @@ var Connectors = ConnectorsType{
 	"HachiojiMatchVox":            connectors.HachiojiMatchVoxFetcher,
 	"NishieifukuJam":              connectors.NishieifukuJamFetcher,
 	"OtsukaMeets":                 connectors.OtsukaMeetsFetcher,
+	"OtsukaDeepa":                 connectors.OtsukaDeepaFetcher,
 	"ShibuyaClubQuattro":          connectors.ShibuyaClubQuattroFetcher,
 	"ShibuyaCyclone":              connectors.ShibuyaCycloneFetcher,
 	"ShibuyaDive":                 connectors.ShibuyaDiveFetcher,

@@ -92,7 +92,7 @@ var KichijojiClubSeataFetcher = fetchers.CreateBassOnTopFetcher(
 		FirstLiveTitle:        "Outstanding Vol.2",
 		FirstLiveArtists:      []string{"柘榴", "雫", "skip-A", "せな", "月乃", "成宮 亮", "ぽむ", "ゆあ"},
 		FirstLivePrice:        "1部：前売券4,200円/当日券4,300円　2部：前売券4,700円/当日券4,800円(1Drink代金￥700別途必要)",
-		FirstLivePriceEnglish: "1部：前売券4,200円/当日券4,300円　2部：前売券4,700円/当日券4,800円(1Drink代金￥700別途必要)",
+		FirstLivePriceEnglish: "1部：Reservation券4,200円/Door券4,300円　2部：Reservation券4,700円/Door券4,800円(1DrinkPrice￥700Must be purchased separately)",
 		FirstLiveOpenTime:     time.Date(2025, 3, 2, 12, 15, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2025, 3, 2, 12, 45, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://seata.jp/schedule/detail/40625",
@@ -175,6 +175,23 @@ var KichijojiWarpFetcher = fetchers.Simple{
  *  Otsuka  *
  *          *
  ************/
+
+var OtsukaDeepaFetcher = fetchers.CreateBassOnTopFetcher(
+	"https://otsukadeepa.jp/",
+	"https://otsukadeepa.jp/schedule/calendar/20%d/%02d/",
+	"tokyo", "otsuka", "otsuka-deepa",
+	fetchers.TestInfo{
+		NumberOfLives:         15,
+		FirstLiveTitle:        "23歳を正しく始める方法",
+		FirstLiveArtists:      []string{"kilaku｡", "白昼夢", "THIRSTY RAGE", "ネコノヒタイ", "atLestyRe", "CITY OVER", "Nothing Neverminds"},
+		FirstLivePrice:        "ADV/DOOR ￥2,000-/￥2,500- (別途1d￥700-)",
+		FirstLivePriceEnglish: "ADV/DOOR ￥2,000-/￥2,500- (Separately1d￥700-)",
+		FirstLiveOpenTime:     time.Date(2025, 3, 4, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 4, 16, 50, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://otsukadeepa.jp/schedule/detail/37282",
+	},
+	35.730438, 139.728063,
+)
 
 var OtsukaMeetsFetcher = fetchers.CreateOmatsuriFetcher(
 	"https://meets.rinky.info/",

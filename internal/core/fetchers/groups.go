@@ -305,7 +305,7 @@ func CreateBassOnTopFetcher(
 			FirstLivePriceEnglish: testInfo.FirstLivePriceEnglish,
 			FirstLiveOpenTime:     testInfo.FirstLiveOpenTime,
 			FirstLiveStartTime:    testInfo.FirstLiveStartTime,
-			SkipOfflineTest:       true,
+			FirstLiveURL:          testInfo.FirstLiveURL,
 		},
 	}
 }

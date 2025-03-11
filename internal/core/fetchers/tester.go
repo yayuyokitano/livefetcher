@@ -240,6 +240,7 @@ func (s *Simple) testStaticLive(n *html.Node, path string, testDocument []byte) 
 		return
 	}
 	if s.ShortYearIterableURL != "" && firstLive.URL != s.getTestCurrentShortURL(s.TestInfo.FirstLiveURL) {
+		fmt.Println(s.TestInfo.FirstLiveURL)
 		err = fmt.Errorf("expected url %s, got %s", s.getTestCurrentShortURL(s.TestInfo.FirstLiveURL), firstLive.URL)
 		return
 	}
