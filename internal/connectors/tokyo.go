@@ -1933,6 +1933,38 @@ var NishieifukuJamFetcher = fetchers.CreateOmatsuriFetcher(
 	},
 )
 
+var SangenjayaHeavensDoorFetcher = fetchers.Simple{
+	BaseURL:        "https://heavens-door-music.com/",
+	InitialURL:     "https://heavens-door-music.com/schedule/",
+	LiveSelector:   "//div[@class='clearfix sche_box']",
+	TitleQuerier:   *htmlquerier.Q("//h2"),
+	ArtistsQuerier: *htmlquerier.QAll("//div[contains(@class, 'tribe-events-list-event-description')]/p[1] | //div[contains(@class, 'tribe-events-list-event-description')]/h1").Split(" ／ ").Split("\n").After("O.A.："),
+	DetailQuerier:  *htmlquerier.Q("//div[contains(@class, 'tribe-events-list-event-description')]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//h2[@class='tribe-events-list-separator-month']"),
+		MonthQuerier: *htmlquerier.Q("//h2[@class='tribe-events-list-separator-month']").After("/"),
+		DayQuerier:   *htmlquerier.Q("//span[@class='tribe-event-date-start']").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "setagaya",
+	VenueID:        "sangenjaya-heavensdoor",
+	Latitude:       35.642187,
+	Longitude:      139.671688,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         18,
+		FirstLiveTitle:        "fuck’in shit! White day",
+		FirstLiveArtists:      []string{"ヒゲと味噌汁", "教祖仮面", "堕天使Project", "平成墓嵐", "Brain Stupid"},
+		FirstLivePrice:        "前売/当日　￥2,500/￥2,800",
+		FirstLivePriceEnglish: "Reservation/Door　￥2,500/￥2,800",
+		FirstLiveOpenTime:     time.Date(2025, 3, 14, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 14, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://heavens-door-music.com/schedule/",
+	},
+}
+
 var ShindaitaFeverFetcher = fetchers.Simple{
 	BaseURL:        "https://www.fever-popo.com/",
 	InitialURL:     util.InsertYearMonth("https://www.fever-popo.com/schedule/%d/%02d/"),
