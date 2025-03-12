@@ -25,6 +25,7 @@ var Connectors = ConnectorsType{
 	"KoenjiHigh":            connectors.KoenjiHighFetcher,
 	"KoenjiShowBoat":        connectors.KoenjiShowBoatFetcher,
 	"KokuraFuse":            connectors.KokuraFuseFetcher,
+	"TakadanobabaClubPhase": connectors.TakadanobabaClubPhaseFetcher,
 	// FIXME: chelsea hotel broklen
 	"ShibuyaChelseaHotel":         connectors.ShibuyaChelseaHotelFetcher,
 	"HachiojiRips":                connectors.HachiojiRipsFetcher,

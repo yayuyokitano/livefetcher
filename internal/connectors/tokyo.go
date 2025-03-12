@@ -2279,17 +2279,6 @@ var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
 	139.703859,
 )
 
-var ZeppDiverCityFetcher = fetchers.CreateZeppFetcher("divercity", "tokyo", "tokyo", "tokyo-zeppdivercity", 35.624688, 139.774563, fetchers.TestInfo{
-	NumberOfLives:         24,
-	FirstLiveTitle:        "DEEN LIVE JOY-Break26 〜ROCK ON!〜 追加公演",
-	FirstLiveArtists:      []string{"DEEN"},
-	FirstLivePrice:        "全席指定/ ¥8,500",
-	FirstLivePriceEnglish: "全席指定/ ¥8,500",
-	FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
-	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
-	FirstLiveURL:          "https://www.zepp.co.jp/hall/divercity/schedule/single/?rid=146730",
-})
-
 var ZeppShinjukuFetcher = fetchers.CreateZeppFetcher("shinjuku", "tokyo", "shinjuku", "shinjuku-zepp", 35.695937, 139.700688, fetchers.TestInfo{
 	NumberOfLives:         17,
 	FirstLiveTitle:        "⼩久保柚乃⽣誕ソロライブ「炭素。」",
@@ -2299,4 +2288,55 @@ var ZeppShinjukuFetcher = fetchers.CreateZeppFetcher("shinjuku", "tokyo", "shinj
 	FirstLiveOpenTime:     time.Date(2025, 4, 3, 18, 0, 0, 0, util.JapanTime),
 	FirstLiveStartTime:    time.Date(2025, 4, 3, 19, 0, 0, 0, util.JapanTime),
 	FirstLiveURL:          "https://www.zepp.co.jp/hall/shinjuku/schedule/single/?rid=147339",
+})
+
+/***********
+ *         *
+ *  Other  *
+ *         *
+ ***********/
+
+var TakadanobabaClubPhaseFetcher = fetchers.Simple{
+	BaseURL:              "https://www.club-phase.com/",
+	ShortYearIterableURL: "https://www.club-phase.com/schedule/20%d-%02d",
+	LiveSelector:         "//table[@id='sched']/tbody/tr",
+	TitleQuerier:         *htmlquerier.Q("/td/p[1]"),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[@class='sc_artist']/text()").Split(" / "),
+	PriceQuerier:         *htmlquerier.Q("//p[@class='sc_price']/text()[2]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//section[@id='contents-right']//h2"),
+		MonthQuerier:     *htmlquerier.Q("//section[@id='contents-right']//h2").After(" "),
+		DayQuerier:       *htmlquerier.Q("//span[@class='sc_date']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[@class='sc_price']/text()[1]"),
+		StartTimeQuerier: *htmlquerier.Q("//p[@class='sc_price']/text()[1]").After("START"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "tokyo",
+	VenueID:        "takadanobaba-clubphase",
+	Latitude:       35.714687,
+	Longitude:      139.706313,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         30,
+		FirstLiveTitle:        `高田馬場CLUB PHASE THE NINTH APOLLO pre PHASEの24周年を祝う "TETORAと炙りなタウンの2マン"`,
+		FirstLiveArtists:      []string{"TETORA", "炙りなタウン"},
+		FirstLivePrice:        "ADV ￥3500/DOOR ￥4500/D別■",
+		FirstLivePriceEnglish: "ADV ￥3500/DOOR ￥4500/Drinks sold separately■",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 17, 15, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("https://www.club-phase.com/schedule/%d-%02d"),
+	},
+}
+
+var ZeppDiverCityFetcher = fetchers.CreateZeppFetcher("divercity", "tokyo", "tokyo", "tokyo-zeppdivercity", 35.624688, 139.774563, fetchers.TestInfo{
+	NumberOfLives:         24,
+	FirstLiveTitle:        "DEEN LIVE JOY-Break26 〜ROCK ON!〜 追加公演",
+	FirstLiveArtists:      []string{"DEEN"},
+	FirstLivePrice:        "全席指定/ ¥8,500",
+	FirstLivePriceEnglish: "全席指定/ ¥8,500",
+	FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+	FirstLiveURL:          "https://www.zepp.co.jp/hall/divercity/schedule/single/?rid=146730",
 })
