@@ -29,7 +29,6 @@
 - 渋谷 RUIDO K2
 - 渋谷La.mama
 - 渋谷LUSH
-- 渋谷 gee-ge
 - JZ Brat SOUND OF TOKYO
 - 渋谷HOME
 - 渋谷WOMB

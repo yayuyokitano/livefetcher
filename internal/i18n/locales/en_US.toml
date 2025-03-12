@@ -169,6 +169,7 @@ shinsaibashi-soma = "THE LIVE HOUSE soma"
 shinsaibashi-qupe = "minamihorie qupe"
 shinsaibashi-utausakana = "Utau-sakana"
 shinsaibashi-varon = "SHINSAIBASHI VARON"
+tokyo-zeppdivercity = "Zepp DiverCity"
 yoyogi-barbara = "Yoyogi Barbara"
 
 [prefecture]
@@ -193,6 +194,7 @@ otsuka = "Otsuka"
 hachioji = "Hachioji"
 kichijoji = "Kichijoji"
 koenji = "Koenji"
+tokyo = "Other"
 
 [util]
 prefecture-area = "{{.Area}}, {{.Prefecture}}"

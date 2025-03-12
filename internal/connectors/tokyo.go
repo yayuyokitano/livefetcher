@@ -2279,6 +2279,17 @@ var ShinjukuZircoTokyoFetcher = fetchers.CreateBassOnTopFetcher(
 	139.703859,
 )
 
+var ZeppDiverCityFetcher = fetchers.CreateZeppFetcher("divercity", "tokyo", "tokyo", "tokyo-zeppdivercity", 35.624688, 139.774563, fetchers.TestInfo{
+	NumberOfLives:         24,
+	FirstLiveTitle:        "DEEN LIVE JOY-Break26 〜ROCK ON!〜 追加公演",
+	FirstLiveArtists:      []string{"DEEN"},
+	FirstLivePrice:        "全席指定/ ¥8,500",
+	FirstLivePriceEnglish: "全席指定/ ¥8,500",
+	FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+	FirstLiveURL:          "https://www.zepp.co.jp/hall/divercity/schedule/single/?rid=146730",
+})
+
 var ZeppShinjukuFetcher = fetchers.CreateZeppFetcher("shinjuku", "tokyo", "shinjuku", "shinjuku-zepp", 35.695937, 139.700688, fetchers.TestInfo{
 	NumberOfLives:         17,
 	FirstLiveTitle:        "⼩久保柚乃⽣誕ソロライブ「炭素。」",
