@@ -83,6 +83,81 @@ var HachiojiMatchVoxFetcher = fetchers.CreateHachiojiRinkyDinkFetcher("matchvox"
  *             *
  ***************/
 
+type kichijojiBlackAndBlueResponse []struct {
+	Title       string `json:"title"`
+	Url         string `json:"url"`
+	Date        string `json:"start"`
+	Description string `json:"description"`
+}
+
+var KichijojiBlackAndBlueFetcher = fetchers.Simple{
+	BaseURL: "https://blackandblue.tokyo/",
+	LiveHTMLFetcher: func(testDocument []byte) (nodes []*html.Node, err error) {
+		nodes = make([]*html.Node, 0)
+		var list kichijojiBlackAndBlueResponse
+		if testDocument == nil {
+			if err = util.GetJSON(
+				util.InsertYearMonth("https://blackandblue.tokyo/wp-admin/admin-ajax.php?action=eventorganiser-fullcal&start=%d-%02d-01&timeformat=g%3Ai%20A"),
+				&list,
+			); err != nil {
+				return
+			}
+		} else {
+			if err = json.Unmarshal(testDocument, &list); err != nil {
+				return
+			}
+		}
+		for _, live := range list {
+			if strings.HasSuffix(live.Description, "</br></br>") {
+				continue
+			}
+			n, err := html.Parse(strings.NewReader(fmt.Sprintf(
+				"<span id='date'>%s</span><span id='title'>%s</span><span id='body'>%s</span><span id='url'>%s</span>",
+				live.Date,
+				live.Title,
+				live.Description,
+				live.Url,
+			)))
+			if err != nil {
+				continue
+			}
+			nodes = append(nodes, n)
+		}
+		return
+	},
+	DetailsLinkSelector: "//span[@id='url']",
+	TitleQuerier:        *htmlquerier.Q("//span[@id='title']"),
+	ArtistsQuerier:      *htmlquerier.Q("//span[@id='body']").After("【出演】/kk").Before("/kk").Split("/"),
+	PriceQuerier:        *htmlquerier.Q("//span[@id='body']").After("charge").Before("/kk").Trim().Prefix("¥"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@id='date']"),
+		MonthQuerier:     *htmlquerier.Q("//span[@id='date']").After("-"),
+		DayQuerier:       *htmlquerier.Q("//span[@id='date']").After("-").After("-"),
+		OpenTimeQuerier:  *htmlquerier.Q("//span[@id='body']").After("open"),
+		StartTimeQuerier: *htmlquerier.Q("//span[@id='body']").After("start").After("/"),
+
+		IsYearInLive:  true,
+		IsMonthInLive: true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "kichijoji",
+	VenueID:        "kichijoji-blackandblue",
+	Latitude:       35.703563,
+	Longitude:      139.581687,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         38,
+		FirstLiveTitle:        "“MIX’N ROCK”",
+		FirstLiveArtists:      []string{"サンバラッチャ", "真夜華", "Take life easy", "ぶるうまんJAM"},
+		FirstLivePrice:        "¥2600＋1d",
+		FirstLivePriceEnglish: "¥2600＋1d",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 30, 0, 0, util.JapanTime),
+	},
+}
+
 var KichijojiClubSeataFetcher = fetchers.CreateBassOnTopFetcher(
 	"https://seata.jp/",
 	"https://seata.jp/schedule/calendar/20%d/%02d/",
@@ -136,6 +211,40 @@ var KichijojiPlanetKFetcher = fetchers.Simple{
 	},
 }
 
+var KichijojiShuffleFetcher = fetchers.Simple{
+	BaseURL:              "http://k-shuffle.com/",
+	ShortYearIterableURL: "http://k-shuffle.com/schedule/20%d-%02d",
+	LiveSelector:         "//article[@class='sched-box'][not(contains(.//h3, 'HALL RENTAL'))]",
+	TitleQuerier:         *htmlquerier.Q("//h3/span[@class='sp-br']"),
+	ArtistsQuerier:       *htmlquerier.Q("/p[1]").Split(" / "),
+	PriceQuerier:         *htmlquerier.Q("/p[2]/text()[1]").After("adv").Prefix("adv"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//h2"),
+		MonthQuerier:     *htmlquerier.Q("//h2").After("."),
+		DayQuerier:       *htmlquerier.Q("//h3"),
+		OpenTimeQuerier:  *htmlquerier.Q("/p[2]"),
+		StartTimeQuerier: *htmlquerier.Q("/p[2]").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "kichijoji",
+	VenueID:        "kichijoji-shuffle",
+	Latitude:       35.701813,
+	Longitude:      139.581187,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         33,
+		FirstLiveTitle:        "国生優太 presents live「cobalt」",
+		FirstLiveArtists:      []string{"国生優太", "あいあむみー", "マエノミドリ", "一色", "後藤凌", "里星来"},
+		FirstLivePrice:        "adv ¥3,500/door ¥-,---",
+		FirstLivePriceEnglish: "adv ¥3,500/door ¥-,---",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("http://k-shuffle.com/schedule/%d-%02d"),
+	},
+}
+
 var KichijojiWarpFetcher = fetchers.Simple{
 	BaseURL:              "http://warp.rinky.info/",
 	ShortYearIterableURL: "http://warp.rinky.info/schedules_cat/20%d-%02d",
@@ -167,6 +276,80 @@ var KichijojiWarpFetcher = fetchers.Simple{
 		FirstLiveOpenTime:     time.Date(2025, 3, 1, 11, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2025, 3, 1, 11, 50, 0, 0, util.JapanTime),
 		FirstLiveURL:          util.InsertYearMonth("http://warp.rinky.info/schedules_cat/%d-%02d"),
+	},
+}
+
+/************
+ *          *
+ *  Koenji  *
+ *          *
+ ************/
+
+var KoenjiHighFetcher = fetchers.Simple{
+	BaseURL:              "http://koenji-high.com/",
+	ShortYearIterableURL: "http://koenji-high.com/schedule/?sy=20%d&sm=%d",
+	LiveSelector:         "//div[@id='events']/div[contains(@class, 'eventlist')]",
+	TitleQuerier:         *htmlquerier.Q("//h3"),
+	ArtistsQuerier:       *htmlquerier.QAll("//th[contains(., 'LINE UP')]/following-sibling::td/text()"),
+	PriceQuerier:         *htmlquerier.Q("//th[contains(., 'ADV/DOOR')]/following-sibling::td"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//span[@class='yearimage']/@id"),
+		MonthQuerier:     *htmlquerier.Q("//span[@class='monthnumimage']/@id"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='daynum']"),
+		OpenTimeQuerier:  *htmlquerier.Q("//th[contains(., 'OPEN/START')]/following-sibling::td"),
+		StartTimeQuerier: *htmlquerier.Q("//th[contains(., 'OPEN/START')]/following-sibling::td").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "koenji",
+	VenueID:        "koenji-high",
+	Latitude:       35.703563,
+	Longitude:      139.651063,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         25,
+		FirstLiveTitle:        "SUCKER BAWL~Rock by nature 61~",
+		FirstLiveArtists:      []string{"THE POGO", "THE PRISONER", "RAISE A FLAG", "ISHIKAWA"},
+		FirstLivePrice:        "￥3,500/￥4,000",
+		FirstLivePriceEnglish: "￥3,500/￥4,000",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("http://koenji-high.com/schedule/?sy=%d&sm=%d"),
+	},
+}
+
+var KoenjiShowBoatFetcher = fetchers.Simple{
+	BaseURL:              "https://www.showboat1993.com/",
+	ShortYearIterableURL: "https://www.showboat1993.com/2024/20%d-%d",
+	LiveSelector:         "//div[@data-testid='mesh-container-content']/section[2]/div[@data-testid='inline-content']/div[@data-testid='mesh-container-content']/div/div[@data-testid='inline-content']/div[@data-testid='mesh-container-content']",
+	TitleQuerier:         *htmlquerier.Q("/div[2]/p[1]"),
+	ArtistsQuerier:       *htmlquerier.QAll("//p[contains(., '出演')]/following-sibling::p[1]").Split(" / "),
+	PriceQuerier:         *htmlquerier.Q("//p[contains(., '前売')]").After("前売").Prefix("前売"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.QAll("//span[@style='font-family:brandon-grot-w01-light,sans-serif;']").KeepIndex(2),
+		MonthQuerier:     *htmlquerier.Q("//span[@style='font-family:brandon-grot-w01-light,sans-serif;']"),
+		DayQuerier:       *htmlquerier.Q("/div[1]"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[contains(., '開場')]"),
+		StartTimeQuerier: *htmlquerier.Q("//p[contains(., '開演')]").After(" / "),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "koenji",
+	VenueID:        "koenji-showboat",
+	Latitude:       35.703563,
+	Longitude:      139.651063,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         22,
+		FirstLiveTitle:        "Magic V PRESENTS Rock’n Freedom Bash VOL.5",
+		FirstLiveArtists:      []string{"44 REVOLVER", "Lady Ray-X", "NORRA LOOSE"},
+		FirstLivePrice:        "前売￥3,000 / 当日￥3,500",
+		FirstLivePriceEnglish: "Reservation￥3,000 / Door￥3,500",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("https://www.showboat1993.com/2024/%d-%d"),
 	},
 }
 
@@ -814,8 +997,7 @@ var ShibuyaTokioTokyoFetcher = fetchers.Simple{
 			if strings.Contains(live.Fields.Default.MapValue.Fields.Title.StringValue, "ホールレンタル") {
 				continue
 			}
-			var n *html.Node
-			n, err = html.Parse(strings.NewReader(fmt.Sprintf(
+			n, err := html.Parse(strings.NewReader(fmt.Sprintf(
 				"<span id='date'>%s</span><span id='title'>%s</span><span id='body'>%s</span><span id='url'>%s</span>",
 				live.Fields.Default.MapValue.Fields.Date.StringValue,
 				live.Fields.Default.MapValue.Fields.Title.StringValue,
