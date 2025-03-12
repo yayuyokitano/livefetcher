@@ -13,6 +13,7 @@ var Connectors = ConnectorsType{
 	"FukuokaOps":            connectors.FukuokaOpsFetcher,
 	"FukuokaVoodooLounge":   connectors.FukuokaVoodooLoungeFetcher,
 	"FukuokaQueblick":       connectors.FukuokaQueblickFetcher,
+	"IkebukuroAdm":          connectors.IkebukuroAdmFetcher,
 	"ZeppFukuoka":           connectors.ZeppFukuokaFetcher,
 	"ZeppDiverCity":         connectors.ZeppDiverCityFetcher,
 	"ZeppShinjuku":          connectors.ZeppShinjukuFetcher,

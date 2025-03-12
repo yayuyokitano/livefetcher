@@ -210,6 +210,7 @@ var bannedRegexes = []string{
 
 var removable = []string{
 	"＜ONE MAN＞",
+	"■出演",
 	"( GUEST ACT )",
 	"GUEST DJ : ",
 	"DJ：",

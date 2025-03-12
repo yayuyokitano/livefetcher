@@ -385,16 +385,51 @@ var KoenjiShowBoatFetcher = fetchers.Simple{
 	},
 }
 
-/************
- *          *
- *  Otsuka  *
- *          *
- ************/
+/*************
+ *           *
+ *  Toshima  *
+ *           *
+ *************/
+
+var IkebukuroAdmFetcher = fetchers.Simple{
+	BaseURL:              "https://adm-rock.com/",
+	InitialURL:           "https://adm-rock.com/schedule/%e3%83%aa%e3%82%b9%e3%83%88/",
+	LiveSelector:         "//div[@class='tribe-events-calendar-list__event-wrapper tribe-common-g-col'][not(contains(.//h3, 'HALL RENTAL'))]",
+	ExpandedLiveSelector: "//a",
+	TitleQuerier:         *htmlquerier.Q("//h1"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='tribe-events-single-event-description tribe-events-content']/p[1]/text()"),
+	PriceQuerier:         *htmlquerier.Q("//p[contains(., 'ADV/DOOR')]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		MonthQuerier:     *htmlquerier.Q("//span[@class='tribe-event-date-start']"),
+		DayQuerier:       *htmlquerier.Q("//span[@class='tribe-event-date-start']").After("月"),
+		OpenTimeQuerier:  *htmlquerier.Q("//p[contains(., 'OP/ST')]"),
+		StartTimeQuerier: *htmlquerier.Q("//p[contains(., 'OP/ST')]").After("/").After("/"),
+		IsMonthInLive:    true,
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "toshima",
+	VenueID:        "ikebukuro-adm",
+	Latitude:       35.729563,
+	Longitude:      139.716063,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         53,
+		FirstLiveTitle:        "南無阿部陀仏×Adm presents「千里の道は池袋から！！」",
+		FirstLiveArtists:      []string{"南無阿部陀仏", "輪廻", "wise man", "友達博物舘"},
+		FirstLivePrice:        "■ADV/DOOR ¥2500+1D/¥3000+1D",
+		FirstLivePriceEnglish: "■ADV/DOOR ¥2500+1D/¥3000+1D",
+		FirstLiveOpenTime:     time.Date(util.GetRelevantYear(3), 3, 12, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(util.GetRelevantYear(3), 3, 12, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://adm-rock.com/schedule/%e5%8d%97%e7%84%a1%e9%98%bf%e9%83%a8%e9%99%80%e4%bb%8fxadm-presents%e3%80%8c%e5%8d%83%e9%87%8c%e3%81%ae%e9%81%93%e3%81%af%e6%b1%a0%e8%a2%8b%e3%81%8b%e3%82%89%ef%bc%81%ef%bc%81%e3%80%8d/",
+	},
+}
 
 var OtsukaDeepaFetcher = fetchers.CreateBassOnTopFetcher(
 	"https://otsukadeepa.jp/",
 	"https://otsukadeepa.jp/schedule/calendar/20%d/%02d/",
-	"tokyo", "otsuka", "otsuka-deepa",
+	"tokyo", "toshima", "otsuka-deepa",
 	fetchers.TestInfo{
 		NumberOfLives:         15,
 		FirstLiveTitle:        "23歳を正しく始める方法",
@@ -411,7 +446,7 @@ var OtsukaDeepaFetcher = fetchers.CreateBassOnTopFetcher(
 var OtsukaMeetsFetcher = fetchers.CreateOmatsuriFetcher(
 	"https://meets.rinky.info/",
 	"tokyo",
-	"otsuka",
+	"toshima",
 	"otsuka-meets",
 	35.730187,
 	139.728187,
