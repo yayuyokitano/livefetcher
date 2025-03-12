@@ -733,6 +733,40 @@ var ShinsaibashiPangeaFetcher = fetchers.Simple{
 	},
 }
 
+var ShinsaibashiSinkaguraFetcher = fetchers.Simple{
+	BaseURL:              "https://sinkagura.jimdofree.com/",
+	ShortYearIterableURL: "https://sinkagura.jimdofree.com/schedule/20%d-%02d/",
+	LiveSelector:         "//div[@class='jtpl-section-main cc-content-parent']//div[contains(@class, 'j-module n j-text')]",
+	TitleQuerier:         *htmlquerier.Q("/p[2]"),
+	ArtistsQuerier:       *htmlquerier.QAll("/p[position() > 5]"),
+	PriceQuerier:         *htmlquerier.Q("/p[5]"),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:      *htmlquerier.Q("//h1"),
+		MonthQuerier:     *htmlquerier.Q("//h1").After("/"),
+		DayQuerier:       *htmlquerier.Q("/p[1]").After(".").After("."),
+		OpenTimeQuerier:  *htmlquerier.Q("/p[4]"),
+		StartTimeQuerier: *htmlquerier.Q("/p[4]").After("START").After("/"),
+	},
+
+	PrefectureName: "osaka",
+	AreaName:       "shinsaibashi",
+	VenueID:        "shinsaibashi-sinkagura",
+	Latitude:       34.671063,
+	Longitude:      135.499188,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         23,
+		FirstLiveTitle:        "潜熱 vol.1 ~Under the starry night~",
+		FirstLiveArtists:      []string{"サウナガール", "Dripdays", "MUSHRO.mo", "Grimy Day", "Lost in Girl", "Unlax"},
+		FirstLivePrice:        "ADV/DOOR ¥2900/¥3400",
+		FirstLivePriceEnglish: "ADV/DOOR ¥2900/¥3400",
+		FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "https://sinkagura.jimdofree.com/schedule/20%d-%02d/",
+	},
+}
+
 var ShinsaibashiSocoreFactoryFetcher = fetchers.Simple{
 	BaseURL:              "https://socorefactory.com/",
 	ShortYearIterableURL: "https://socorefactory.com/schedule/20%d/%02d/",
