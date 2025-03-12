@@ -2340,3 +2340,14 @@ var ZeppDiverCityFetcher = fetchers.CreateZeppFetcher("divercity", "tokyo", "tok
 	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
 	FirstLiveURL:          "https://www.zepp.co.jp/hall/divercity/schedule/single/?rid=146730",
 })
+
+var ZeppHanedaFetcher = fetchers.CreateZeppFetcher("haneda", "tokyo", "tokyo", "tokyo-zepphaneda", 35.547438, 139.756562, fetchers.TestInfo{
+	NumberOfLives:         29,
+	FirstLiveTitle:        "aiko Live Tour「Love Like Rock vol.10」",
+	FirstLiveArtists:      []string{"aiko"},
+	FirstLivePrice:        "1Fスタンディング/ ¥7,500 2F指定席/ ¥7,500 2Fスタンディング/ ¥7,500",
+	FirstLivePriceEnglish: "1Fスタンディング/ ¥7,500 2F指定席/ ¥7,500 2Fスタンディング/ ¥7,500",
+	FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
+	FirstLiveURL:          "https://www.zepp.co.jp/hall/haneda/schedule/single/?rid=140708",
+})
