@@ -285,6 +285,38 @@ var KichijojiWarpFetcher = fetchers.Simple{
  *          *
  ************/
 
+var KoenjiClubRootsFetcher = fetchers.Simple{
+	BaseURL:              "http://www.muribushi.jp/",
+	ShortYearIterableURL: "http://www.muribushi.jp/schedule_20%d/%d.html",
+	LiveSelector:         "//dl/dd[not(contains(., 'HALL RENTAL'))]",
+	TitleQuerier:         *htmlquerier.Q("//font[@color='#ffff00']"),
+	DetailQuerier:        *htmlquerier.Q("."),
+	ArtistsQuerier:       *htmlquerier.Q("/node()[2][not(text())] | /node()[2][text()]/text()[1]").Split(" / "),
+
+	TimeHandler: fetchers.TimeHandler{
+		YearQuerier:  *htmlquerier.Q("//h3"),
+		MonthQuerier: *htmlquerier.Q("//h3").After(" "),
+		DayQuerier:   *htmlquerier.Q("/preceding-sibling::dt").After("/"),
+	},
+
+	PrefectureName: "tokyo",
+	AreaName:       "koenji",
+	VenueID:        "koenji-clubroots",
+	Latitude:       35.705562,
+	Longitude:      139.648937,
+
+	TestInfo: fetchers.TestInfo{
+		NumberOfLives:         28,
+		FirstLiveTitle:        `Club ROOTS ! 20th Anniv. pre "シミズフェス 2025！"`,
+		FirstLiveArtists:      []string{"KG", "ムカイナオト", "丸山尊", "そえじまとしたか", "ショーシャンク南"},
+		FirstLivePrice:        "前) ￥2,000",
+		FirstLivePriceEnglish: "ADV ) ￥2,000",
+		FirstLiveOpenTime:     time.Date(2025, 3, 3, 18, 30, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 3, 3, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          util.InsertYearMonth("http://www.muribushi.jp/schedule_%d/%d.html"),
+	},
+}
+
 var KoenjiHighFetcher = fetchers.Simple{
 	BaseURL:              "http://koenji-high.com/",
 	ShortYearIterableURL: "http://koenji-high.com/schedule/?sy=20%d&sm=%d",

@@ -20,6 +20,7 @@ var Connectors = ConnectorsType{
 	"KichijojiPlanetK":      connectors.KichijojiPlanetKFetcher,
 	"KichijojiShuffle":      connectors.KichijojiShuffleFetcher,
 	"KichijojiWarp":         connectors.KichijojiWarpFetcher,
+	"KoenjiClubRoots":       connectors.KoenjiClubRootsFetcher,
 	"KoenjiHigh":            connectors.KoenjiHighFetcher,
 	"KoenjiShowBoat":        connectors.KoenjiShowBoatFetcher,
 	"KokuraFuse":            connectors.KokuraFuseFetcher,
