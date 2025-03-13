@@ -132,6 +132,10 @@ func startServer() {
 				err = runner.RunConnector("ShinsaibashiBronze")
 				fmt.Println(err)*/
 
+	router.Handle("/api/mobile/lives", router.Methods{
+		GET: endpoints.GetLivesJson,
+	})
+
 	router.Handle("/login", router.Methods{
 		GET: endpoints.ShowLogin,
 	})
@@ -166,9 +170,6 @@ func startServer() {
 	router.Handle("/calendarEvent/{id}", router.Methods{
 		POST:   endpoints.AddToCalendar,
 		DELETE: endpoints.RemoveFromCalendar,
-	})
-	router.Handle("/api/lives", router.Methods{
-		GET: endpoints.GetLives,
 	})
 	router.Handle("/api/addToList", router.Methods{
 		POST: endpoints.AddToLiveList,

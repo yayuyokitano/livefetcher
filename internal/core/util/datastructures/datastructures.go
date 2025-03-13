@@ -50,6 +50,11 @@ type GeoJSONGeometry struct {
 	Coordinates []float64 `json:"coordinates"`
 }
 
+type GetLivesJsonResponse struct {
+	Lives            []Live                    `json:"lives"`
+	CalendarEventMap map[string]CalendarEvents `json:"calendarEventMap"`
+}
+
 type Live struct {
 	ID                   int64          `json:"id"`
 	Title                string         `json:"title"`
@@ -67,9 +72,9 @@ type Live struct {
 	CalendarStartEventId string         `json:"calendarStartEventId"`
 
 	// only used for livelists
-	LiveListLiveID  int64  `json:"-"`
-	LiveListOwnerID int64  `json:"-"`
-	Desc            string `json:"-"`
+	LiveListLiveID  int64  `json:"liveListLiveId"`
+	LiveListOwnerID int64  `json:"liveListOwnerId"`
+	Desc            string `json:"desc"`
 }
 
 func GetEventEndTime(live Live) time.Time {
@@ -100,9 +105,9 @@ type LiveHouse struct {
 }
 
 type FavoriteButtonInfo struct {
-	ID            int
-	IsFavorited   bool
-	FavoriteCount int
+	ID            int  `json:"id"`
+	IsFavorited   bool `json:"isFavorited"`
+	FavoriteCount int  `json:"favoriteCount"`
 }
 
 type LiveListWriteRequest struct {
@@ -277,7 +282,15 @@ func getHasPrefixIndex(ce CalendarEvents, prefix string) int {
 	return -1
 }*/
 
-func (ce CalendarEvents) ToDataMap() string {
+func (ce CalendarEvents) ToDataMapString() string {
+	b, err := json.Marshal(ce.ToDataMap())
+	if err != nil {
+		return "{}"
+	}
+	return string(b)
+}
+
+func (ce CalendarEvents) ToDataMap() map[string]CalendarEvents {
 	eventMap := make(map[string]CalendarEvents)
 	for _, e := range ce {
 		if e.Start.Before(time.Now()) && e.End.Before(time.Now()) {
@@ -306,11 +319,7 @@ func (ce CalendarEvents) ToDataMap() string {
 			eventMap[s] = append(eventMap[s], e)
 		}
 	}
-	b, err := json.Marshal(eventMap)
-	if err != nil {
-		return "{}"
-	}
-	return string(b)
+	return eventMap
 }
 
 /*

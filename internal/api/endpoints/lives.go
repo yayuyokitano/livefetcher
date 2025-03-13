@@ -78,7 +78,7 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 			return searchTitle(query, r, "header")
 		},
 		"GetCalendarEvents": func() string {
-			return calendarEvents.ToDataMap()
+			return calendarEvents.ToDataMapString()
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
@@ -95,6 +95,46 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
+	return nil
+}
+
+func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	err := r.ParseForm()
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	decoder := form.NewDecoder()
+	var query queries.LiveQuery
+	err = decoder.Decode(&query, r.Form)
+	if err != nil {
+		return logging.SE(http.StatusBadRequest, err)
+	}
+
+	calendarResults := util.GetCalendarData(r.Context(), user)
+
+	lives, err := queries.GetLives(r.Context(), query, user)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	calendarEvents := <-calendarResults
+
+	res := datastructures.GetLivesJsonResponse{
+		Lives:            lives,
+		CalendarEventMap: calendarEvents.ToDataMap(),
+	}
+
+	b, err := json.Marshal(res)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	_, err = w.Write(b)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
 	return nil
 }
 
@@ -198,7 +238,7 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"GetCalendarEvents": func() string {
-			return calendarEvents.ToDataMap()
+			return calendarEvents.ToDataMapString()
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {

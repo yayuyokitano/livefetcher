@@ -143,7 +143,7 @@ func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
 		"LiveListTitle": func() string { return liveListTitle(livelist.Title, r) },
 		"GetCalendarEvents": func() string {
-			return calendarEvents.ToDataMap()
+			return calendarEvents.ToDataMapString()
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
