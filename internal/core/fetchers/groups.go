@@ -277,7 +277,7 @@ func CreateBassOnTopFetcher(
 		LiveSelector:         "//div[@class='container scheduleList']/ul/li[.//h1/text()!='HALL RENTAL']",
 		ExpandedLiveSelector: "//a[@class='btnStyle01']",
 		TitleQuerier:         *htmlquerier.Q("//div[@class='scheduleCnt']/h1").CutWrapper("【", "】"),
-		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("(/|(【MC】))", '(', ')'),
+		ArtistsQuerier:       *htmlquerier.Q("//dl[@class='act']//span").SplitIgnoreWithin("(/|(【MC】)|( ・))", '(', ')'),
 		PriceQuerier:         *htmlquerier.Q("//dl[@class='price']/dd"),
 
 		TimeHandler: TimeHandler{
@@ -513,7 +513,7 @@ func CreateZeppFetcher(zeppVenueId, prefectureName, areaName, venueId string, la
 		LiveSelector:         "//div[@class='sch-contentWrap']/a[contains(@class, 'sch-content')]",
 		DetailsLinkSelector:  ".",
 		TitleQuerier:         *htmlquerier.Q("//h3"),
-		ArtistsQuerier:       *htmlquerier.Q("//h2").Split(" / "),
+		ArtistsQuerier:       *htmlquerier.Q("//h2").Split(" / ").Split(" ／ "),
 		PriceQuerier:         *htmlquerier.Q("//p[contains(./text(), '[PRICE]')]").After("[PRICE]"),
 
 		TimeHandler: TimeHandler{

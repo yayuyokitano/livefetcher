@@ -69,7 +69,7 @@ func deleteLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live) (d
 	return
 }
 
-func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}, editedLives *[]int64) (added int64, err error) {
+func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}) (added int64, err error) {
 	var liveid int64
 	err = tx.QueryRow(
 		ctx,
@@ -89,7 +89,6 @@ func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *
 	live.ID = liveid
 
 	added++
-	*editedLives = append(*editedLives, liveid)
 	liveartistmap := make(map[string]bool)
 	for _, artist := range live.Artists {
 		liveartistmap[artist] = true
@@ -196,11 +195,11 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 		return
 	}
 
-	cmd, err := tx.Exec(ctx, "UPDATE lives SET (title, opentime, starttime, url, price, price_en, livehouses_id) = ($1, $2, $3, $4, $5, $6, $7) WHERE id=$8", live.Title, live.OpenTime, live.StartTime, live.URL, live.Price, live.PriceEnglish, live.Venue.ID, oldLive.ID)
+	_, err = tx.Exec(ctx, "UPDATE lives SET (title, opentime, starttime, url, price, price_en, livehouses_id) = ($1, $2, $3, $4, $5, $6, $7) WHERE id=$8", live.Title, live.OpenTime, live.StartTime, live.URL, live.Price, live.PriceEnglish, live.Venue.ID, oldLive.ID)
 	if err != nil {
 		return
 	}
-	modified = cmd.RowsAffected()
+	modified = 1
 
 	err = notifyUpdates(ctx, tx, oldLive, live)
 	if err != nil {
@@ -214,6 +213,7 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 		liveartistmap[artist] = true
 		(*artists)[artist] = true
 	}
+
 	for k := range liveartistmap {
 		*liveartists = append(*liveartists, []interface{}{oldLive.ID, k})
 	}
@@ -222,7 +222,7 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 	return
 }
 
-func createNotification(ctx context.Context, tx pgx.Tx, liveId int64, nt datastructures.NotificationType) (notificationID int64, err error) {
+func createNotification(ctx context.Context, tx pgx.Tx, liveId *int64, nt datastructures.NotificationType) (notificationID int64, err error) {
 	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id, notification_type) VALUES ($1, $2) RETURNING id", liveId, nt).Scan(&notificationID)
 	return
 }
@@ -257,7 +257,7 @@ func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, oldLive.ID, datastructures.NotificationTypeEdited)
+	notificationId, err := createNotification(ctx, tx, &oldLive.ID, datastructures.NotificationTypeEdited)
 	if err != nil {
 		return
 	}
@@ -266,39 +266,36 @@ func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.
 	return
 }
 
-func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live, oldLives []datastructures.Live) (artists map[string]bool, liveartists [][]interface{}, editedLives []int64, added int64, modified int64, deleted int64, err error) {
-	oldLiveFoundIndices := make(map[int]bool)
+func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live, oldLives []datastructures.Live) (artists map[string]bool, liveartists [][]interface{}, added int64, modified int64, deleted int64, err error) {
+	oldLiveFoundIds := make(map[int64]bool)
 	liveartists = make([][]interface{}, 0)
 	artists = make(map[string]bool)
-	editedLives = make([]int64, 0)
 
 	for _, live := range lives {
 		foundLive := false
-		for oldLiveIndex, oldLive := range oldLives {
+		for _, oldLive := range oldLives {
 			if !isSameLive(live, oldLive, oldLives, lives) {
 				continue
 			}
 			foundLive = true
-			oldLiveFoundIndices[oldLiveIndex] = true
-			m, err := tryUpdateLive(tx, ctx, live, oldLive, &artists, &liveartists)
-			if err == nil && m != 0 {
-				editedLives = append(editedLives, oldLive.ID)
-				modified += m
-			}
+			oldLiveFoundIds[oldLive.ID] = true
+			m, _ := tryUpdateLive(tx, ctx, live, oldLive, &artists, &liveartists)
+			modified += m
 			break
 		}
+
 		if foundLive {
 			continue
 		}
 
-		a, err := addLive(tx, ctx, live, &artists, &liveartists, &editedLives)
+		a, err := addLive(tx, ctx, live, &artists, &liveartists)
 		if err == nil {
 			added += a
 		}
 	}
 	oldLivesToDelete := make([]datastructures.Live, 0)
-	for i, oldLive := range oldLives {
-		if !oldLiveFoundIndices[i] {
+	for _, oldLive := range oldLives {
+		if !oldLiveFoundIds[oldLive.ID] {
 			oldLivesToDelete = append(oldLivesToDelete, oldLive)
 		}
 	}
@@ -349,14 +346,9 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
-	cmd, err := tx.Exec(ctx, "DELETE FROM lives WHERE livehouses_id=ANY($1) AND starttime < NOW()", util.GetUniqueVenueIDs(venues))
+	artists, liveartists, added, modified, d, err := updateAndAddLives(tx, ctx, lives, oldLives.Lives)
 	if err != nil {
-		return
-	}
-	deleted += cmd.RowsAffected()
-
-	artists, liveartists, editedLives, added, modified, d, err := updateAndAddLives(tx, ctx, lives, oldLives)
-	if err != nil {
+		fmt.Println("updateandaddlives: ", err)
 		return
 	}
 	deleted += d
@@ -389,8 +381,12 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 		return
 	}
 
-	fmt.Println(editedLives)
-	_, err = tx.Exec(ctx, "DELETE FROM liveartists WHERE lives_id=ANY($1)", editedLives)
+	liveids := make([]int64, 0)
+	for _, a := range liveartists {
+		liveids = append(liveids, a[0].(int64))
+	}
+
+	_, err = tx.Exec(ctx, "DELETE FROM liveartists WHERE lives_id=ANY($1)", liveids)
 	if err != nil {
 		return
 	}
@@ -410,18 +406,20 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 }
 
 type LiveQuery struct {
-	Areas           map[int]bool
-	Artist          string
-	From            time.Time
-	To              time.Time
-	Id              int64
-	IncludeOldLives bool
-	LiveHouses      []string
-	UserFavoritesId int64
-	LiveListId      int64
+	Areas           map[int]bool `form:"areas"`
+	Artist          string       `form:"artist"`
+	From            time.Time    `form:"from"`
+	To              time.Time    `form:"to"`
+	Id              int64        `form:"id"`
+	IncludeOldLives bool         `form:"includeOldLives"`
+	LiveHouses      []string     `form:"livehouses"`
+	UserFavoritesId int64        `form:"userFavoritesId"`
+	LiveListId      int64        `form:"liveListId"`
+	Limit           int64        `form:"limit"`
+	Offset          int64        `form:"offset"`
 }
 
-func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser) (lives []datastructures.Live, err error) {
+func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser) (lives datastructures.Lives, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -437,7 +435,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	args := []any{}
 
 	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id`
+		SELECT live.id AS id, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id`
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
 	}
@@ -521,7 +519,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	queryStr += `)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id`
+	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id, COUNT(*) OVER() as total`
 
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive_id, livelist_owner_id, live_description"
@@ -530,14 +528,23 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	queryStr += `
 	FROM queriedlives
 	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
+	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
 
 	if query.LiveListId != 0 {
 		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
 	}
 
-	queryStr += `
-	ORDER BY starttime`
+	queryStr += ` ORDER BY starttime, id`
+
+	if query.Offset != 0 {
+		queryStr += fmt.Sprintf(" OFFSET $%d", incIndex())
+		args = append(args, query.Offset)
+	}
+	if query.Limit != 0 {
+		queryStr += fmt.Sprintf(" LIMIT $%d", incIndex())
+		args = append(args, query.Limit)
+	}
+
 	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
 		return
@@ -546,7 +553,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	for rows.Next() {
 		var l datastructures.Live
 		scans := make([]any, 0)
-		scans = append(scans, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId)
+		scans = append(scans, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId, &lives.Paginator.Total)
 		if query.LiveListId != 0 {
 			scans = append(scans, &l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc)
 		}
@@ -554,14 +561,27 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 		if err != nil {
 			return
 		}
-		lives = append(lives, l)
+		lives.Lives = append(lives.Lives, l)
+	}
+	lives.Paginator.Offset = query.Offset
+	lives.Paginator.Limit = query.Limit
+	if query.Limit != 0 {
+		lives.Paginator.Page = (query.Offset / query.Limit) + 1
+	} else {
+		lives.Paginator.Page = 1
 	}
 
-	for i, l := range lives {
+	if lives.Paginator.Total == 0 || lives.Paginator.Limit == 0 {
+		lives.Paginator.TotalPages = 1
+	} else {
+		lives.Paginator.TotalPages = ((lives.Paginator.Total - 1) / lives.Paginator.Limit) + 1
+	}
+
+	for i, l := range lives.Lives {
 		isFavorited, favoriteCount, err := getFavoriteAndCount(ctx, tx, user.ID, l.ID)
 		if err == nil {
-			lives[i].FavoriteCount = int(favoriteCount)
-			lives[i].IsFavorited = isFavorited
+			lives.Lives[i].FavoriteCount = int(favoriteCount)
+			lives.Lives[i].IsFavorited = isFavorited
 		}
 		err = nil
 	}
@@ -682,11 +702,13 @@ func notifyChangedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live)
 
 	nf, err := createNewLiveNotificationFields(live)
 	if err != nil {
+		fmt.Println("createnewlivenotificationfields:", err)
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeAdded)
+	notificationId, err := createNotification(ctx, tx, &live.ID, datastructures.NotificationTypeAdded)
 	if err != nil {
+		fmt.Println("createnotification:", err)
 		return
 	}
 
@@ -697,10 +719,12 @@ func notifyChangedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live)
 
 	unnotifiedUsers, err := getUnnotifiedUsers(ctx, tx, userIds, live)
 	if err != nil {
+		fmt.Println("getunnotifiedusers:", err)
 		return
 	}
 
 	err = pushNotificationToUsers(ctx, tx, notificationId, unnotifiedUsers, nf)
+	fmt.Println("pushnotificationtousers:", err)
 	return
 }
 
@@ -715,7 +739,7 @@ func notifyNewLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (er
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeAdded)
+	notificationId, err := createNotification(ctx, tx, &live.ID, datastructures.NotificationTypeAdded)
 	if err != nil {
 		return
 	}
@@ -741,7 +765,7 @@ func notifyDeletedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live)
 		return
 	}
 
-	notificationId, err := createNotification(ctx, tx, live.ID, datastructures.NotificationTypeDeleted)
+	notificationId, err := createNotification(ctx, tx, nil, datastructures.NotificationTypeDeleted)
 	if err != nil {
 		return
 	}

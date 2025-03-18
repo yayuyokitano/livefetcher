@@ -29,7 +29,7 @@ type AuthUser struct {
 }
 
 type LiveWithGeoJSON struct {
-	Lives   []Live        `json:"lives"`
+	Lives   Lives         `json:"lives"`
 	GeoJson []LiveGeoJSON `json:"geoJson"`
 }
 
@@ -51,8 +51,21 @@ type GeoJSONGeometry struct {
 }
 
 type GetLivesJsonResponse struct {
-	Lives            []Live                    `json:"lives"`
+	Lives            Lives                     `json:"lives"`
 	CalendarEventMap map[string]CalendarEvents `json:"calendarEventMap"`
+}
+
+type Paginator struct {
+	Total      int64 `json:"total"`
+	Offset     int64 `json:"offset"`
+	Limit      int64 `json:"limit"`
+	Page       int64 `json:"page"`
+	TotalPages int64 `json:"totalPages"`
+}
+
+type Lives struct {
+	Paginator Paginator `json:"paginator"`
+	Lives     []Live    `json:"lives"`
 }
 
 type Live struct {
@@ -137,11 +150,11 @@ type AddToLiveListTemplateParams struct {
 }
 
 type AddToLiveListParameters struct {
-	LiveDesc           string
-	LiveID             int
-	ExistingLiveListID int    // specified if existing live
-	NewLiveListTitle   string // specified if new live
-	AdditionType       string
+	LiveDesc           string `form:"liveDesc"`
+	LiveID             int    `form:"liveId"`
+	ExistingLiveListID int    `form:"existingLiveListId"` // specified if existing live
+	NewLiveListTitle   string `form:"newLiveListTitle"`   // specified if new live
+	AdditionType       string `form:"additionType"`
 }
 
 type NotificationType int16

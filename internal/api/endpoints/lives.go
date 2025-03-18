@@ -28,7 +28,7 @@ type liveTemplateMetadata struct {
 
 type liveTemplateInput struct {
 	Metadata liveTemplateMetadata
-	Lives    []datastructures.Live
+	Lives    datastructures.Lives
 }
 
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
@@ -49,6 +49,9 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 	err = decoder.Decode(&query, r.Form)
 	if err != nil {
 		return logging.SE(http.StatusBadRequest, err)
+	}
+	if query.Limit == 0 {
+		query.Limit = 24
 	}
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
@@ -79,6 +82,20 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		},
 		"GetCalendarEvents": func() string {
 			return calendarEvents.ToDataMapString()
+		},
+		"NextPageUrl": func() string {
+			url := *r.URL
+			values := url.Query()
+			values.Set("offset", strconv.Itoa(int(lives.Paginator.Offset+lives.Paginator.Limit)))
+			url.RawQuery = values.Encode()
+			return url.String()
+		},
+		"PrevPageUrl": func() string {
+			url := *r.URL
+			values := url.Query()
+			values.Set("offset", strconv.Itoa(int(lives.Paginator.Offset-lives.Paginator.Limit)))
+			url.RawQuery = values.Encode()
+			return url.String()
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
@@ -139,7 +156,7 @@ func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 }
 
 type favoriteRequest struct {
-	Liveid int64
+	LiveId int64 `form:"liveId"`
 }
 
 func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
@@ -159,7 +176,7 @@ func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, req.Liveid)
+	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, req.LiveId)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -195,7 +212,7 @@ func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ ht
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, req.Liveid)
+	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, req.LiveId)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -278,7 +295,7 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 		GeoJson: make([]datastructures.LiveGeoJSON, 0),
 	}
 	localizer := i18nloader.GetLocalizer(r)
-	for i, l := range lives {
+	for i, l := range lives.Lives {
 		livesWithGeoJSON.GeoJson = append(livesWithGeoJSON.GeoJson, datastructures.LiveGeoJSON{
 			Type: "Feature",
 			Properties: datastructures.GeoJSONProperties{
@@ -291,7 +308,7 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 				Coordinates: []float64{l.Venue.Longitude, l.Venue.Latitude},
 			},
 		})
-		lives[i].Venue.Name = localizer.Localize("livehouse." + l.Venue.ID)
+		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + l.Venue.ID)
 	}
 
 	b, err := json.Marshal(livesWithGeoJSON)
@@ -349,7 +366,7 @@ func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: int64(id),
 	}, user)
-	if err != nil || len(lives) != 1 {
+	if err != nil || len(lives.Lives) != 1 {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
@@ -358,8 +375,8 @@ func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	lives[0].Venue.Name = i18nloader.GetLocalizer(r).Localize("livehouse." + lives[0].Venue.ID)
-	newLive, err := calendar.PostEvent(r.Context(), calendarProperties, user.ID, lives[0])
+	lives.Lives[0].Venue.Name = i18nloader.GetLocalizer(r).Localize("livehouse." + lives.Lives[0].Venue.ID)
+	newLive, err := calendar.PostEvent(r.Context(), calendarProperties, user.ID, lives.Lives[0])
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -403,7 +420,7 @@ func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Reque
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: int64(id),
 	}, user)
-	if err != nil || len(lives) != 1 {
+	if err != nil || len(lives.Lives) != 1 {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
@@ -415,7 +432,7 @@ func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Reque
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "live", lives[0])
+	err = tmpl.ExecuteTemplate(w, "live", lives.Lives[0])
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

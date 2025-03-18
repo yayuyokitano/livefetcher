@@ -6,7 +6,8 @@
 
 {{ define "body" }}
   <h2 class="general-header">{{ SearchHeader }}</h2>
-  {{ template "lives" .Lives }}
+	<p><a href="{{PrevPageUrl}}">Prev</a> Page {{.Lives.Paginator.Page}} of {{.Lives.Paginator.TotalPages}} <a href="{{NextPageUrl}}">Next</a></p>
+  {{ template "lives" .Lives.Lives }}
   {{ template "filters" .Metadata }}
 {{ end }}
 
@@ -40,7 +41,7 @@
     <input
       class="large-input"
       type="text"
-      name="Artist"
+      name="artist"
       id="artist-search"
       value="{{ .Query.Artist }}"
     />
@@ -71,7 +72,7 @@
   {{ range $prefecture, $areas := .Areas }}
     {{ range $area := $areas }}
       {{ if index $queryAreas $area.Id }}
-        <input type="hidden" name="Areas[{{ $area.Id }}]" value="true" />
+        <input type="hidden" name="areas[{{ $area.Id }}]" value="true" />
       {{ end }}
     {{ end }}
   {{ end }}
@@ -103,7 +104,7 @@
                 <input
                   type="checkbox"
                   id="checkbox-area-{{ $area.Id }}"
-                  name="Areas[{{ $area.Id }}]"
+                  name="areas[{{ $area.Id }}]"
                   value="true"
                   x-model="store.{{ $prefecture }}.{{ $area.Name }}"
                 />

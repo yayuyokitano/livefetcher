@@ -46,15 +46,15 @@
       <br />
       <textarea
         id="livelist-add-comment"
-        name="LiveDesc"
+        name="liveDesc"
         placeholder="{{ T "livelist.comment" }}"
         :readonly="isDisabled"
       ></textarea>
-      <input type="hidden" name="LiveID" value="{{ .LiveID }}" />
+      <input type="hidden" name="liveId" value="{{ .LiveID }}" />
 
       {{ if .PersonalLiveLists }}
         <h4>{{ T "livelist.select-existing" }}</h4>
-        <select name="ExistingLiveListID" :readonly="isDisabled">
+        <select name="existingLiveListId" :readonly="isDisabled">
           {{ range $liveList := .PersonalLiveLists }}
             <option value="{{ $liveList.ID }}">{{ $liveList.Title }}</option>
           {{ end }}
@@ -62,7 +62,7 @@
         <br />
         <button
           type="submit"
-          name="AdditionType"
+          name="additionType"
           value="ExistingList"
           class="brand-button"
           :readonly="isDisabled"
@@ -79,13 +79,13 @@
         id="livelist-create-name"
         type="text"
         placeholder="{{ T "livelist.name-label" }}"
-        name="NewLiveListTitle"
+        name="newLiveListTitle"
         :readonly="isDisabled"
       />
       <br />
       <button
         type="submit"
-        name="AdditionType"
+        name="additionType"
         value="NewList"
         class="brand-button"
         :readonly="isDisabled"

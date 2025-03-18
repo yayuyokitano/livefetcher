@@ -157,7 +157,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructu
 		return
 	}
 
-	liveList.Lives = liveListLives
+	liveList.Lives = liveListLives.Lives
 	return
 }
 
