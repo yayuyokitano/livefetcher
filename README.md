@@ -23,7 +23,7 @@ Check [livehouse todos](LIVEHOUSE-TODO.md) for some livehouses to look into bein
 ### Relatively near future
 - [x] add user auth system (required for many future features)
 - [x] implement proper frontend
-- [ ] pagination of SELECT query
+- [x] pagination of SELECT query
 - [ ] batch live/livelist favorite SELECT queries
 
 ### Search improvements
