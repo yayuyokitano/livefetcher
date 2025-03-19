@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func CommitMutating(t *testing.T, r *http.Request, execute HTTPImplementer, token string, affectedRows int64) {
+func CommitMutating(t *testing.T, r *http.Request, execute HTTPImplementer, token string, affectedRows int) {
 	t.Helper()
 	w := httptest.NewRecorder()
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))

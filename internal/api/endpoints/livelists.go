@@ -29,13 +29,13 @@ func GetLiveLiveListModal(user datastructures.AuthUser, w io.Writer, r *http.Req
 		return logging.SE(http.StatusBadRequest, errors.New("no live specified"))
 	}
 
-	liveLiveLists, err := queries.GetLiveLiveLists(r.Context(), int64(liveID), user)
+	liveLiveLists, err := queries.GetLiveLiveLists(r.Context(), liveID, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, errors.New("couldn't fetch live live lists"))
 	}
 
 	templateParams := datastructures.AddToLiveListTemplateParams{
-		LiveID:            int64(liveID),
+		LiveID:            liveID,
 		PersonalLiveLists: userLiveLists,
 		LiveLiveLists:     liveLiveLists,
 	}
@@ -90,7 +90,7 @@ func AddToLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, h
 			return logging.SE(http.StatusInternalServerError, err)
 		}
 
-		err = queries.PostLiveListLive(r.Context(), liveListID, int64(req.LiveID), req.LiveDesc)
+		err = queries.PostLiveListLive(r.Context(), liveListID, req.LiveID, req.LiveDesc)
 		if err != nil {
 			return logging.SE(http.StatusInternalServerError, err)
 		}
@@ -99,12 +99,12 @@ func AddToLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, h
 			return logging.SE(http.StatusBadRequest, errors.New("no live specified"))
 		}
 
-		se := queries.UserOwnsLiveList(r.Context(), int64(req.ExistingLiveListID), user)
+		se := queries.UserOwnsLiveList(r.Context(), req.ExistingLiveListID, user)
 		if se != nil {
 			return se
 		}
 
-		err = queries.PostLiveListLive(r.Context(), int64(req.ExistingLiveListID), int64(req.LiveID), req.LiveDesc)
+		err = queries.PostLiveListLive(r.Context(), req.ExistingLiveListID, req.LiveID, req.LiveDesc)
 		if err != nil {
 			if strings.Contains(err.Error(), "SQLSTATE 23505") {
 				return logging.SE(http.StatusBadRequest, errors.New("live already in list"))
@@ -128,7 +128,7 @@ func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
-	livelist, err := queries.GetLiveList(r.Context(), int64(id), user)
+	livelist, err := queries.GetLiveList(r.Context(), id, user)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -164,12 +164,12 @@ func DeleteLiveListLive(user datastructures.AuthUser, w io.Writer, r *http.Reque
 		return logging.SE(http.StatusBadRequest, err)
 	}
 
-	se := queries.UserOwnsLiveListLive(r.Context(), int64(id), user)
+	se := queries.UserOwnsLiveListLive(r.Context(), id, user)
 	if se != nil {
 		return se
 	}
 
-	err = queries.DeleteLiveListLive(r.Context(), int64(id))
+	err = queries.DeleteLiveListLive(r.Context(), id)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

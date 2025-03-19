@@ -7,7 +7,9 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"reflect"
+	"strconv"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
@@ -19,6 +21,8 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 	tmpl = template.New("layout")
 	var notifications datastructures.NotificationsWrapper
 	notificationsFetched := false
+	paginatorPartial := filepath.Join("web", "template", "partials", "paginator.gohtml")
+	paths = append(paths, paginatorPartial)
 	tmpl, err = tmpl.Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"FormatDate": func(t time.Time) string {
@@ -78,6 +82,22 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 		},
 		"FormatTime": func(t time.Time) string {
 			return t.Format(time.RFC3339)
+		},
+		"Add": func(a, b int) int {
+			return a + b
+		},
+		"Sub": func(a, b int) int {
+			return a - b
+		},
+		"Mult": func(a, b int) int {
+			return a * b
+		},
+		"GetPaginatedUrl": func(offset int) string {
+			url := *r.URL
+			values := url.Query()
+			values.Set("offset", strconv.Itoa(offset))
+			url.RawQuery = values.Encode()
+			return url.String()
 		},
 	}).Funcs(funcMap).ParseFiles(paths...)
 	return

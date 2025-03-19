@@ -86,7 +86,7 @@ func buildEvents(live datastructures.Live) (*calendar.Event, *calendar.Event) {
 	return openEvent, startEvent
 }
 
-func (g *GoogleCalendar) PostEvent(ctx context.Context, props datastructures.CalendarProperties, userId int64, live datastructures.Live) (newLive datastructures.Live, err error) {
+func (g *GoogleCalendar) PostEvent(ctx context.Context, props datastructures.CalendarProperties, userId int, live datastructures.Live) (newLive datastructures.Live, err error) {
 	service, err := initService(ctx, props)
 	if err != nil {
 		return
@@ -116,7 +116,7 @@ func (g *GoogleCalendar) PostEvent(ctx context.Context, props datastructures.Cal
 	return
 }
 
-func (g *GoogleCalendar) PutEvent(ctx context.Context, props datastructures.CalendarProperties, userId int64, live datastructures.Live) (err error) {
+func (g *GoogleCalendar) PutEvent(ctx context.Context, props datastructures.CalendarProperties, userId int, live datastructures.Live) (err error) {
 	service, err := initService(ctx, props)
 	if err != nil {
 		return
@@ -140,7 +140,7 @@ func (g *GoogleCalendar) PutEvent(ctx context.Context, props datastructures.Cale
 	return
 }
 
-func (g *GoogleCalendar) DeleteEvent(ctx context.Context, props datastructures.CalendarProperties, userId, liveId int64) (err error) {
+func (g *GoogleCalendar) DeleteEvent(ctx context.Context, props datastructures.CalendarProperties, userId, liveId int) (err error) {
 	service, err := initService(ctx, props)
 	if err != nil {
 		return
@@ -167,7 +167,7 @@ func (g *GoogleCalendar) DeleteEvent(ctx context.Context, props datastructures.C
 	return
 }
 
-func (g *GoogleCalendar) GetAllEvents(ctx context.Context, props datastructures.CalendarProperties, userId int64) (events []datastructures.CalendarEvent, err error) {
+func (g *GoogleCalendar) GetAllEvents(ctx context.Context, props datastructures.CalendarProperties, userId int) (events []datastructures.CalendarEvent, err error) {
 	service, err := initService(ctx, props)
 	if err != nil {
 		return
@@ -201,7 +201,7 @@ func (g *GoogleCalendar) GetAllEvents(ctx context.Context, props datastructures.
 	return
 }
 
-func createStateToken(userId int64) (token string, err error) {
+func createStateToken(userId int) (token string, err error) {
 	t := jwt.NewWithClaims(jwt.SigningMethodEdDSA, jwt.RegisteredClaims{
 		Issuer:    "livefetcher-auth",
 		Subject:   fmt.Sprintf("%d", userId),
@@ -213,7 +213,7 @@ func createStateToken(userId int64) (token string, err error) {
 	return
 }
 
-func verifyStateToken(token string) (userId int64, err error) {
+func verifyStateToken(token string) (userId int, err error) {
 	parsedToken, err := jwt.ParseWithClaims(token, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return services.PublicKey, nil
 	})
@@ -227,14 +227,14 @@ func verifyStateToken(token string) (userId int64, err error) {
 		if err != nil {
 			return
 		}
-		userId = int64(iuser)
+		userId = iuser
 	} else {
 		err = errors.New("invalid auth token")
 	}
 	return
 }
 
-func GetGoogleAuthCodeUrl(userId int64) (url string, err error) {
+func GetGoogleAuthCodeUrl(userId int) (url string, err error) {
 	config, err := getConfig()
 	if err != nil {
 		return

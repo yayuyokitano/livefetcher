@@ -6,9 +6,10 @@
 
 {{ define "body" }}
   <h2 class="general-header">{{ SearchHeader }}</h2>
-	<p><a href="{{PrevPageUrl}}">Prev</a> Page {{.Lives.Paginator.Page}} of {{.Lives.Paginator.TotalPages}} <a href="{{NextPageUrl}}">Next</a></p>
+	{{ template "paginator" .Lives.Paginator }}
   {{ template "lives" .Lives.Lives }}
   {{ template "filters" .Metadata }}
+	{{ template "paginator" .Lives.Paginator }}
 {{ end }}
 
 {{ define "filters" }}

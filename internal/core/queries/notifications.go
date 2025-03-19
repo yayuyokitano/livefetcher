@@ -10,7 +10,7 @@ import (
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
-func GetUserNotifications(ctx context.Context, userID int64) (notifications datastructures.NotificationsWrapper, err error) {
+func GetUserNotifications(ctx context.Context, userID int) (notifications datastructures.NotificationsWrapper, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -46,7 +46,7 @@ func GetUserNotifications(ctx context.Context, userID int64) (notifications data
 	return
 }
 
-func GetNotification(ctx context.Context, notificationID int64, userID int64, langs []string) (notification datastructures.Notification, err error) {
+func GetNotification(ctx context.Context, notificationID int, userID int, langs []string) (notification datastructures.Notification, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return

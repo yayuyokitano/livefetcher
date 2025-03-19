@@ -119,14 +119,14 @@ func PatchUser(ctx context.Context, patchInfo datastructures.User) (err error) {
 	return
 }
 
-func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid int64) (isFavorited bool, favoriteCount int64, err error) {
+func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int, liveid int) (isFavorited bool, favoriteCount int, err error) {
 	row := tx.QueryRow(ctx, "SELECT count(*) FROM userfavorites WHERE lives_id=$1", liveid)
 	err = row.Scan(&favoriteCount)
 	if err != nil || favoriteCount == 0 || userid == 0 {
 		return
 	}
 
-	var selfCount int64
+	var selfCount int
 	selfRow := tx.QueryRow(ctx, "SELECT count(*) FROM userfavorites WHERE lives_id=$1 AND users_id=$2", liveid, userid)
 	err = selfRow.Scan(&selfCount)
 	if err != nil {
@@ -138,7 +138,7 @@ func getFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, liveid in
 	return
 }
 
-func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+func FavoriteLive(ctx context.Context, userid int, liveid int) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -163,7 +163,7 @@ func FavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButt
 	return
 }
 
-func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+func UnfavoriteLive(ctx context.Context, userid int, liveid int) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -188,7 +188,7 @@ func UnfavoriteLive(ctx context.Context, userid int64, liveid int64) (favoriteBu
 	return
 }
 
-func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds []int64) (err error) {
+func PostSavedSearch(ctx context.Context, userid int, search string, areaIds []int) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -196,7 +196,7 @@ func PostSavedSearch(ctx context.Context, userid int64, search string, areaIds [
 
 	defer counters.RollbackTransaction(ctx, tx)
 
-	var searchId int64
+	var searchId int
 	if search[0] == '"' && search[len(search)-1] == '"' {
 		err = tx.QueryRow(ctx, "INSERT INTO saved_searches (users_id, text_search) VALUES ($1, $2) RETURNING id", userid, search[1:len(search)-1]).Scan(&searchId)
 		if err != nil {

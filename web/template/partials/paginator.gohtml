@@ -1,0 +1,42 @@
+{{ define "paginator" }}
+<div class="paginator">
+	<span>Total pages: {{ .TotalPages }} Total Items: {{ .Total }}</span>
+	<a href="{{ GetPaginatedUrl (Mult (Sub .Page 2) 24) }}">&lt;&lt;Prev</a>
+	{{ if and (gt .Page 4) (ge .Page .TotalPages) }}
+		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 5) 24) }}">{{ Sub .Page 4 }}</a>
+	{{ end }}
+	{{ if and (gt .Page 3) (ge .Page (Sub .TotalPages 1)) }}
+		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 4) 24) }}">{{ Sub .Page 3 }}</a>
+	{{ end }}
+	{{ if gt .Page 2 }}
+		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 3) 24) }}">{{ Sub .Page 2 }}</a>
+	{{ end }}
+	{{ if gt .Page 1 }}
+		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 2) 24) }}">{{ Sub .Page 1 }}</a>
+	{{ end }}
+	<span>{{ .Page }}</span>
+	{{ if le .Page (Sub .TotalPages 1) }}
+		<a href="{{ GetPaginatedUrl (Mult .Page 24) }}">{{ Add .Page 1 }}</a>
+	{{ end }}
+	{{ if le .Page (Sub .TotalPages 2) }}
+		<a href="{{ GetPaginatedUrl (Mult (Add .Page 1) 24) }}">{{ Add .Page 2 }}</a>
+	{{ end }}
+	{{ if and (le .Page (Sub .TotalPages 3)) (lt .Page 3) }}
+		<a href="{{ GetPaginatedUrl (Mult (Add .Page 2) 24) }}">{{ Add .Page 3 }}</a>
+	{{ end }}
+	{{ if and (le .Page (Sub .TotalPages 4)) (lt .Page 2) }}
+		<a href="{{ GetPaginatedUrl (Mult (Add .Page 3) 24) }}">{{ Add .Page 4 }}</a>
+	{{ end }}
+	<a href="{{ GetPaginatedUrl (Mult .Page 24) }}">Next&gt;&gt;</a>
+</div>
+{{ end }}
+
+<!--
+type Paginator struct {
+	Total      int `json:"total"`
+	Offset     int `json:"offset"`
+	Limit      int `json:"limit"`
+	Page       int `json:"page"`
+	TotalPages int `json:"totalPages"`
+}
+-->

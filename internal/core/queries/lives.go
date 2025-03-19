@@ -51,8 +51,8 @@ func isSameLive(live datastructures.Live, oldLive datastructures.Live, oldLives 
 	return false
 }
 
-func deleteLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live) (deleted int64, err error) {
-	liveIds := make([]int64, 0)
+func deleteLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live) (deleted int, err error) {
+	liveIds := make([]int, 0)
 	for _, live := range lives {
 		liveIds = append(liveIds, live.ID)
 		err = notifyDeletedLive(ctx, tx, live)
@@ -65,12 +65,12 @@ func deleteLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live) (d
 	if err != nil {
 		return
 	}
-	deleted = cmd.RowsAffected()
+	deleted = int(cmd.RowsAffected())
 	return
 }
 
-func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}) (added int64, err error) {
-	var liveid int64
+func addLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}) (added int, err error) {
+	var liveid int
 	err = tx.QueryRow(
 		ctx,
 		"INSERT INTO lives (title, opentime, starttime, url, price, price_en, livehouses_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id",
@@ -190,7 +190,7 @@ func getNotificationFields(live, oldLive datastructures.Live) (fields []datastru
 	}}, nil
 }
 
-func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, oldLive datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}) (modified int64, err error) {
+func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, oldLive datastructures.Live, artists *map[string]bool, liveartists *[][]interface{}) (modified int, err error) {
 	if !shouldUpdateLive(live, oldLive) {
 		return
 	}
@@ -222,12 +222,12 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 	return
 }
 
-func createNotification(ctx context.Context, tx pgx.Tx, liveId *int64, nt datastructures.NotificationType) (notificationID int64, err error) {
+func createNotification(ctx context.Context, tx pgx.Tx, liveId *int, nt datastructures.NotificationType) (notificationID int, err error) {
 	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id, notification_type) VALUES ($1, $2) RETURNING id", liveId, nt).Scan(&notificationID)
 	return
 }
 
-func pushNotificationToUsers(ctx context.Context, tx pgx.Tx, notificationId int64, userIds []int64, notificationFields []datastructures.NotificationField) (err error) {
+func pushNotificationToUsers(ctx context.Context, tx pgx.Tx, notificationId int, userIds []int, notificationFields []datastructures.NotificationField) (err error) {
 	// this is massively inefficient, but for now i do not care
 	// TODO: make this more efficient
 	for _, userId := range userIds {
@@ -266,8 +266,8 @@ func notifyUpdates(ctx context.Context, tx pgx.Tx, oldLive, live datastructures.
 	return
 }
 
-func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live, oldLives []datastructures.Live) (artists map[string]bool, liveartists [][]interface{}, added int64, modified int64, deleted int64, err error) {
-	oldLiveFoundIds := make(map[int64]bool)
+func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Live, oldLives []datastructures.Live) (artists map[string]bool, liveartists [][]interface{}, added int, modified int, deleted int, err error) {
+	oldLiveFoundIds := make(map[int]bool)
 	liveartists = make([][]interface{}, 0)
 	artists = make(map[string]bool)
 
@@ -304,7 +304,7 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Li
 	return
 }
 
-func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64, added int64, modified int64, addedArtists int64, err error) {
+func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int, added int, modified int, addedArtists int, err error) {
 	venues := make([]datastructures.LiveHouse, 0)
 	for _, live := range lives {
 		venues = append(venues, live.Venue)
@@ -381,9 +381,9 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int64,
 		return
 	}
 
-	liveids := make([]int64, 0)
+	liveids := make([]int, 0)
 	for _, a := range liveartists {
-		liveids = append(liveids, a[0].(int64))
+		liveids = append(liveids, a[0].(int))
 	}
 
 	_, err = tx.Exec(ctx, "DELETE FROM liveartists WHERE lives_id=ANY($1)", liveids)
@@ -410,13 +410,13 @@ type LiveQuery struct {
 	Artist          string       `form:"artist"`
 	From            time.Time    `form:"from"`
 	To              time.Time    `form:"to"`
-	Id              int64        `form:"id"`
+	Id              int          `form:"id"`
 	IncludeOldLives bool         `form:"includeOldLives"`
 	LiveHouses      []string     `form:"livehouses"`
-	UserFavoritesId int64        `form:"userFavoritesId"`
-	LiveListId      int64        `form:"liveListId"`
-	Limit           int64        `form:"limit"`
-	Offset          int64        `form:"offset"`
+	UserFavoritesId int          `form:"userFavoritesId"`
+	LiveListId      int          `form:"liveListId"`
+	Limit           int          `form:"limit"`
+	Offset          int          `form:"offset"`
 }
 
 func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser) (lives datastructures.Lives, err error) {
@@ -590,14 +590,14 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	return
 }
 
-func GetLiveFavoritedUsers(ctx context.Context, tx pgx.Tx, liveID int64) (userIDs []int64, err error) {
+func GetLiveFavoritedUsers(ctx context.Context, tx pgx.Tx, liveID int) (userIDs []int, err error) {
 	rows, err := tx.Query(ctx, "SELECT users_id FROM userfavorites WHERE lives_id = $1", liveID)
 	if err != nil {
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var userID int64
+		var userID int
 		err = rows.Scan(&userID)
 		if err != nil {
 			return
@@ -673,7 +673,7 @@ func createOldLiveNotificationFields(live datastructures.Live) (fields []datastr
 	}}, nil
 }
 
-func getUnnotifiedUsers(ctx context.Context, tx pgx.Tx, userIds []int64, live datastructures.Live) (unnotifiedUserIds []int64, err error) {
+func getUnnotifiedUsers(ctx context.Context, tx pgx.Tx, userIds []int, live datastructures.Live) (unnotifiedUserIds []int, err error) {
 	rows, err := tx.Query(ctx, `
 	SELECT un.users_id FROM usernotifications un
 	INNER JOIN notifications n ON n.id = un.notifications_id AND n.lives_id = $1
@@ -684,7 +684,7 @@ func getUnnotifiedUsers(ctx context.Context, tx pgx.Tx, userIds []int64, live da
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var uid int64
+		var uid int
 		err = rows.Scan(&uid)
 		if err != nil {
 			return
@@ -712,7 +712,7 @@ func notifyChangedLive(ctx context.Context, tx pgx.Tx, live datastructures.Live)
 		return
 	}
 
-	userIds := make([]int64, 0)
+	userIds := make([]int, 0)
 	for _, s := range ss {
 		userIds = append(userIds, s.UserId)
 	}
@@ -744,7 +744,7 @@ func notifyNewLive(ctx context.Context, tx pgx.Tx, live datastructures.Live) (er
 		return
 	}
 
-	userIds := make([]int64, 0)
+	userIds := make([]int, 0)
 	for _, s := range ss {
 		userIds = append(userIds, s.UserId)
 	}

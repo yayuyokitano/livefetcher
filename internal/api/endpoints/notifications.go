@@ -45,7 +45,7 @@ func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request
 		return logging.SE(http.StatusBadRequest, errors.New("no notification specified"))
 	}
 
-	notification, err := queries.GetNotification(r.Context(), int64(notificationID), user.ID, i18nloader.GetLanguages(r))
+	notification, err := queries.GetNotification(r.Context(), notificationID, user.ID, i18nloader.GetLanguages(r))
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

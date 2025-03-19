@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	ID                 int64              `form:"-"`
+	ID                 int                `form:"-"`
 	Email              string             `form:"email"`
 	Username           string             `form:"username"`
 	Nickname           string             `form:"nickname"`
@@ -20,7 +20,7 @@ type User struct {
 }
 
 type AuthUser struct {
-	ID         int64  `json:"id"`
+	ID         int    `json:"id"`
 	Email      string `json:"email"`
 	Username   string `json:"username"`
 	Nickname   string `json:"nickname"`
@@ -56,11 +56,11 @@ type GetLivesJsonResponse struct {
 }
 
 type Paginator struct {
-	Total      int64 `json:"total"`
-	Offset     int64 `json:"offset"`
-	Limit      int64 `json:"limit"`
-	Page       int64 `json:"page"`
-	TotalPages int64 `json:"totalPages"`
+	Total      int `json:"total"`
+	Offset     int `json:"offset"`
+	Limit      int `json:"limit"`
+	Page       int `json:"page"`
+	TotalPages int `json:"totalPages"`
 }
 
 type Lives struct {
@@ -69,7 +69,7 @@ type Lives struct {
 }
 
 type Live struct {
-	ID                   int64          `json:"id"`
+	ID                   int            `json:"id"`
 	Title                string         `json:"title"`
 	Artists              []string       `json:"artists"`
 	OpenTime             time.Time      `json:"opentime"`
@@ -85,8 +85,8 @@ type Live struct {
 	CalendarStartEventId string         `json:"calendarStartEventId"`
 
 	// only used for livelists
-	LiveListLiveID  int64  `json:"liveListLiveId"`
-	LiveListOwnerID int64  `json:"liveListOwnerId"`
+	LiveListLiveID  int    `json:"liveListLiveId"`
+	LiveListOwnerID int    `json:"liveListOwnerId"`
 	Desc            string `json:"desc"`
 }
 
@@ -124,14 +124,14 @@ type FavoriteButtonInfo struct {
 }
 
 type LiveListWriteRequest struct {
-	ID     int64
-	UserID int64
+	ID     int
+	UserID int
 	Title  string
 	Desc   string
 }
 
 type LiveList struct {
-	ID            int64
+	ID            int
 	Title         string
 	Desc          string
 	LiveDesc      string
@@ -144,7 +144,7 @@ type LiveList struct {
 }
 
 type AddToLiveListTemplateParams struct {
-	LiveID            int64
+	LiveID            int
 	LiveLiveLists     []LiveList
 	PersonalLiveLists []LiveList
 }
@@ -238,9 +238,9 @@ type NotificationsWrapper struct {
 }
 
 type Notification struct {
-	ID                 int64
+	ID                 int
 	Type               NotificationType
-	LiveID             *int64
+	LiveID             *int
 	LiveTitle          string
 	Seen               bool
 	CreatedAt          time.Time
@@ -258,8 +258,8 @@ type FieldLine struct {
 }
 
 type SavedSearch struct {
-	Id         int64
-	UserId     int64
+	Id         int
+	UserId     int
 	TextSearch string
 }
 

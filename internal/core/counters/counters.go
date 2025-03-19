@@ -2,7 +2,7 @@ package counters
 
 import "context"
 
-func GetLiveCount(ctx context.Context) (n int64, err error) {
+func GetLiveCount(ctx context.Context) (n int, err error) {
 	tx, err := FetchTransaction(ctx)
 	defer RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -19,7 +19,7 @@ func GetLiveCount(ctx context.Context) (n int64, err error) {
 	return
 }
 
-func GetLiveHouseCount(ctx context.Context) (n int64, err error) {
+func GetLiveHouseCount(ctx context.Context) (n int, err error) {
 	tx, err := FetchTransaction(ctx)
 	defer RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -36,7 +36,7 @@ func GetLiveHouseCount(ctx context.Context) (n int64, err error) {
 	return
 }
 
-func GetArtistCount(ctx context.Context) (n int64, err error) {
+func GetArtistCount(ctx context.Context) (n int, err error) {
 	tx, err := FetchTransaction(ctx)
 	defer RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -53,7 +53,7 @@ func GetArtistCount(ctx context.Context) (n int64, err error) {
 	return
 }
 
-func GetAreaCount(ctx context.Context) (n int64, err error) {
+func GetAreaCount(ctx context.Context) (n int, err error) {
 	tx, err := FetchTransaction(ctx)
 	defer RollbackTransaction(ctx, tx)
 	if err != nil {
@@ -70,7 +70,7 @@ func GetAreaCount(ctx context.Context) (n int64, err error) {
 	return
 }
 
-func GetUserCount(ctx context.Context) (n int64, err error) {
+func GetUserCount(ctx context.Context) (n int, err error) {
 	tx, err := FetchTransaction(ctx)
 	defer RollbackTransaction(ctx, tx)
 	if err != nil {

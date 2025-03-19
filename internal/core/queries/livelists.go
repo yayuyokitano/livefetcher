@@ -11,7 +11,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
+func GetUserLiveLists(ctx context.Context, userID int, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -48,7 +48,7 @@ func GetUserLiveLists(ctx context.Context, userID int64, loggedInUser datastruct
 	return
 }
 
-func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
+func GetLiveLiveLists(ctx context.Context, liveID int, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -86,14 +86,14 @@ func GetLiveLiveLists(ctx context.Context, liveID int64, loggedInUser datastruct
 	return
 }
 
-func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
+func UserOwnsLiveList(ctx context.Context, liveListID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
-	var userID int64
+	var userID int
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelists WHERE id=$1", liveListID).Scan(&userID)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -105,14 +105,14 @@ func UserOwnsLiveList(ctx context.Context, liveListID int64, loggedInUser datast
 	return nil
 }
 
-func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUser datastructures.AuthUser) *logging.StatusError {
+func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
-	var userID int64
+	var userID int
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelistlives INNER JOIN livelists ON (livelists.id = livelistlives.livelists_id) WHERE livelistlives.id=$1", liveListLiveID).Scan(&userID)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
@@ -124,7 +124,7 @@ func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int64, loggedInUse
 	return nil
 }
 
-func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructures.AuthUser) (liveList datastructures.LiveList, err error) {
+func GetLiveList(ctx context.Context, liveListID int, loggedInUser datastructures.AuthUser) (liveList datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -161,7 +161,7 @@ func GetLiveList(ctx context.Context, liveListID int64, loggedInUser datastructu
 	return
 }
 
-func PostLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (id int64, err error) {
+func PostLiveList(ctx context.Context, livelist datastructures.LiveListWriteRequest) (id int, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -193,7 +193,7 @@ func PutLiveList(ctx context.Context, livelist datastructures.LiveListWriteReque
 	return
 }
 
-func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
+func DeleteLiveList(ctx context.Context, liveListID int) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -209,7 +209,7 @@ func DeleteLiveList(ctx context.Context, liveListID int64) (err error) {
 	return
 }
 
-func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc string) (err error) {
+func PostLiveListLive(ctx context.Context, liveListID int, liveID int, desc string) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -225,7 +225,7 @@ func PostLiveListLive(ctx context.Context, liveListID int64, liveID int64, desc 
 	return
 }
 
-func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
+func DeleteLiveListLive(ctx context.Context, liveListLiveID int) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -241,7 +241,7 @@ func DeleteLiveListLive(ctx context.Context, liveListLiveID int64) (err error) {
 	return
 }
 
-func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+func FavoriteLiveList(ctx context.Context, userid int, livelistid int) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -266,7 +266,7 @@ func FavoriteLiveList(ctx context.Context, userid int64, livelistid int64) (favo
 	return
 }
 
-func UnfavoriteLiveLiveList(ctx context.Context, userid int64, livelistid int64) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
+func UnfavoriteLiveLiveList(ctx context.Context, userid int, livelistid int) (favoriteButtonInfo datastructures.FavoriteButtonInfo, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -337,14 +337,14 @@ func GetUserFavoriteLiveLists(ctx context.Context, user datastructures.AuthUser)
 	return
 }
 
-func getLiveListFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int64, livelistid int64) (isFavorited bool, favoriteCount int64, err error) {
+func getLiveListFavoriteAndCount(ctx context.Context, tx pgx.Tx, userid int, livelistid int) (isFavorited bool, favoriteCount int, err error) {
 	row := tx.QueryRow(ctx, "SELECT count(*) FROM livelistfavorites WHERE livelists_id=$1", livelistid)
 	err = row.Scan(&favoriteCount)
 	if err != nil || favoriteCount == 0 || userid == 0 {
 		return
 	}
 
-	var selfCount int64
+	var selfCount int
 	selfRow := tx.QueryRow(ctx, "SELECT count(*) FROM livelistfavorites WHERE livelists_id=$1 AND users_id=$2", livelistid, userid)
 	err = selfRow.Scan(&selfCount)
 	if err != nil {

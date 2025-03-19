@@ -79,23 +79,3 @@ func generateRandomBytes(n int) (b []byte, err error) {
 	_, err = rand.Read(b)
 	return
 }
-
-type Paginator struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
-func InitializePaginator(query url.Values) Paginator {
-	limit, err := strconv.Atoi(query.Get("limit"))
-	if err != nil {
-		limit = 50
-	}
-	offset, err := strconv.Atoi(query.Get("offset"))
-	if err != nil {
-		offset = 0
-	}
-	return Paginator{
-		Limit:  limit,
-		Offset: offset,
-	}
-}

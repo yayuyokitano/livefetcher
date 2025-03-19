@@ -7,7 +7,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 )
 
-func GetCalendarProperties(ctx context.Context, userid int64) (props datastructures.CalendarProperties, err error) {
+func GetCalendarProperties(ctx context.Context, userid int) (props datastructures.CalendarProperties, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -22,7 +22,7 @@ func GetCalendarProperties(ctx context.Context, userid int64) (props datastructu
 	return
 }
 
-func PutCalendarProperties(ctx context.Context, userid int64, props datastructures.CalendarProperties) (err error) {
+func PutCalendarProperties(ctx context.Context, userid int, props datastructures.CalendarProperties) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -37,7 +37,7 @@ func PutCalendarProperties(ctx context.Context, userid int64, props datastructur
 	return
 }
 
-func GetCalendarId(ctx context.Context, liveId int64, userId int64) (openEventId, startEventId string, err error) {
+func GetCalendarId(ctx context.Context, liveId int, userId int) (openEventId, startEventId string, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -52,7 +52,7 @@ func GetCalendarId(ctx context.Context, liveId int64, userId int64) (openEventId
 	return
 }
 
-func PostCalendarId(ctx context.Context, liveId int64, userId int64, openEventId, startEventId string) (err error) {
+func PostCalendarId(ctx context.Context, liveId int, userId int, openEventId, startEventId string) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -67,7 +67,7 @@ func PostCalendarId(ctx context.Context, liveId int64, userId int64, openEventId
 	return
 }
 
-func DeleteCalendarId(ctx context.Context, userId int64, openEventId, startEventId string) (err error) {
+func DeleteCalendarId(ctx context.Context, userId int, openEventId, startEventId string) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return

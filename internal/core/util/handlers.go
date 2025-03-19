@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type TimeHandler func(d string, t string) (open int64, start int64, err error)
+type TimeHandler func(d string, t string) (open int, start int, err error)
 
 type PriceHandler func(p string) (price string, err error)
 

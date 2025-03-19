@@ -14,13 +14,13 @@ import (
 )
 
 type Calendar interface {
-	PostEvent(ctx context.Context, props datastructures.CalendarProperties, userId int64, live datastructures.Live) (datastructures.Live, error)
-	PutEvent(ctx context.Context, props datastructures.CalendarProperties, userId int64, live datastructures.Live) error
-	DeleteEvent(ctx context.Context, props datastructures.CalendarProperties, userId, liveId int64) error
-	GetAllEvents(ctx context.Context, props datastructures.CalendarProperties, userId int64) (events []datastructures.CalendarEvent, err error)
+	PostEvent(ctx context.Context, props datastructures.CalendarProperties, userId int, live datastructures.Live) (datastructures.Live, error)
+	PutEvent(ctx context.Context, props datastructures.CalendarProperties, userId int, live datastructures.Live) error
+	DeleteEvent(ctx context.Context, props datastructures.CalendarProperties, userId, liveId int) error
+	GetAllEvents(ctx context.Context, props datastructures.CalendarProperties, userId int) (events []datastructures.CalendarEvent, err error)
 }
 
-func InitializeCalendar(ctx context.Context, userId int64) (Calendar, datastructures.CalendarProperties, error) {
+func InitializeCalendar(ctx context.Context, userId int) (Calendar, datastructures.CalendarProperties, error) {
 	props, err := calendarqueries.GetCalendarProperties(ctx, userId)
 	if err != nil {
 		return nil, datastructures.CalendarProperties{}, err
@@ -36,12 +36,12 @@ func InitializeCalendar(ctx context.Context, userId int64) (Calendar, datastruct
 	return nil, datastructures.CalendarProperties{}, fmt.Errorf("invalid calendar type: %d", props.Type)
 }
 
-func GetCalendarProperties(ctx context.Context, tx pgx.Tx, userid int64) (props datastructures.CalendarProperties, err error) {
+func GetCalendarProperties(ctx context.Context, tx pgx.Tx, userid int) (props datastructures.CalendarProperties, err error) {
 	err = tx.QueryRow(ctx, "SELECT calendar_id, calendar_token, calendar_type FROM users WHERE id = $1", userid).Scan(&props.Id, &props.Token, &props.Type)
 	return
 }
 
-func PutCalendarProperties(ctx context.Context, userid int64, props datastructures.CalendarProperties) (err error) {
+func PutCalendarProperties(ctx context.Context, userid int, props datastructures.CalendarProperties) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -52,7 +52,7 @@ func PutCalendarProperties(ctx context.Context, userid int64, props datastructur
 	return
 }
 
-func PostCalendarId(ctx context.Context, liveId int64, userId int64, openEventId, startEventId string) (err error) {
+func PostCalendarId(ctx context.Context, liveId int, userId int, openEventId, startEventId string) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -63,7 +63,7 @@ func PostCalendarId(ctx context.Context, liveId int64, userId int64, openEventId
 	return
 }
 
-func DeleteCalendarId(ctx context.Context, userId, liveId int64, calendar calendar.Calendar) (err error) {
+func DeleteCalendarId(ctx context.Context, userId, liveId int, calendar calendar.Calendar) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return

@@ -10,7 +10,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/util/mecab"
 )
 
-func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
+func PostArtists(ctx context.Context, artists []string) (n int, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -45,7 +45,7 @@ func PostArtists(ctx context.Context, artists []string) (n int64, err error) {
 		if err != nil {
 			return
 		}
-		n += cmd.RowsAffected()
+		n += int(cmd.RowsAffected())
 	}
 	err = counters.CommitTransaction(ctx, tx)
 	return
