@@ -280,7 +280,7 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 	livesWithGeoJSON := datastructures.LiveWithGeoJSON{
-		Lives:   lives,
+		Lives:   lives.Lives,
 		GeoJson: make([]datastructures.LiveGeoJSON, 0),
 	}
 	localizer := i18nloader.GetLocalizer(r)

@@ -10,6 +10,11 @@ function createMapDataRetriever() {
       '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(leaflet);
   const layerGroup = L.layerGroup().addTo(leaflet);
+	const now = new Date();
+	if (now.getHours() > 18) {
+		now.setDate(now.getDate() + 1);
+	}
+	const dateString = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}`
 
   return {
     isLoading: false,
@@ -19,7 +24,7 @@ function createMapDataRetriever() {
     },
     filteredLives: [],
     liveMarkers: {},
-    date: "2024-10-30",
+    date: dateString,
     filterLives() {
       const bounds = leaflet.getBounds();
       const minLat = bounds.getSouth();
@@ -88,3 +93,4 @@ function getLiveCounter(num) {
   }
   return `${num}ライブ`;
 }
+

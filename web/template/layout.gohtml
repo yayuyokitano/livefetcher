@@ -99,7 +99,7 @@
         {{ template "navSearchInner" . }}
       </form>
       <div class="button-container">
-        <a class="nav-button" href="/map">
+        <a class="nav-button" href="/map" hx-boost="false">
           {{ template "mapIcon" }}
           <span>{{ T "general.search-show-map" }}</span>
         </a>

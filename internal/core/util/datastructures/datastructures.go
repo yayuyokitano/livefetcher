@@ -29,7 +29,7 @@ type AuthUser struct {
 }
 
 type LiveWithGeoJSON struct {
-	Lives   Lives         `json:"lives"`
+	Lives   []Live        `json:"lives"`
 	GeoJson []LiveGeoJSON `json:"geoJson"`
 }
 
