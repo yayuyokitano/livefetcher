@@ -626,7 +626,11 @@ td {
 	color: var(--text);
 }
 
-.paginator span {
+.paginator .inactive {
+	background-color: var(--brand-disabled);
+}
+
+.paginator .active {
 	background-color: var(--brand);
 	color: var(--always-light);
 }

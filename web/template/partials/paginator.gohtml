@@ -2,6 +2,8 @@
 <div class="paginator">
 	{{ if gt .Page 1 }}
 		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 2) 24) }}">&lt;</a>
+	{{ else }}
+		<span class="inactive">&lt;</span>
 	{{ end }}
 	{{ if and (gt .Page 4) (ge .Page .TotalPages) }}
 		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 5) 24) }}">{{ Sub .Page 4 }}</a>
@@ -15,7 +17,7 @@
 	{{ if gt .Page 1 }}
 		<a href="{{ GetPaginatedUrl (Mult (Sub .Page 2) 24) }}">{{ Sub .Page 1 }}</a>
 	{{ end }}
-	<span>{{ .Page }}</span>
+	<span class="active">{{ .Page }}</span>
 	{{ if le .Page (Sub .TotalPages 1) }}
 		<a href="{{ GetPaginatedUrl (Mult .Page 24) }}">{{ Add .Page 1 }}</a>
 	{{ end }}
@@ -30,6 +32,8 @@
 	{{ end }}
 	{{ if lt .Page .TotalPages }}
 		<a href="{{ GetPaginatedUrl (Mult .Page 24) }}">&gt;</a>
+	{{ else }}
+		<span class="inactive">&gt;</span>
 	{{ end }}
 </div>
 {{ end }}
