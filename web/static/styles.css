@@ -614,6 +614,39 @@ td {
   margin-right: 6vw;
 }
 
+.paginator {
+	display: flex;
+	justify-content: center;
+	gap: 1rem;
+	margin: 2rem;
+}
+
+.paginator a {
+	background-color: var(--bg2);
+	color: var(--text);
+}
+
+.paginator span {
+	background-color: var(--brand);
+	color: var(--always-light);
+}
+
+.paginator a:hover {
+	background-color: var(--brand);
+	color: var(--always-light);
+}
+
+.paginator span,
+.paginator a {
+	text-decoration: none;
+	font-size: 1.5rem;
+	width: 3.5rem;
+	height: 3.5rem;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
 @media only screen and (width < 2000px) {
   .live-list {
     grid-template-columns: repeat(4, minmax(0, 1fr));

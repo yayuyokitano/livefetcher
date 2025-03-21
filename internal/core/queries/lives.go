@@ -434,18 +434,17 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 	args := []any{}
 
-	queryStr := `WITH queriedlives AS (
-		SELECT live.id AS id, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id`
+	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
 	}
 
 	queryStr += `
 		FROM lives AS live
-		INNER JOIN liveartists ON (liveartists.lives_id = live.id)
+		LEFT JOIN liveartists ON (liveartists.lives_id = live.id)
 		INNER JOIN livehouses livehouse ON (livehouse.id = live.livehouses_id)
 		INNER JOIN areas area ON (area.id = livehouse.areas_id)
-		INNER JOIN artistaliases alias ON (alias.artists_name = liveartists.artists_name)
+		LEFT JOIN artistaliases alias ON (alias.artists_name = liveartists.artists_name)
 		`
 
 	if query.UserFavoritesId != 0 {
@@ -518,17 +517,8 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 		addCondition("uf.users_id=$%d", query.UserFavoritesId)
 	}
 
-	queryStr += `)
-	SELECT id, array_agg(DISTINCT liveartists.artists_name), title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id, COUNT(*) OVER() as total`
-
-	if query.LiveListId != 0 {
-		queryStr += ", livelistlive_id, livelist_owner_id, live_description"
-	}
-
 	queryStr += `
-	FROM queriedlives
-	INNER JOIN liveartists ON (liveartists.lives_id = queriedlives.id)
-	GROUP BY id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
+	GROUP BY live.id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
 
 	if query.LiveListId != 0 {
 		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
@@ -552,14 +542,20 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	defer rows.Close()
 	for rows.Next() {
 		var l datastructures.Live
+		var artists []*string
 		scans := make([]any, 0)
-		scans = append(scans, &l.ID, &l.Artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId, &lives.Paginator.Total)
+		scans = append(scans, &l.ID, &artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId, &lives.Paginator.Total)
 		if query.LiveListId != 0 {
 			scans = append(scans, &l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc)
 		}
 		err = rows.Scan(scans...)
 		if err != nil {
 			return
+		}
+		for _, a := range artists {
+			if a != nil {
+				l.Artists = append(l.Artists, *a)
+			}
 		}
 		lives.Lives = append(lives.Lives, l)
 	}

@@ -20,7 +20,7 @@ function getConflicts(openTime, startTime, artists, calendarEvents) {
   boundaryStart.setHours(boundaryStart.getHours() - 1);
   const boundaryEnd = new Date(startTime);
   boundaryEnd.setHours(
-    boundaryEnd.getHours() + liveDurationHours(artists.length) + 1,
+    boundaryEnd.getHours() + liveDurationHours(artists) + 1,
   );
 
   /**
@@ -76,16 +76,19 @@ function getConflicts(openTime, startTime, artists, calendarEvents) {
 
 /**
  *
- * @param {number} artistLength - The number of artists performing at the event
+ * @param {Array <string>} artists - The artists performing at the event
  * @returns An estimate of the number of hours the event lasts
  */
-function liveDurationHours(artistLength) {
-  switch (artistLength) {
+function liveDurationHours(artists) {
+	if (!artists) {
+		return 2;
+	}
+  switch (artists.length) {
     case 1:
       return 2;
     case 2:
       return 3;
     default:
-      return Math.min(artistLength, 10);
+      return Math.min(artists.length, 10);
   }
 }
