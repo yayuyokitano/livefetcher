@@ -124,6 +124,18 @@ func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 		return logging.SE(http.StatusInternalServerError, err)
 	}
 
+	localizer := i18nloader.GetLocalizer(r)
+	for i := range lives.Lives {
+		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + lives.Lives[i].Venue.ID)
+		lives.Lives[i].Venue.Area.Area = localizer.Localize(
+			"util.prefecture-area",
+			"Area",
+			localizer.Localize("area."+lives.Lives[i].Venue.Area.Prefecture+"."+lives.Lives[i].Venue.Area.Area),
+			"Prefecture",
+			localizer.Localize("prefecture."+lives.Lives[i].Venue.Area.Prefecture),
+		)
+	}
+
 	calendarEvents := <-calendarResults
 
 	res := datastructures.GetLivesJsonResponse{
