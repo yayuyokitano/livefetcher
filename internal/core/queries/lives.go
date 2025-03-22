@@ -490,10 +490,17 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	if query.Artist != "" {
+		ilikeQuery := `live.id IN (
+			SELECT DISTINCT liveartists.lives_id
+			FROM liveartists
+    	LEFT JOIN artistaliases alias ON alias.artists_name = liveartists.artists_name
+    	WHERE alias.alias ILIKE $%d
+		)`
+
 		if query.Artist[0] == '"' && query.Artist[len(query.Artist)-1] == '"' {
-			addCondition("alias.alias ILIKE $%d", query.Artist[1:len(query.Artist)-1])
+			addCondition(ilikeQuery, query.Artist[1:len(query.Artist)-1])
 		} else {
-			addCondition("alias.alias ILIKE $%d", query.Artist+"%")
+			addCondition(ilikeQuery, query.Artist+"%")
 		}
 	}
 
