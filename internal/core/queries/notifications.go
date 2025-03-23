@@ -88,7 +88,7 @@ func GetNotification(ctx context.Context, notificationID int, userID int, langs 
 				if err != nil {
 					return
 				}
-				f.OldValue = i18nloader.FormatDate(ot, langs)
+				f.OldValue = i18nloader.FormatDate(ot, langs, true)
 			}
 			if notification.Type == datastructures.NotificationTypeAdded || notification.Type == datastructures.NotificationTypeEdited {
 				var nt time.Time
@@ -96,7 +96,7 @@ func GetNotification(ctx context.Context, notificationID int, userID int, langs 
 				if err != nil {
 					return
 				}
-				f.NewValue = i18nloader.FormatDate(nt, langs)
+				f.NewValue = i18nloader.FormatDate(nt, langs, true)
 			}
 
 		case datastructures.NotificationFieldVenue:

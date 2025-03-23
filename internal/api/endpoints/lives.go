@@ -134,6 +134,8 @@ func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 			"Prefecture",
 			localizer.Localize("prefecture."+lives.Lives[i].Venue.Area.Prefecture),
 		)
+
+		lives.Lives[i].LocalizedTime = i18nloader.FormatOpenStartTime(lives.Lives[i].OpenTime, lives.Lives[i].StartTime, i18nloader.GetLanguages(r))
 	}
 
 	calendarEvents := <-calendarResults

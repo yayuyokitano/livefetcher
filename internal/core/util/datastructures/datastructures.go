@@ -74,6 +74,7 @@ type Live struct {
 	Artists              []string       `json:"artists"`
 	OpenTime             time.Time      `json:"opentime"`
 	StartTime            time.Time      `json:"starttime"`
+	LocalizedTime        string         `json:"localizedTime"`
 	Price                string         `json:"price"`
 	PriceEnglish         string         `json:"priceEn"`
 	Venue                LiveHouse      `json:"venue"`

@@ -26,7 +26,7 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 	tmpl, err = tmpl.Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 		"FormatDate": func(t time.Time) string {
-			return i18nloader.FormatDate(t, i18nloader.GetLanguages(r))
+			return i18nloader.FormatDate(t, i18nloader.GetLanguages(r), true)
 		},
 		"Lang": func() string { return i18nloader.GetMainLanguage(r) },
 		"GetUser": func() datastructures.AuthUser {

@@ -53,7 +53,7 @@ func TimeIsIndeterminate(t time.Time) bool {
 	return t.Hour() == 3 && t.Minute() == 24
 }
 
-func FormatDate(t time.Time, langs []string) string {
+func FormatDate(t time.Time, langs []string, includeTime bool) string {
 	for _, lang := range langs {
 		if strings.HasPrefix(lang, "ja") {
 			hour := t.Hour()
@@ -80,22 +80,49 @@ func FormatDate(t time.Time, langs []string) string {
 				weekday = "土"
 			}
 
-			if TimeIsIndeterminate(t) {
+			if !includeTime || TimeIsIndeterminate(t) {
 				return fmt.Sprintf("%d年%d月%d日（%s）", t.Year(), int(t.Month()), t.Day(), weekday)
 			}
 			return fmt.Sprintf("%d年%d月%d日（%s）%02d:%02d", t.Year(), int(t.Month()), t.Day(), weekday, hour, t.Minute())
 		}
 		if strings.HasPrefix(lang, "en") {
-			if TimeIsIndeterminate(t) {
+			if !includeTime || TimeIsIndeterminate(t) {
 				return t.Format("Mon 2 Jan 2006")
 			}
 			return t.Format("Mon 2 Jan 2006 03:04 PM")
 		}
 	}
-	if TimeIsIndeterminate(t) {
+	if !includeTime || TimeIsIndeterminate(t) {
 		return t.Format("Mon 2 Jan 2006")
 	}
 	return t.Format("Mon 2 Jan 2006 03:04 PM")
+}
+
+func FormatOpenStartTime(openTime time.Time, startTime time.Time, langs []string) string {
+	dateString := FormatDate(startTime, langs, false)
+	openHour := openTime.Hour()
+	startHour := startTime.Hour()
+	for _, lang := range langs {
+		if strings.HasPrefix(lang, "ja") {
+			if startHour <= 5 && !TimeIsIndeterminate(startTime) {
+				startHour += 24
+				if !TimeIsIndeterminate(openTime) {
+					openHour += 24
+				}
+			}
+			break
+		}
+		if strings.HasPrefix(lang, "en") {
+			break
+		}
+	}
+	if !TimeIsIndeterminate(openTime) {
+		dateString += fmt.Sprintf(" OPEN: %02d:%02d", openHour, openTime.Minute())
+	}
+	if !TimeIsIndeterminate(startTime) {
+		dateString += fmt.Sprintf(" START: %02d:%02d", startHour, startTime.Minute())
+	}
+	return dateString
 }
 
 func GetLanguages(r *http.Request) (langs []string) {
