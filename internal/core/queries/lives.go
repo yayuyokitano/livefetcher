@@ -434,7 +434,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 	args := []any{}
 
-	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, ST_X(location::geometry) AS longitude, ST_Y(location::geometry) AS latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
+	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, longitude, latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
 	}

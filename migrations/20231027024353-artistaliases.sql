@@ -9,4 +9,4 @@ CREATE INDEX idx_artistaliases_aliases ON artistaliases(alias);
 -- +migrate Down
 DROP INDEX idx_artistaliases_aliases;
 DROP INDEX idx_artistaliases_aliases_artists;
-DROP TABLE liveartists;
+DROP TABLE artistaliases;

@@ -2,7 +2,6 @@ package queries
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
@@ -26,14 +25,13 @@ func PostLiveHouses(ctx context.Context, livehouses []datastructures.LiveHouse) 
 		}
 
 		var cmd pgconn.CommandTag
-		point := fmt.Sprintf("POINT(%f %f)", livehouse.Longitude, livehouse.Latitude)
-		cmd, err = tx.Exec(ctx, "INSERT INTO livehouses (id, areas_id, location) VALUES ($1, $2, ST_GeomFromText($3, 4326)) ON CONFLICT DO NOTHING", livehouse.ID, areaid, point)
+		cmd, err = tx.Exec(ctx, "INSERT INTO livehouses (id, areas_id, latitude, longitude) VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING", livehouse.ID, areaid, livehouse.Latitude, livehouse.Longitude)
 		if err != nil {
 			return
 		}
 		n += int(cmd.RowsAffected())
 		if n == 0 {
-			_, err = tx.Exec(ctx, "UPDATE livehouses SET areas_id=$1, location=ST_GeomFromText($2, 4326) WHERE id=$3", areaid, point, livehouse.ID)
+			_, err = tx.Exec(ctx, "UPDATE livehouses SET areas_id=$1, latitude=$2, longitude=$3 WHERE id=$4", areaid, livehouse.Latitude, livehouse.Longitude, livehouse.ID)
 			if err != nil {
 				return
 			}

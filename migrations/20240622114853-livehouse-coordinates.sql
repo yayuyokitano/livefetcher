@@ -1,6 +1,6 @@
 -- +migrate Up
-ALTER TABLE livehouses ADD location geography(POINT,4326);
-CREATE INDEX livehouse_loc_idx ON livehouses USING GIST ( location );
+ALTER TABLE livehouses ADD latitude REAL;
+ALTER TABLE livehouses ADD longitude REAL;
 -- +migrate Down
-DROP INDEX livehouse_loc_idx;
-ALTER TABLE livehouses DROP COLUMN location;
+ALTER TABLE livehouses DROP COLUMN latitude;
+ALTER TABLE livehouses DROP COLUMN longitude;
