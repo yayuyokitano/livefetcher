@@ -158,8 +158,28 @@ func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 	return nil
 }
 
-type favoriteRequest struct {
-	LiveId int `form:"liveId"`
+func FavoriteJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id == 0 {
+		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
+	}
+
+	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, id)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	b, err := json.Marshal(favoriteButtonInfo)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	w.Write(b)
+	return nil
 }
 
 func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
@@ -167,19 +187,12 @@ func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id == 0 {
+		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
 	}
 
-	decoder := form.NewDecoder()
-	var req favoriteRequest
-	err = decoder.Decode(&req, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, req.LiveId)
+	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, id)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}
@@ -198,24 +211,41 @@ func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 	return nil
 }
 
+func UnfavoriteJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+	if user.Username == "" {
+		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+	}
+
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id == 0 {
+		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
+	}
+
+	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, id)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	b, err := json.Marshal(favoriteButtonInfo)
+	if err != nil {
+		return logging.SE(http.StatusInternalServerError, err)
+	}
+
+	w.Write(b)
+	return nil
+}
+
 func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
 	if user.Username == "" {
 		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil || id == 0 {
+		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
 	}
 
-	decoder := form.NewDecoder()
-	var req favoriteRequest
-	err = decoder.Decode(&req, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, req.LiveId)
+	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, id)
 	if err != nil {
 		return logging.SE(http.StatusInternalServerError, err)
 	}

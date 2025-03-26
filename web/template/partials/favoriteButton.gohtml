@@ -6,10 +6,8 @@
       unfavorite
     {{- else -}}
       favorite
-    {{- end }}"
+    {{- end }}/{{ .ID }}"
     class="live-button"
-    name="liveId"
-    value="{{ .ID }}"
     title="{{ if .IsFavorited -}}
       {{ T "general.remove-from-favorites" }}
     {{- else -}}

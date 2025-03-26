@@ -206,11 +206,17 @@ func startServer() {
 	router.Handle("/api/logout", router.Methods{
 		POST: endpoints.Logout,
 	})
-	router.Handle("/api/favorite", router.Methods{
+	router.Handle("/api/favorite/{id}", router.Methods{
 		POST: endpoints.Favorite,
 	})
-	router.Handle("/api/unfavorite", router.Methods{
+	router.Handle("/api/unfavorite/{id}", router.Methods{
 		POST: endpoints.Unfavorite,
+	})
+	router.Handle("/api/mobile/favorite/{id}", router.Methods{
+		POST: endpoints.FavoriteJson,
+	})
+	router.Handle("/api/mobile/unfavorite/{id}", router.Methods{
+		POST: endpoints.UnfavoriteJson,
 	})
 	router.Handle("/settings", router.Methods{
 		GET: endpoints.ShowSettings,
