@@ -140,6 +140,15 @@ func startServer() {
 	router.Handle("/api/mobile/lives", router.Methods{
 		GET: endpoints.GetLivesJson,
 	})
+	router.Handle("/api/mobile/login", router.Methods{
+		POST: endpoints.ExecuteLoginJson,
+	})
+	router.Handle("/api/mobile/register", router.Methods{
+		POST: endpoints.RegisterJson,
+	})
+	router.Handle("/api/mobile/logout", router.Methods{
+		POST: endpoints.LogoutJson,
+	})
 
 	router.Handle("/login", router.Methods{
 		GET: endpoints.ShowLogin,

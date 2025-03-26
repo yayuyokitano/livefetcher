@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+type Token struct {
+	AuthToken    string `json:"authToken"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 type User struct {
 	ID                 int                `form:"-"`
 	Email              string             `form:"email"`
