@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -137,19 +136,6 @@ func startServer() {
 				err = runner.RunConnector("ShinsaibashiBronze")
 				fmt.Println(err)*/
 
-	router.Handle("/api/mobile/lives", router.Methods{
-		GET: endpoints.GetLivesJson,
-	})
-	router.Handle("/api/mobile/login", router.Methods{
-		POST: endpoints.ExecuteLoginJson,
-	})
-	router.Handle("/api/mobile/register", router.Methods{
-		POST: endpoints.RegisterJson,
-	})
-	router.Handle("/api/mobile/logout", router.Methods{
-		POST: endpoints.LogoutJson,
-	})
-
 	router.Handle("/login", router.Methods{
 		GET: endpoints.ShowLogin,
 	})
@@ -212,12 +198,6 @@ func startServer() {
 	router.Handle("/api/unfavorite/{id}", router.Methods{
 		POST: endpoints.Unfavorite,
 	})
-	router.Handle("/api/mobile/favorite/{id}", router.Methods{
-		POST: endpoints.FavoriteJson,
-	})
-	router.Handle("/api/mobile/unfavorite/{id}", router.Methods{
-		POST: endpoints.UnfavoriteJson,
-	})
 	router.Handle("/settings", router.Methods{
 		GET: endpoints.ShowSettings,
 	})
@@ -225,13 +205,13 @@ func startServer() {
 		GET: endpoints.AuthorizeGoogleCalendar,
 	})
 	router.Handle("/api/updateTestLive", router.Methods{
-		GET: func(au datastructures.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) *logging.StatusError {
+		GET: func(au datastructures.AuthUser, w1 io.Writer, r *http.Request, w2 http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 			err := runner.RunConnector(context.Background(), "ShimokitazawaTest")
 			if err != nil {
-				return logging.SE(http.StatusInternalServerError, err)
+				return nil, logging.SE(http.StatusInternalServerError, err.Error())
 			}
 			w1.Write([]byte("Successfully updated test live"))
-			return nil
+			return nil, nil
 		},
 	})
 	router.Handle("/", router.Methods{
@@ -241,7 +221,7 @@ func startServer() {
 	http.ListenAndServe(":9999", nil)
 }
 
-func serveTemplate(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func serveTemplate(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", filepath.Clean(r.URL.Path), "index.gohtml")
 
@@ -249,28 +229,28 @@ func serveTemplate(user datastructures.AuthUser, w io.Writer, r *http.Request, _
 	info, err := os.Stat(fp)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return logging.SE(http.StatusNotFound, errors.New("404 page not found"))
+			return nil, logging.SE(http.StatusNotFound, i18nloader.GetLocalizer(r).Localize("error.not-found"))
 		}
 	}
 
 	// Return a 404 if the request is for a directory
 	if info.IsDir() {
-		return logging.SE(http.StatusNotFound, errors.New("404 page not found"))
+		return nil, logging.SE(http.StatusNotFound, i18nloader.GetLocalizer(r).Localize("error.not-found"))
 	}
 
 	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	areas, err := queries.GetAllAreas(r.Context())
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	err = tmpl.ExecuteTemplate(w, "layout", areas)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
-	return nil
+	return nil, nil
 }

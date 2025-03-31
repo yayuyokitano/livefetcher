@@ -249,9 +249,9 @@ func GetGoogleAuthCodeUrl(userId int) (url string, err error) {
 }
 
 type OauthForm struct {
-	State string `form:"state"`
-	Code  string `form:"code"`
-	Scope string `form:"scope"`
+	State string `form:"state" json:"state"`
+	Code  string `form:"code" json:"code"`
+	Scope string `form:"scope" json:"scope"`
 }
 
 func ExchangeCode(ctx context.Context, authProps OauthForm) (tok *oauth2.Token, err error) {

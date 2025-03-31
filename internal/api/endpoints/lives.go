@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -12,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
@@ -39,17 +37,12 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 	return i18nloader.GetLocalizer(r).Localize("general.main-" + suffix)
 }
 
-func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
+func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 
-	decoder := form.NewDecoder()
 	var query queries.LiveQuery
-	err = decoder.Decode(&query, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &query)
+	if se != nil {
+		return nil, se
 	}
 	if query.Limit == 0 {
 		query.Limit = 24
@@ -60,13 +53,13 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 	startTime := time.Now()
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 	fmt.Println(time.Since(startTime))
 
 	areas, err := queries.GetAllAreas(r.Context())
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	calendarEvents := <-calendarResults
@@ -88,40 +81,34 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "layout", liveTemplateInput{
-		Metadata: liveTemplateMetadata{
-			Query: query,
-			Areas: areas,
+	return &datastructures.Response{
+		Template: tmpl,
+		Data: liveTemplateInput{
+			Metadata: liveTemplateMetadata{
+				Query: query,
+				Areas: areas,
+			},
+			Lives: lives,
 		},
-		Lives: lives,
-	})
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+	}, nil
 }
 
-func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
+func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 
-	decoder := form.NewDecoder()
 	var query queries.LiveQuery
-	err = decoder.Decode(&query, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &query)
+	if se != nil {
+		return nil, se
 	}
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusBadRequest, "unknown-error").SetInternalError(err)
 	}
 
 	localizer := i18nloader.GetLocalizer(r)
@@ -147,128 +134,78 @@ func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 
 	b, err := json.Marshal(res)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	_, err = w.Write(b)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
-	return nil
+	return nil, nil
 }
 
-func FavoriteJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id == 0 {
-		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.live-not-found"))
 	}
 
 	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, id)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	b, err := json.Marshal(favoriteButtonInfo)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	w.Write(b)
-	return nil
-}
-
-func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
-	}
-
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil || id == 0 {
-		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
-	}
-
-	favoriteButtonInfo, err := queries.FavoriteLive(r.Context(), user.ID, id)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
-	templ, err := template.New("favoriteButton").Funcs(template.FuncMap{
+	tmpl, err := template.New("favoriteButton").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 	}).ParseFiles(fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
-	err = templ.ExecuteTemplate(w, "favoriteButton", favoriteButtonInfo)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+
+	return &datastructures.Response{
+		Template: tmpl,
+		Name:     "favoriteButton",
+		Data:     favoriteButtonInfo,
+	}, nil
 }
 
-func UnfavoriteJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil || id == 0 {
-		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.live-not-found"))
 	}
 
 	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, id)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	b, err := json.Marshal(favoriteButtonInfo)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	w.Write(b)
-	return nil
-}
-
-func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
-	}
-
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil || id == 0 {
-		return logging.SE(http.StatusBadRequest, errors.New("invalid id specified"))
-	}
-
-	favoriteButtonInfo, err := queries.UnfavoriteLive(r.Context(), user.ID, id)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	fp := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
-	templ, err := template.New("favoriteButton").Funcs(template.FuncMap{
+	tmpl, err := template.New("favoriteButton").Funcs(template.FuncMap{
 		"T": i18nloader.GetLocalizer(r).Localize,
 	}).ParseFiles(fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
-	err = templ.ExecuteTemplate(w, "favoriteButton", favoriteButtonInfo)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+
+	return &datastructures.Response{
+		Template: tmpl,
+		Name:     "favoriteButton",
+		Data:     favoriteButtonInfo,
+	}, nil
 }
 
-func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
+func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
@@ -276,7 +213,7 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 		UserFavoritesId: user.ID,
 	}, user)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	calendarEvents := <-calendarResults
@@ -292,27 +229,27 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
-	err = tmpl.ExecuteTemplate(w, "layout", lives)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+
+	return &datastructures.Response{
+		Template: tmpl,
+		Data:     lives,
+	}, nil
 }
 
-func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	year, err := strconv.Atoi(r.PathValue("year"))
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, "unknown-error")
 	}
 	month, err := strconv.Atoi(r.PathValue("month"))
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, "unknown-error")
 	}
 	day, err := strconv.Atoi(r.PathValue("day"))
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, "unknown-error")
 	}
 
 	var query queries.LiveQuery
@@ -321,7 +258,7 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 	livesWithGeoJSON := datastructures.LiveWithGeoJSON{
 		Lives:   lives.Lives,
@@ -346,30 +283,25 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 
 	b, err := json.Marshal(livesWithGeoJSON)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 	w.Write(b)
-	return nil
+	return nil, nil
 }
 
-func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	decoder := form.NewDecoder()
 	var query queries.LiveQuery
-	err = decoder.Decode(&query, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &query)
+	if se != nil {
+		return nil, se
 	}
+
 	if query.Artist == "" || query.Artist == `""` {
-		return logging.SE(http.StatusBadRequest, errors.New("please enter an artist search"))
+		return nil, logging.SE(http.StatusBadRequest, "please enter an artist search")
 	}
 
 	areas := make([]int, 0)
@@ -377,41 +309,41 @@ func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request,
 		areas = append(areas, k)
 	}
 
-	err = queries.PostSavedSearch(r.Context(), user.ID, query.Artist, areas)
+	err := queries.PostSavedSearch(r.Context(), user.ID, query.Artist, areas)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	w.Write([]byte("Successfully saved search for " + query.Artist))
-	return nil
+	return nil, nil
 }
 
-func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.live-not-found"))
 	}
 
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: id,
 	}, user)
 	if err != nil || len(lives.Lives) != 1 {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	calendar, calendarProperties, err := calendar.InitializeCalendar(r.Context(), user.ID)
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	lives.Lives[0].Venue.Name = i18nloader.GetLocalizer(r).Localize("livehouse." + lives.Lives[0].Venue.ID)
 	newLive, err := calendar.PostEvent(r.Context(), calendarProperties, user.ID, lives.Lives[0])
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	layout := filepath.Join("web", "template", "layout.gohtml")
@@ -419,42 +351,41 @@ func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _
 	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{}, livePartial, favoriteButtonPartial, layout)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "live", newLive)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Name:     "live",
+		Data:     newLive,
+	}, nil
 }
 
-func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.live-not-found"))
 	}
 
 	calendar, calendarProperties, err := calendar.InitializeCalendar(r.Context(), user.ID)
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	err = calendar.DeleteEvent(r.Context(), calendarProperties, user.ID, id)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: id,
 	}, user)
 	if err != nil || len(lives.Lives) != 1 {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
 	layout := filepath.Join("web", "template", "layout.gohtml")
@@ -462,13 +393,12 @@ func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Reque
 	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{}, livePartial, favoriteButtonPartial, layout)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "live", lives.Lives[0])
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Name:     "live",
+		Data:     lives.Lives[0],
+	}, nil
 }

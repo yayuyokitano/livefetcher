@@ -2,13 +2,13 @@ package queries
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
 func GetUserLiveLists(ctx context.Context, userID int, loggedInUser datastructures.AuthUser) (liveLists []datastructures.LiveList, err error) {
@@ -86,40 +86,40 @@ func GetLiveLiveLists(ctx context.Context, liveID int, loggedInUser datastructur
 	return
 }
 
-func UserOwnsLiveList(ctx context.Context, liveListID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
+func UserOwnsLiveList(ctx context.Context, r *http.Request, liveListID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
 	var userID int
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelists WHERE id=$1", liveListID).Scan(&userID)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	if userID != loggedInUser.ID {
-		return logging.SE(http.StatusUnauthorized, errors.New("not owner of live list"))
+		return logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.action-not-permitted"))
 	}
 	return nil
 }
 
-func UserOwnsLiveListLive(ctx context.Context, liveListLiveID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
+func UserOwnsLiveListLive(ctx context.Context, r *http.Request, liveListLiveID int, loggedInUser datastructures.AuthUser) *logging.StatusError {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
 	var userID int
 	err = tx.QueryRow(ctx, "SELECT users_id FROM livelistlives INNER JOIN livelists ON (livelists.id = livelistlives.livelists_id) WHERE livelistlives.id=$1", liveListLiveID).Scan(&userID)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	if userID != loggedInUser.ID {
-		return logging.SE(http.StatusUnauthorized, errors.New("not owner of live list live"))
+		return logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.action-not-permitted"))
 	}
 	return nil
 }

@@ -1,38 +1,42 @@
 package endpoints
 
 import (
-	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"path/filepath"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
+	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-func RegisterJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	type Registration struct {
-		Username string `json:"username"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+type Registration struct {
+	Username string `json:"username" form:"username"`
+	Email    string `json:"email" form:"email"`
+	Password string `json:"password" form:"password"`
+	Redirect string `json:"redirect" form:"redirect"`
+}
 
+func Register(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username != "" {
-		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
+	}
+	var registration Registration
+	se := util.ParseForm(r, &registration)
+	if se != nil {
+		return nil, se
 	}
 
-	var registration Registration
-	err := json.NewDecoder(r.Body).Decode(&registration)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, errors.New("malformed json"))
+	if registration.Redirect == "" {
+		registration.Redirect = "/"
 	}
 
 	if registration.Email == "" || registration.Username == "" || registration.Password == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.missing-parameter"))
 	}
 
 	newUser := datastructures.User{
@@ -42,49 +46,7 @@ func RegisterJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ 
 	}
 	authToken, refreshToken, err := auth.CreateNewUser(r.Context(), newUser, registration.Password)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	b, err := json.Marshal(datastructures.Token{
-		AuthToken:    authToken,
-		RefreshToken: refreshToken,
-	})
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	w.Write(b)
-	return nil
-}
-
-func Register(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	if user.Username != "" {
-		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
-	}
-
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	registrationEmail := r.FormValue("email")
-	registrationUsername := r.FormValue("username")
-	registrationPassword := r.FormValue("password")
-	redirectURL := r.FormValue("redirect")
-	if redirectURL == "" {
-		redirectURL = "/"
-	}
-
-	if registrationEmail == "" || registrationUsername == "" || registrationPassword == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
-	}
-
-	newUser := datastructures.User{
-		Email:    registrationEmail,
-		Username: registrationUsername,
-		Nickname: registrationUsername,
-	}
-	authToken, refreshToken, err := auth.CreateNewUser(r.Context(), newUser, registrationPassword)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
@@ -105,88 +67,49 @@ func Register(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWr
 		SameSite: http.SameSiteLaxMode,
 	})
 	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
-	return nil
+	return nil, nil
 }
 
-func ShowLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ShowLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username != "" {
-		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.already-signed-in"))
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
 	fp := filepath.Join("web", "template", "login.gohtml")
 	tmpl, err := templatebuilder.Build(w, r, user, nil, lp, fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "layout", r.Header.Get("HX-Current-Url"))
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Data:     r.Header.Get("HX-Current-Url"),
+	}, nil
 }
 
-func ExecuteLoginJson(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	type Login struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
-
+func ExecuteLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username != "" {
-		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	var login Login
-	err := json.NewDecoder(r.Body).Decode(&login)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, errors.New("malformed json"))
+	var login Registration
+	se := util.ParseForm(r, &login)
+	if se != nil {
+		return nil, se
+	}
+
+	if login.Redirect == "" {
+		login.Redirect = "/"
 	}
 
 	if login.Username == "" || login.Password == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.missing-parameter"))
 	}
 
 	authToken, refreshToken, err := auth.CreateNewSession(r.Context(), login.Username, login.Password)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	b, err := json.Marshal(datastructures.Token{
-		AuthToken:    authToken,
-		RefreshToken: refreshToken,
-	})
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	w.Write(b)
-	return nil
-}
-
-func ExecuteLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	if user.Username != "" {
-		return logging.SE(http.StatusForbidden, errors.New("already signed in"))
-	}
-
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	redirectURL := r.FormValue("redirect")
-	if redirectURL == "" {
-		redirectURL = "/"
-	}
-
-	if username == "" || password == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
-	}
-
-	authToken, refreshToken, err := auth.CreateNewSession(r.Context(), username, password)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
@@ -207,11 +130,11 @@ func ExecuteLogin(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 		SameSite: http.SameSiteLaxMode,
 	})
 
-	httpWriter.Header().Add("HX-Redirect", redirectURL)
-	return nil
+	httpWriter.Header().Add("HX-Redirect", login.Redirect)
+	return nil, nil
 }
 
-func Logout(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func Logout(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
 		Value:    "",
@@ -233,30 +156,13 @@ func Logout(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWrit
 
 	refreshToken, err := r.Cookie("refreshToken")
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.refresh-error")).SetInternalError(err)
 	}
 	err = auth.DisableRefreshToken(r.Context(), refreshToken.Value)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
-	return nil
-}
-
-func LogoutJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
-	var token datastructures.Token
-	err := json.NewDecoder(r.Body).Decode(&token)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	if token.RefreshToken == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("no token provided"))
-	}
-
-	err = auth.DisableRefreshToken(r.Context(), token.RefreshToken)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+	return nil, nil
 }

@@ -2,17 +2,18 @@ package router
 
 import (
 	"bytes"
-	"fmt"
+	"encoding/json"
 	"io"
 	"net/http"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
 
-type HTTPImplementer = func(datastructures.AuthUser, io.Writer, *http.Request, http.ResponseWriter) *logging.StatusError
+type HTTPImplementer = func(datastructures.AuthUser, io.Writer, *http.Request, http.ResponseWriter) (*datastructures.Response, *logging.StatusError)
 type WebSocketEstablisher = func(http.ResponseWriter, *http.Request) *logging.StatusError
 
 type Methods struct {
@@ -33,7 +34,7 @@ func HandleWebsocket(endpoint string, method WebSocketEstablisher) {
 			se := method(w, r)
 			if se != nil {
 				logging.HandleError(*se, r, t)
-				http.Error(w, se.Err.Error(), se.Code)
+				http.Error(w, se.Err, se.Code)
 				return
 			}
 			logging.LogRequestCompletion(*bytes.NewBuffer([]byte("")), r, t)
@@ -72,26 +73,51 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 	t := time.Now()
 	logging.LogRequest(r)
 	handleCors(w, r)
+	err := r.ParseForm()
+	if err != nil {
+		se := logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.parse-error"))
+		logging.HandleError(*se, r, t)
+		http.Error(w, se.Err, se.Code)
+		return
+	}
 
 	var log bytes.Buffer
 	mw := io.MultiWriter(w, &log)
 
 	user := auth.GetUser(w, r)
-	se := m(user, mw, r, w)
+	res, se := m(user, mw, r, w)
 	if se != nil {
 		logging.HandleError(*se, r, t)
-		http.Error(w, se.Err.Error(), se.Code)
+		http.Error(w, se.Err, se.Code)
 		return
+	}
+	if res != nil {
+		format := r.URL.Query().Get("format")
+		if res.Template != nil && format != "json" {
+			if res.Name == "" {
+				res.Name = "layout"
+			}
+			res.Template.ExecuteTemplate(mw, res.Name, res.Data)
+		} else if format == "json" {
+			b, err := json.Marshal(res.Data)
+			if err != nil {
+				se := logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.marshal-error"))
+				logging.HandleError(*se, r, t)
+				http.Error(w, se.Err, se.Code)
+				return
+			}
+			mw.Write(b)
+		}
 	}
 	logging.LogRequestCompletion(log, r, t)
 }
 
-func HandleCORSPreflight(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	return nil
+func HandleCORSPreflight(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
+	return nil, nil
 }
 
-func ReturnMethodNotAllowed(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
-	return logging.SE(http.StatusMethodNotAllowed, fmt.Errorf("method %s is not allowed", r.Method))
+func ReturnMethodNotAllowed(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
+	return nil, logging.SE(http.StatusMethodNotAllowed, i18nloader.GetLocalizer(r).Localize("error.method-not-allowed", "Method", r.Method))
 }
 
 func handleCors(w http.ResponseWriter, r *http.Request) {

@@ -12,7 +12,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/form"
+	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/calendar"
 )
 
@@ -542,4 +545,19 @@ func (c ConnectorTestErrorCreator) Succeed() {
 	c.Chan <- ConnectorTestResult{
 		Name: c.Name,
 	}
+}
+
+func ParseForm(r *http.Request, v any) *logging.StatusError {
+	if r.URL.Query().Get("format") == "json" && r.Method != "GET" && r.Method != "DELETE" {
+		err := json.NewDecoder(r.Body).Decode(v)
+		if err != nil {
+			return logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.parse-error")).SetInternalError(err)
+		}
+	} else {
+		err := form.NewDecoder().Decode(v, r.Form)
+		if err != nil {
+			return logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.parse-error")).SetInternalError(err)
+		}
+	}
+	return nil
 }

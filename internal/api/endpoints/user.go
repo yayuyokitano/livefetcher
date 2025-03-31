@@ -2,13 +2,11 @@ package endpoints
 
 import (
 	"encoding/json"
-	"errors"
 	"html/template"
 	"io"
 	"net/http"
 	"path/filepath"
 
-	"github.com/go-playground/form"
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
@@ -20,15 +18,15 @@ import (
 	calendarqueries "github.com/yayuyokitano/livefetcher/internal/services/calendar/queries"
 )
 
-func ShowUser(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ShowUser(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	username := r.PathValue("username")
 	if username == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("no user specified"))
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
 	displayUser, err := queries.GetUserByUsername(r.Context(), username)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
@@ -55,40 +53,42 @@ func ShowUser(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		},
 	}, lp, fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "layout", displayUser)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Data:     displayUser,
+	}, nil
 }
 
-func ChangePassword(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ChangePassword(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusForbidden, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 	oldRefreshToken, err := r.Cookie("refreshToken")
 	if err != nil {
-		return logging.SE(http.StatusForbidden, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	err = r.ParseForm()
+	type Req struct {
+		CurrentPassword string `form:"current_password" json:"current_password"`
+		NewPassword     string `form:"new_password" json:"new_password"`
+	}
+
+	var req Req
+	se := util.ParseForm(r, &req)
+	if se != nil {
+		return nil, se
+	}
+
+	if req.CurrentPassword == "" || req.NewPassword == "" {
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.missing-parameter"))
+	}
+
+	authToken, refreshToken, err := auth.ChangePassword(r.Context(), user, req.CurrentPassword, req.NewPassword, oldRefreshToken.Value)
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	currentPassword := r.FormValue("current_password")
-	newPassword := r.FormValue("new_password")
-
-	if currentPassword == "" || newPassword == "" {
-		return logging.SE(http.StatusBadRequest, errors.New("missing parameters"))
-	}
-
-	authToken, refreshToken, err := auth.ChangePassword(r.Context(), user, currentPassword, newPassword, oldRefreshToken.Value)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, errors.New("failed to change password"))
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	http.SetCookie(httpWriter, &http.Cookie{
 		Name:     "authToken",
@@ -110,87 +110,69 @@ func ChangePassword(user datastructures.AuthUser, w io.Writer, r *http.Request, 
 	})
 
 	httpWriter.Header().Add("HX-Redirect", r.Header.Get("HX-Current-Url"))
-	return nil
+	return nil, nil
 }
 
-func PatchUser(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func PatchUser(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	decoder := form.NewDecoder()
 	var newUser datastructures.User
-	err = decoder.Decode(&newUser, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &newUser)
+	if se != nil {
+		return nil, se
 	}
 
 	newUser.ID = user.ID
-	err = queries.PatchUser(r.Context(), newUser)
+	err := queries.PatchUser(r.Context(), newUser)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	httpWriter.Header().Add("HX-Redirect", "/user/"+newUser.Username)
 
-	return nil
+	return nil, nil
 }
 
-func PutCalendarProperties(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func PutCalendarProperties(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	decoder := form.NewDecoder()
 	var newCalendarProperties datastructures.CalendarProperties
-	err = decoder.Decode(&newCalendarProperties, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &newCalendarProperties)
+	if se != nil {
+		return nil, se
 	}
 
-	err = calendarqueries.PutCalendarProperties(r.Context(), user.ID, newCalendarProperties)
+	err := calendarqueries.PutCalendarProperties(r.Context(), user.ID, newCalendarProperties)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	// TODO: return template with the UI for changing calendar and removing connection
-	return nil
+	return nil, nil
 }
 
-func AuthorizeGoogleCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func AuthorizeGoogleCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return logging.SE(http.StatusUnauthorized, errors.New("not signed in"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 	}
 
-	err := r.ParseForm()
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
-	}
-
-	decoder := form.NewDecoder()
 	var authProps googlecalendar.OauthForm
-	err = decoder.Decode(&authProps, r.Form)
-	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+	se := util.ParseForm(r, &authProps)
+	if se != nil {
+		return nil, se
 	}
 
 	tok, err := googlecalendar.ExchangeCode(r.Context(), authProps)
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	b, err := json.Marshal(tok)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	err = queries.PatchUser(r.Context(), datastructures.User{
@@ -202,23 +184,23 @@ func AuthorizeGoogleCalendar(user datastructures.AuthUser, w io.Writer, r *http.
 		},
 	})
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 	httpWriter.Header().Add("HX-Redirect", "/settings")
 
-	return nil
+	return nil, nil
 }
 
-func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) *logging.StatusError {
+func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	username := user.Username
 	if username == "" {
 		httpWriter.Header().Add("HX-Redirect", "/login")
-		return nil
+		return nil, nil
 	}
 
 	displayUser, err := queries.GetUserByUsername(r.Context(), username)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
@@ -233,12 +215,11 @@ func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 		},
 	}, lp, fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
 	}
 
-	err = tmpl.ExecuteTemplate(w, "layout", displayUser)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Data:     displayUser,
+	}, nil
 }

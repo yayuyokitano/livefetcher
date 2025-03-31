@@ -11,22 +11,31 @@ import (
 )
 
 type StatusError struct {
-	Code int
-	Err  error
+	Code          int
+	Err           string
+	InternalError error
 }
 
-func SE(code int, err error) *StatusError {
+func SE(code int, err string) *StatusError {
 	return &StatusError{
 		Code: code,
 		Err:  err,
 	}
 }
 
+func (s *StatusError) SetInternalError(err error) *StatusError {
+	s.InternalError = err
+	return s
+}
+
 func HandleError(bubbledErr StatusError, r *http.Request, t time.Time) {
 	if isContainerized {
 		opsRequestsErrored.WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(bubbledErr.Code)).Inc()
 	}
-	logger.Error().Stack().Err(bubbledErr.Err).
+	if bubbledErr.InternalError == nil {
+		return
+	}
+	logger.Error().Stack().Err(bubbledErr.InternalError).
 		Str("method", r.Method).
 		Str("path", r.URL.Path).
 		Str("query", r.URL.Query().Encode()).

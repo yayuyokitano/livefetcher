@@ -2,9 +2,16 @@ package datastructures
 
 import (
 	"encoding/json"
+	"html/template"
 	"slices"
 	"time"
 )
+
+type Response struct {
+	Template *template.Template
+	Name     string
+	Data     any
+}
 
 type Token struct {
 	AuthToken    string `json:"authToken"`
@@ -12,16 +19,16 @@ type Token struct {
 }
 
 type User struct {
-	ID                 int                `form:"-"`
-	Email              string             `form:"email"`
-	Username           string             `form:"username"`
-	Nickname           string             `form:"nickname"`
-	PasswordHash       string             `form:"-"`
-	Bio                string             `form:"bio"`
-	Location           string             `form:"location"`
-	IsVerified         bool               `form:"-"`
-	Avatar             string             `form:"-"`
-	CalendarProperties CalendarProperties `form:"-"`
+	ID                 int                `form:"-" json:"-"`
+	Email              string             `form:"email" json:"email"`
+	Username           string             `form:"username" json:"username"`
+	Nickname           string             `form:"nickname" json:"nickname"`
+	PasswordHash       string             `form:"-" json:"-"`
+	Bio                string             `form:"bio" json:"bio"`
+	Location           string             `form:"location" json:"location"`
+	IsVerified         bool               `form:"-" json:"-"`
+	Avatar             string             `form:"-" json:"-"`
+	CalendarProperties CalendarProperties `form:"-" json:"-"`
 }
 
 type AuthUser struct {
@@ -150,17 +157,17 @@ type LiveList struct {
 }
 
 type AddToLiveListTemplateParams struct {
-	LiveID            int
-	LiveLiveLists     []LiveList
-	PersonalLiveLists []LiveList
+	LiveID            int        `json:"liveid"`
+	LiveLiveLists     []LiveList `json:"liveLiveLists"`
+	PersonalLiveLists []LiveList `json:"personalLiveLists"`
 }
 
 type AddToLiveListParameters struct {
-	LiveDesc           string `form:"liveDesc"`
-	LiveID             int    `form:"liveId"`
-	ExistingLiveListID int    `form:"existingLiveListId"` // specified if existing live
-	NewLiveListTitle   string `form:"newLiveListTitle"`   // specified if new live
-	AdditionType       string `form:"additionType"`
+	LiveDesc           string `form:"liveDesc" json:"liveDesc"`
+	LiveID             int    `form:"liveId" json:"liveId"`
+	ExistingLiveListID int    `form:"existingLiveListId" json:"existingLiveListId"` // specified if existing live
+	NewLiveListTitle   string `form:"newLiveListTitle" json:"newLiveListTitle"`     // specified if new live
+	AdditionType       string `form:"additionType" json:"additionType"`
 }
 
 type NotificationType int16
@@ -276,9 +283,9 @@ const (
 )
 
 type CalendarProperties struct {
-	Id    *string `form:"id"`
-	Type  *int16  `form:"type"`
-	Token *string `form:"token"`
+	Id    *string `form:"id" json:"id"`
+	Type  *int16  `form:"type" json:"type"`
+	Token *string `form:"token" json:"token"`
 }
 
 type CalendarEvent struct {

@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -18,15 +17,15 @@ import (
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
-func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	userID := user.ID
 	if user.ID == 0 {
-		return logging.SE(http.StatusUnauthorized, errors.New("not logged in"))
+		return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.not-logged-in"))
 	}
 
 	notifications, err := queries.GetUserNotifications(r.Context(), userID)
 	if err != nil {
-		return logging.SE(http.StatusBadRequest, err)
+		return nil, logging.SE(http.StatusBadRequest, "unknown-error").SetInternalError(err)
 	}
 
 	res := "<ul>"
@@ -35,19 +34,19 @@ func ListUserNotifications(user datastructures.AuthUser, w io.Writer, r *http.Re
 	}
 	res += "</ul>"
 	w.Write([]byte(res))
-	return nil
+	return nil, nil
 }
 
-func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) *logging.StatusError {
+func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	notificationIDRaw := r.PathValue("id")
 	notificationID, err := strconv.Atoi(notificationIDRaw)
 	if err != nil || notificationID == 0 {
-		return logging.SE(http.StatusBadRequest, errors.New("no notification specified"))
+		return nil, logging.SE(http.StatusBadRequest, "error.notification-not-found").SetInternalError(err)
 	}
 
 	notification, err := queries.GetNotification(r.Context(), notificationID, user.ID, i18nloader.GetLanguages(r))
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "error.unknown-error").SetInternalError(err)
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
@@ -57,29 +56,12 @@ func ShowNotification(user datastructures.AuthUser, w io.Writer, r *http.Request
 		"ParseSlice":    parseSlice,
 	}, lp, fp)
 	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
+		return nil, logging.SE(http.StatusInternalServerError, "error.unknown-error").SetInternalError(err)
 	}
-
-	err = tmpl.ExecuteTemplate(w, "layout", notification)
-	if err != nil {
-		return logging.SE(http.StatusInternalServerError, err)
-	}
-
-	/*
-		res := fmt.Sprintf("<h1>Notification %d</h1>", notificationID)
-		res += fmt.Sprintf("<p>seen: %t, createdat: %s</p>", notification.Seen, notification.CreatedAt.Format(time.RFC3339))
-		res += "<ul>"
-		for _, f := range notificationFields {
-			changedModifier := ""
-			if f.OldValue != f.NewValue {
-				changedModifier = "!!changed!! "
-			}
-			res += fmt.Sprintf("<li>%s%s: %s → %s</li>", changedModifier, f.Type.String(), f.OldValue, f.NewValue)
-		}
-		res += "</ul>"
-		w.Write([]byte(res))
-	*/
-	return nil
+	return &datastructures.Response{
+		Template: tmpl,
+		Data:     notification,
+	}, nil
 }
 
 func parseSlice(s string) (v []string) {
