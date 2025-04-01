@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -50,16 +49,14 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
-	startTime := time.Now()
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
 	}
-	fmt.Println(time.Since(startTime))
 
 	areas, err := queries.GetAllAreas(r.Context())
 	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
 	}
 
 	calendarEvents := <-calendarResults
@@ -81,7 +78,7 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 		},
 	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
 	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
 	}
 
 	return &datastructures.Response{
@@ -94,55 +91,6 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 			Lives: lives,
 		},
 	}, nil
-}
-
-func GetLivesJson(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
-
-	var query queries.LiveQuery
-	se := util.ParseForm(r, &query)
-	if se != nil {
-		return nil, se
-	}
-
-	calendarResults := util.GetCalendarData(r.Context(), user)
-
-	lives, err := queries.GetLives(r.Context(), query, user)
-	if err != nil {
-		return nil, logging.SE(http.StatusBadRequest, "unknown-error").SetInternalError(err)
-	}
-
-	localizer := i18nloader.GetLocalizer(r)
-	for i := range lives.Lives {
-		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + lives.Lives[i].Venue.ID)
-		lives.Lives[i].Venue.Area.Area = localizer.Localize(
-			"util.prefecture-area",
-			"Area",
-			localizer.Localize("area."+lives.Lives[i].Venue.Area.Prefecture+"."+lives.Lives[i].Venue.Area.Area),
-			"Prefecture",
-			localizer.Localize("prefecture."+lives.Lives[i].Venue.Area.Prefecture),
-		)
-
-		lives.Lives[i].LocalizedTime = i18nloader.FormatOpenStartTime(lives.Lives[i].OpenTime, lives.Lives[i].StartTime, i18nloader.GetLanguages(r))
-	}
-
-	calendarEvents := <-calendarResults
-
-	res := datastructures.GetLivesJsonResponse{
-		Lives:            lives,
-		CalendarEventMap: calendarEvents.ToDataMap(),
-	}
-
-	b, err := json.Marshal(res)
-	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
-	}
-
-	_, err = w.Write(b)
-	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
-	}
-
-	return nil, nil
 }
 
 func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {

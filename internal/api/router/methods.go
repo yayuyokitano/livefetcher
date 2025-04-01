@@ -3,12 +3,15 @@ package router
 import (
 	"bytes"
 	"encoding/json"
+	"html/template"
 	"io"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	"github.com/yayuyokitano/livefetcher/internal/core/util/templatebuilder"
 	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 	"github.com/yayuyokitano/livefetcher/internal/services/auth"
 )
@@ -88,6 +91,22 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 	res, se := m(user, mw, r, w)
 	if se != nil {
 		logging.HandleError(*se, r, t)
+		if r.URL.Query().Get("format") != "json" {
+			w.Header().Set("HX-Reswap", "afterbegin")
+			w.WriteHeader(se.Code)
+			fp := filepath.Join("web", "template", "partials", "error.gohtml")
+			tmpl, err := templatebuilder.Build(mw, r, user, template.FuncMap{}, fp)
+			if err != nil {
+				http.Error(w, se.Err, se.Code)
+				return
+			}
+			err = tmpl.ExecuteTemplate(mw, "error", se.Err)
+			if err != nil {
+				http.Error(w, se.Err, se.Code)
+				return
+			}
+			return
+		}
 		http.Error(w, se.Err, se.Code)
 		return
 	}

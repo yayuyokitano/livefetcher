@@ -1,0 +1,6 @@
+{{ define "error" }}
+<div class="error-container" x-data>
+	<div class="close" @click="$root.remove()">x</div>
+	<span>{{ . }}</span>
+</div>
+{{ end }}
