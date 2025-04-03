@@ -615,40 +615,78 @@ td {
 }
 
 .paginator {
-	display: flex;
-	justify-content: center;
-	gap: 1rem;
-	margin: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem;
 }
 
 .paginator a {
-	background-color: var(--bg2);
-	color: var(--text);
+  background-color: var(--bg2);
+  color: var(--text);
 }
 
 .paginator .inactive {
-	background-color: var(--brand-disabled);
+  background-color: var(--brand-disabled);
 }
 
 .paginator .active {
-	background-color: var(--brand);
-	color: var(--always-light);
+  background-color: var(--brand);
+  color: var(--always-light);
 }
 
 .paginator a:hover {
-	background-color: var(--brand);
-	color: var(--always-light);
+  background-color: var(--brand);
+  color: var(--always-light);
 }
 
 .paginator span,
 .paginator a {
-	text-decoration: none;
-	font-size: 1.5rem;
-	width: 3.5rem;
-	height: 3.5rem;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+  text-decoration: none;
+  font-size: 1.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#error-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  position: fixed;
+  left: 5%;
+  bottom: 5%;
+}
+
+.error-container {
+  background-color: var(--accent);
+  border-radius: 1em;
+  box-shadow: var(--neuomorphic);
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+  padding-left: 1rem;
+  overflow: hidden;
+}
+
+.close {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 1rem;
+  margin-left: 0.5rem;
+}
+
+.close:hover {
+  background-color: var(--accent2);
 }
 
 @media only screen and (width < 2000px) {

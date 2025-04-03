@@ -9,7 +9,7 @@
       <title>{{ template "title" }}</title>
       <script src="/static/vendor/htmx.min.js" defer></script>
       <script src="/static/vendor/head-support.js" defer></script>
-			<script src="/static/vendor/htmx-ext-response-targets.js" defer></script>
+      <script src="/static/vendor/htmx-ext-response-targets.js" defer></script>
       <script src="/static/vendor/alpinejs.min.js" defer></script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta charset="UTF-8" />
@@ -28,23 +28,21 @@
       {{- end -}}}"
       @keydown.escape="isModalOpen = false; isMapDialogOpen = false; isNotificationDialogOpen = false"
       @closemainmodal="isModalOpen = false"
-			hx-ext="response-targets"
-			hx-target-error="#error-list"
+      hx-ext="response-targets"
+      hx-target-error="#error-list"
     >
       {{ template "nav" . }}
       <main>
         {{ template "body" . }}
       </main>
       {{ template "modal" }}
-			{{ template "errorContainer" }}
+      {{ template "errorContainer" }}
     </body>
   </html>
 {{ end }}
 
 {{ define "errorContainer" }}
-<div id="error-list">
-	<span>a</span>
-</div>
+  <div id="error-list"></div>
 {{ end }}
 
 {{ define "notificationsButton" }}

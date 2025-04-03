@@ -11,6 +11,7 @@ html {
   --neuomorphic: 5px 5px 20px #bbb, -5px -5px 20px #fff9f9;
   --accent: #ffd9e5;
   --accent2: #ffafcc;
+  --errorbg: #ffafcc;
 }
 
 html.dark {

@@ -19,9 +19,7 @@ function getConflicts(openTime, startTime, artists, calendarEvents) {
   const boundaryStart = new Date(openTime);
   boundaryStart.setHours(boundaryStart.getHours() - 1);
   const boundaryEnd = new Date(startTime);
-  boundaryEnd.setHours(
-    boundaryEnd.getHours() + liveDurationHours(artists) + 1,
-  );
+  boundaryEnd.setHours(boundaryEnd.getHours() + liveDurationHours(artists) + 1);
 
   /**
    * @type {Object.<string, CalendarEvent>}
@@ -80,9 +78,9 @@ function getConflicts(openTime, startTime, artists, calendarEvents) {
  * @returns An estimate of the number of hours the event lasts
  */
 function liveDurationHours(artists) {
-	if (!artists) {
-		return 2;
-	}
+  if (!artists) {
+    return 2;
+  }
   switch (artists.length) {
     case 1:
       return 2;

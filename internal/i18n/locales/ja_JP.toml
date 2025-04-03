@@ -21,6 +21,7 @@ confirm = "確認"
 cancel = "キャンセル"
 save-search = "検索を保存"
 settings = "設定"
+close = "終了する"
 
 [login]
 nickname = "ニックネーム"

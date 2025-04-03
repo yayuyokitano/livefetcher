@@ -21,6 +21,7 @@ confirm = "Confirm"
 cancel = "Cancel"
 save-search = "Save Search"
 settings = "Settings"
+close = "Close"
 
 [login]
 nickname = "Nickname"

@@ -6,10 +6,10 @@
 
 {{ define "body" }}
   <h2 class="general-header">{{ SearchHeader }}</h2>
-	{{ template "paginator" .Lives.Paginator }}
+  {{ template "paginator" .Lives.Paginator }}
   {{ template "lives" .Lives.Lives }}
   {{ template "filters" .Metadata }}
-	{{ template "paginator" .Lives.Paginator }}
+  {{ template "paginator" .Lives.Paginator }}
 {{ end }}
 
 {{ define "filters" }}
