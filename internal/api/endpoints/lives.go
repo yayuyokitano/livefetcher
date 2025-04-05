@@ -20,13 +20,13 @@ import (
 )
 
 type liveTemplateMetadata struct {
-	Areas map[string][]queries.Area
-	Query queries.LiveQuery
+	Areas map[string][]queries.Area `json:"areas"`
+	Query queries.LiveQuery         `json:"query"`
 }
 
 type liveTemplateInput struct {
-	Metadata liveTemplateMetadata
-	Lives    datastructures.Lives
+	Metadata liveTemplateMetadata `json:"metadata"`
+	Lives    datastructures.Lives `json:"lives"`
 }
 
 func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string {
@@ -37,8 +37,8 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 }
 
 func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
-
 	var query queries.LiveQuery
+	localizer := i18nloader.GetLocalizer(r)
 	se := util.ParseForm(r, &query)
 	if se != nil {
 		return nil, se
@@ -52,6 +52,21 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 	lives, err := queries.GetLives(r.Context(), query, user)
 	if err != nil {
 		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
+	}
+	for i := range lives.Lives {
+		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + lives.Lives[i].Venue.ID)
+		lives.Lives[i].LocalizedTime = i18nloader.FormatOpenStartTime(lives.Lives[i].OpenTime, lives.Lives[i].StartTime, i18nloader.GetLanguages(r))
+		lives.Lives[i].LocalizedPrice = lives.Lives[i].PriceEnglish
+		for _, lang := range i18nloader.GetLanguages(r) {
+			if strings.HasPrefix(lang, "ja") {
+				lives.Lives[i].LocalizedPrice = lives.Lives[i].Price
+				break
+			}
+			if strings.HasPrefix(lang, "en") {
+				break
+			}
+		}
+
 	}
 
 	areas, err := queries.GetAllAreas(r.Context())

@@ -114,7 +114,6 @@ func performMigration() {
 func startServer() {
 	fs := http.FileServer(http.Dir("./web/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	//ctx := context.Background()
 
 	/*for livehouse := range coreconnectors.Connectors {
 		fmt.Println("running " + livehouse)
@@ -122,7 +121,7 @@ func startServer() {
 		fmt.Println(err)
 	}*/
 
-	/*err := runner.RunConnector(ctx, "ZeppShinjuku")
+	/*err := runner.RunConnector(context.Background(), "ShimokitazawaReg")
 	fmt.Println(err)*/
 
 	/*

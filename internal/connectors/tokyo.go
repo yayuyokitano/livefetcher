@@ -1738,7 +1738,7 @@ var ShimokitazawaRegFetcher = fetchers.Simple{
 	TimeHandler: fetchers.TimeHandler{
 		YearQuerier:      *htmlquerier.Q("//h2").Before("年"),
 		MonthQuerier:     *htmlquerier.Q("//h2").After("年").Before("月"),
-		DayQuerier:       *htmlquerier.Q("//td[@class='date_weekday']/text()[1]").After("/"),
+		DayQuerier:       *htmlquerier.Q("//td[contains(@class,'date_')]/text()[1]").After("/"),
 		OpenTimeQuerier:  *htmlquerier.Q("//div[@class='time_price']/text()[1]").SplitIndex("/", 1),
 		StartTimeQuerier: *htmlquerier.Q("//div[@class='time_price']/text()[1]").SplitIndex("/", 2),
 	},
