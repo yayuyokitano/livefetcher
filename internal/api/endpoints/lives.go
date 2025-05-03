@@ -38,7 +38,6 @@ func searchTitle(query queries.LiveQuery, r *http.Request, suffix string) string
 
 func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	var query queries.LiveQuery
-	localizer := i18nloader.GetLocalizer(r)
 	se := util.ParseForm(r, &query)
 	if se != nil {
 		return nil, se
@@ -49,24 +48,9 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
-	lives, err := queries.GetLives(r.Context(), query, user)
+	lives, err := queries.GetLives(r.Context(), query, user, r)
 	if err != nil {
 		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
-	}
-	for i := range lives.Lives {
-		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + lives.Lives[i].Venue.ID)
-		lives.Lives[i].LocalizedTime = i18nloader.FormatOpenStartTime(lives.Lives[i].OpenTime, lives.Lives[i].StartTime, i18nloader.GetLanguages(r))
-		lives.Lives[i].LocalizedPrice = lives.Lives[i].PriceEnglish
-		for _, lang := range i18nloader.GetLanguages(r) {
-			if strings.HasPrefix(lang, "ja") {
-				lives.Lives[i].LocalizedPrice = lives.Lives[i].Price
-				break
-			}
-			if strings.HasPrefix(lang, "en") {
-				break
-			}
-		}
-
 	}
 
 	areas, err := queries.GetAllAreas(r.Context())
@@ -110,7 +94,7 @@ func GetLives(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 
 func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.please-log-in"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
@@ -140,7 +124,7 @@ func Favorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http
 
 func Unfavorite(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	if user.Username == "" {
-		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
+		return nil, logging.SE(http.StatusUnauthorized, i18nloader.GetLocalizer(r).Localize("error.please-log-in"))
 	}
 
 	id, err := strconv.Atoi(r.PathValue("id"))
@@ -174,7 +158,7 @@ func GetFavoriteLives(user datastructures.AuthUser, w io.Writer, r *http.Request
 
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		UserFavoritesId: user.ID,
-	}, user)
+	}, user, r)
 	if err != nil {
 		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
@@ -219,7 +203,7 @@ func GetDailyLivesJSON(user datastructures.AuthUser, w io.Writer, r *http.Reques
 	query.From = time.Date(year, time.Month(month), day, 2, 0, 0, 0, util.JapanTime)
 	query.To = query.From.Add(24 * time.Hour)
 
-	lives, err := queries.GetLives(r.Context(), query, user)
+	lives, err := queries.GetLives(r.Context(), query, user, r)
 	if err != nil {
 		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
@@ -293,7 +277,7 @@ func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _
 
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: id,
-	}, user)
+	}, user, r)
 	if err != nil || len(lives.Lives) != 1 {
 		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}
@@ -346,7 +330,7 @@ func RemoveFromCalendar(user datastructures.AuthUser, w io.Writer, r *http.Reque
 
 	lives, err := queries.GetLives(r.Context(), queries.LiveQuery{
 		Id: id,
-	}, user)
+	}, user, r)
 	if err != nil || len(lives.Lives) != 1 {
 		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
 	}

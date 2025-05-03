@@ -23,7 +23,7 @@ func GetLiveLiveListModal(user datastructures.AuthUser, w io.Writer, r *http.Req
 	}
 
 	type Req struct {
-		LiveId int
+		LiveId int `form:"liveId"`
 	}
 	var req Req
 	se := util.ParseForm(r, &req)
@@ -118,14 +118,15 @@ func AddToLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, h
 }
 
 func ShowLiveList(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
+	localizer := i18nloader.GetLocalizer(r)
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		return nil, logging.SE(http.StatusNotFound, i18nloader.GetLocalizer(r).Localize("error.live-list-not-found"))
+		return nil, logging.SE(http.StatusNotFound, localizer.Localize("error.live-list-not-found"))
 	}
 
 	calendarResults := util.GetCalendarData(r.Context(), user)
 
-	livelist, err := queries.GetLiveList(r.Context(), id, user)
+	livelist, err := queries.GetLiveList(r.Context(), id, user, r)
 	if err != nil {
 		return nil, logging.SE(http.StatusBadRequest, "unknown-error").SetInternalError(err)
 	}

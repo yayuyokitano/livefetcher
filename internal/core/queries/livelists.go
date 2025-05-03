@@ -124,14 +124,14 @@ func UserOwnsLiveListLive(ctx context.Context, r *http.Request, liveListLiveID i
 	return nil
 }
 
-func GetLiveList(ctx context.Context, liveListID int, loggedInUser datastructures.AuthUser) (liveList datastructures.LiveList, err error) {
+func GetLiveList(ctx context.Context, liveListID int, loggedInUser datastructures.AuthUser, r *http.Request) (liveList datastructures.LiveList, err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
 	}
 	defer counters.RollbackTransaction(ctx, tx)
 
-	err = tx.QueryRow(ctx, `SELECT livelist.id, title, list_description, livelist.created_at, livelist.updated_at, users.id, users.username, users.nickname, users.location
+	err = tx.QueryRow(ctx, `SELECT livelist.id, livelist.title, list_description, livelist.created_at, livelist.updated_at, users.id, users.username, users.nickname, users.location
 		FROM livelists as livelist
 		INNER JOIN users ON (livelist.users_id = users.id)
 		WHERE livelist.id=$1`, liveListID).Scan(&liveList.ID, &liveList.Title, &liveList.Desc, &liveList.CreatedAt, &liveList.UpdatedAt, &liveList.User.ID, &liveList.User.Username, &liveList.User.Nickname, &liveList.User.Location)
@@ -152,7 +152,7 @@ func GetLiveList(ctx context.Context, liveListID int, loggedInUser datastructure
 
 	liveListLives, err := GetLives(ctx, LiveQuery{
 		LiveListId: liveListID,
-	}, loggedInUser)
+	}, loggedInUser, r)
 	if err != nil {
 		return
 	}

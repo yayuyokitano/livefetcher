@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
 	coreconnectors "github.com/yayuyokitano/livefetcher/internal/core/connectors"
 	"github.com/yayuyokitano/livefetcher/internal/core/queries"
@@ -21,7 +22,7 @@ func RunConnector(ctx context.Context, connectorID string) (err error) {
 		return
 	}
 
-	deleted, added, modified, addedArtists, err := queries.PostLives(ctx, fetcher.Lives)
+	deleted, added, modified, addedArtists, err := queries.PostLives(ctx, fetcher.Lives, &http.Request{})
 	if err != nil {
 		fmt.Println(err)
 		return

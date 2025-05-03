@@ -232,6 +232,7 @@ missing-parameter = "必須項目をすべて入力してください。エラ�
 unknown-error = "エラーが発生しました。もう一度お試しください。エラーが続く場合は、お問い合わせください。"
 already-signed-in = "すでにサインインしています。"
 not-found = "404 - ページが見つかりません"
+not-logged-in = "ログインしていません"
 please-log-in = "この機能を使用するには、ログインしてください。"
 notification-not-found = "通知が見つかりません。"
 action-not-permitted = "操作は許可されていません。"
@@ -240,3 +241,10 @@ select-live-list = "ライブリストを選択してください。"
 already-in-live-list = "ライブリストにはすでにこのライブが含まれています。"
 live-list-not-found = "ライブリストが見つかりません。"
 live-not-found = "ライブが見つかりません。"
+
+[tabs]
+home = "ホーム"
+search = "検索"
+profile = "プロフィール"
+back = "戻る"
+live-lists = "ライブリスト"

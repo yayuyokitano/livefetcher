@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -12,6 +14,7 @@ import (
 	"github.com/yayuyokitano/livefetcher/internal/core/logging"
 	"github.com/yayuyokitano/livefetcher/internal/core/util"
 	"github.com/yayuyokitano/livefetcher/internal/core/util/datastructures"
+	i18nloader "github.com/yayuyokitano/livefetcher/internal/i18n"
 )
 
 func isSameLive(live datastructures.Live, oldLive datastructures.Live, oldLives []datastructures.Live, lives []datastructures.Live) bool {
@@ -304,7 +307,7 @@ func updateAndAddLives(tx pgx.Tx, ctx context.Context, lives []datastructures.Li
 	return
 }
 
-func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int, added int, modified int, addedArtists int, err error) {
+func PostLives(ctx context.Context, lives []datastructures.Live, r *http.Request) (deleted int, added int, modified int, addedArtists int, err error) {
 	venues := make([]datastructures.LiveHouse, 0)
 	for _, live := range lives {
 		venues = append(venues, live.Venue)
@@ -335,7 +338,7 @@ func PostLives(ctx context.Context, lives []datastructures.Live) (deleted int, a
 	oldLives, err := GetLives(ctx, LiveQuery{
 		IncludeOldLives: true,
 		LiveHouses:      livehouses,
-	}, datastructures.AuthUser{})
+	}, datastructures.AuthUser{}, r)
 	if err != nil {
 		return
 	}
@@ -419,7 +422,8 @@ type LiveQuery struct {
 	Offset          int          `form:"offset"`
 }
 
-func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser) (lives datastructures.Lives, err error) {
+func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser, r *http.Request) (lives datastructures.Lives, err error) {
+	localizer := i18nloader.GetLocalizer(r)
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -434,7 +438,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 	args := []any{}
 
-	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, longitude, latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
+	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS live_title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, longitude, latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
 	}
@@ -525,7 +529,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	queryStr += `
-	GROUP BY live.id, title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
+	GROUP BY live.id, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
 
 	if query.LiveListId != 0 {
 		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
@@ -587,6 +591,19 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 			lives.Lives[i].IsFavorited = isFavorited
 		}
 		err = nil
+
+		lives.Lives[i].Venue.Name = localizer.Localize("livehouse." + lives.Lives[i].Venue.ID)
+		lives.Lives[i].LocalizedTime = i18nloader.FormatOpenStartTime(lives.Lives[i].OpenTime, lives.Lives[i].StartTime, i18nloader.GetLanguages(r))
+		lives.Lives[i].LocalizedPrice = lives.Lives[i].PriceEnglish
+		for _, lang := range i18nloader.GetLanguages(r) {
+			if strings.HasPrefix(lang, "ja") {
+				lives.Lives[i].LocalizedPrice = lives.Lives[i].Price
+				break
+			}
+			if strings.HasPrefix(lang, "en") {
+				break
+			}
+		}
 	}
 
 	err = counters.CommitTransaction(ctx, tx)

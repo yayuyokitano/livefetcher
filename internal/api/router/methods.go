@@ -3,6 +3,7 @@ package router
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -107,6 +108,7 @@ func HandleMethod(m HTTPImplementer, w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
+		fmt.Println(se.Err)
 		http.Error(w, se.Err, se.Code)
 		return
 	}

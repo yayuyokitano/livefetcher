@@ -19,7 +19,7 @@ type Token struct {
 }
 
 type User struct {
-	ID                 int                `form:"-" json:"-"`
+	ID                 int                `form:"id" json:"id"`
 	Email              string             `form:"email" json:"email"`
 	Username           string             `form:"username" json:"username"`
 	Nickname           string             `form:"nickname" json:"nickname"`
@@ -145,16 +145,16 @@ type LiveListWriteRequest struct {
 }
 
 type LiveList struct {
-	ID            int
-	Title         string
-	Desc          string
-	LiveDesc      string
-	User          User
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-	Lives         []Live
-	IsFavorited   bool
-	FavoriteCount int
+	ID            int       `json:"id"`
+	Title         string    `json:"title"`
+	Desc          string    `json:"desc"`
+	LiveDesc      string    `json:"liveDesc"`
+	User          User      `json:"user"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
+	Lives         []Live    `json:"lives"`
+	IsFavorited   bool      `json:"isFavorited"`
+	FavoriteCount int       `json:"favoriteCount"`
 }
 
 type AddToLiveListTemplateParams struct {
