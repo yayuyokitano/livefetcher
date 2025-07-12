@@ -191,6 +191,11 @@ func AuthorizeGoogleCalendar(user datastructures.AuthUser, w io.Writer, r *http.
 	return nil, nil
 }
 
+type settingsTemplateInput struct {
+	User  datastructures.User
+	Areas map[string][]queries.Area
+}
+
 func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
 	username := user.Username
 	if username == "" {
@@ -201,6 +206,11 @@ func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 	displayUser, err := queries.GetUserByUsername(r.Context(), username)
 	if err != nil {
 		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
+	}
+
+	areas, err := queries.GetAllAreas(r.Context())
+	if err != nil {
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
 	}
 
 	lp := filepath.Join("web", "template", "layout.gohtml")
@@ -220,6 +230,66 @@ func ShowSettings(user datastructures.AuthUser, w io.Writer, r *http.Request, ht
 
 	return &datastructures.Response{
 		Template: tmpl,
-		Data:     displayUser,
+		Data: settingsTemplateInput{
+			User:  displayUser,
+			Areas: areas,
+		},
+	}, nil
+}
+
+type dashboardTemplateInput struct {
+	SavedLives datastructures.Lives
+}
+
+func ShowDashboard(user datastructures.AuthUser, w io.Writer, r *http.Request, httpWriter http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {
+
+	calendarResults := util.GetCalendarData(r.Context(), user)
+
+	/*displayUser, err := queries.GetUserByUsername(r.Context(), username)
+	if err != nil {
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
+	}
+
+	areas, err := queries.GetAllAreas(r.Context())
+	if err != nil {
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("unknown-error")).SetInternalError(err)
+	}*/
+
+	calendarEvents := <-calendarResults
+
+	lp := filepath.Join("web", "template", "layout.gohtml")
+	fp := filepath.Join("web", "template", "index.gohtml")
+	favoriteButtonPartial := filepath.Join("web", "template", "partials", "favoriteButton.gohtml")
+	livesPartial := filepath.Join("web", "template", "partials", "lives.gohtml")
+	livePartial := filepath.Join("web", "template", "partials", "live.gohtml")
+	tmpl, err := templatebuilder.Build(w, r, user, template.FuncMap{
+		"GetAuthUrl": func() string {
+			s, err := googlecalendar.GetGoogleAuthCodeUrl(user.ID)
+			if err != nil {
+				return ""
+			}
+			return s
+		},
+		"GetCalendarEvents": func() string {
+			return calendarEvents.ToDataMapString()
+		},
+	}, lp, fp, favoriteButtonPartial, livesPartial, livePartial)
+	if err != nil {
+		return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
+	}
+
+	var savedLives datastructures.Lives
+	if user.ID != 0 {
+		savedLives, err = queries.GetLives(r.Context(), queries.LiveQuery{SavedSearchUserId: user.ID}, user, r)
+		if err != nil {
+			return nil, logging.SE(http.StatusInternalServerError, i18nloader.GetLocalizer(r).Localize("error.unknown-error")).SetInternalError(err)
+		}
+	}
+
+	return &datastructures.Response{
+		Template: tmpl,
+		Data: dashboardTemplateInput{
+			SavedLives: savedLives,
+		},
 	}, nil
 }

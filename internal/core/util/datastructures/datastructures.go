@@ -83,6 +83,7 @@ type Lives struct {
 type Live struct {
 	ID                   int            `json:"id"`
 	Title                string         `json:"title"`
+	MatchingArtists      []string       `json:"matchingArtists"`
 	Artists              []string       `json:"artists"`
 	OpenTime             time.Time      `json:"opentime"`
 	StartTime            time.Time      `json:"starttime"`
@@ -272,7 +273,6 @@ type FieldLine struct {
 }
 
 type SavedSearch struct {
-	Id         int
 	UserId     int
 	TextSearch string
 }

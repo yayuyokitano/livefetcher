@@ -248,3 +248,6 @@ search = "検索"
 profile = "プロフィール"
 back = "戻る"
 live-lists = "ライブリスト"
+
+[import]
+apple-music = "Apple Music からインポートしています..."

@@ -115,7 +115,8 @@ func startServer() {
 	fs := http.FileServer(http.Dir("./web/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	/*for livehouse := range coreconnectors.Connectors {
+	/*ctx := context.Background()
+	for livehouse := range coreconnectors.Connectors {
 		fmt.Println("running " + livehouse)
 		err := runner.RunConnector(ctx, livehouse)
 		fmt.Println(err)
@@ -215,6 +216,10 @@ func startServer() {
 	})
 	router.Handle("/", router.Methods{
 		GET: serveTemplate,
+	})
+
+	router.Handle("/{$}", router.Methods{
+		GET: endpoints.ShowDashboard,
 	})
 	fmt.Println("Listening on port 9999")
 	http.ListenAndServe(":9999", nil)

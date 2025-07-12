@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 	"errors"
+	"net/http"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/yayuyokitano/livefetcher/internal/core/counters"
@@ -188,7 +189,7 @@ func UnfavoriteLive(ctx context.Context, userid int, liveid int) (favoriteButton
 	return
 }
 
-func PostSavedSearch(ctx context.Context, userid int, search string, areaIds []int) (err error) {
+func PostSavedSearch(ctx context.Context, search string, allowAllLocations bool, user datastructures.AuthUser, r *http.Request) (err error) {
 	tx, err := counters.FetchTransaction(ctx)
 	if err != nil {
 		return
@@ -196,24 +197,16 @@ func PostSavedSearch(ctx context.Context, userid int, search string, areaIds []i
 
 	defer counters.RollbackTransaction(ctx, tx)
 
-	var searchId int
+	searchText := search
 	if search[0] == '"' && search[len(search)-1] == '"' {
-		err = tx.QueryRow(ctx, "INSERT INTO saved_searches (users_id, text_search) VALUES ($1, $2) RETURNING id", userid, search[1:len(search)-1]).Scan(&searchId)
-		if err != nil {
-			return
-		}
+		searchText = search[1 : len(search)-1]
 	} else {
-		err = tx.QueryRow(ctx, "INSERT INTO saved_searches (users_id, text_search) VALUES ($1, $2) RETURNING id", userid, search+"%").Scan(&searchId)
-		if err != nil {
-			return
-		}
+		searchText = search + "%"
 	}
 
-	for _, areaId := range areaIds {
-		_, err = tx.Exec(ctx, "INSERT INTO saved_search_areas (saved_searches_id, areas_id) VALUES ($1, $2)", searchId, areaId)
-		if err != nil {
-			return
-		}
+	_, err = tx.Exec(ctx, "INSERT INTO saved_searches (users_id, keyword, allow_all_locations) VALUES ($1, $2, $3) ON CONFLICT (users_id, keyword) DO UPDATE SET allow_all_locations=EXCLUDED.allow_all_locations", user.ID, searchText, allowAllLocations)
+	if err != nil {
+		return
 	}
 
 	err = counters.CommitTransaction(ctx, tx)

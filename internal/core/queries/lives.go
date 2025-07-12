@@ -409,17 +409,20 @@ func PostLives(ctx context.Context, lives []datastructures.Live, r *http.Request
 }
 
 type LiveQuery struct {
-	Areas           map[int]bool `form:"areas"`
-	Artist          string       `form:"artist"`
-	From            time.Time    `form:"from"`
-	To              time.Time    `form:"to"`
-	Id              int          `form:"id"`
-	IncludeOldLives bool         `form:"includeOldLives"`
-	LiveHouses      []string     `form:"livehouses"`
-	UserFavoritesId int          `form:"userFavoritesId"`
-	LiveListId      int          `form:"liveListId"`
-	Limit           int          `form:"limit"`
-	Offset          int          `form:"offset"`
+	Areas             map[int]bool    `form:"areas"`
+	Artist            string          `form:"artist"`
+	From              time.Time       `form:"from"`
+	To                time.Time       `form:"to"`
+	Id                int             `form:"id"`
+	IncludeOldLives   bool            `form:"includeOldLives"`
+	LiveHouses        []string        `form:"livehouses"`
+	UserFavoritesId   int             `form:"userFavoritesId"`
+	LiveListId        int             `form:"liveListId"`
+	SavedSearchUserId int             `form:"savedSearchUserId"`
+	Limit             int             `form:"limit"`
+	Offset            int             `form:"offset"`
+	AdditionalArtists map[string]bool `form:"additionalArtists"`
+	AllowAllLocations bool            `form:"allowAllLocations"`
 }
 
 func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser, r *http.Request) (lives datastructures.Lives, err error) {
@@ -438,7 +441,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 	args := []any{}
 
-	queryStr := `SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS artists, live.title AS live_title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, longitude, latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER()`
+	queryStr := `WITH queriedlives AS ( SELECT live.id, array_agg(DISTINCT liveartists.artists_name) AS matching_artists, live.title AS live_title, opentime, starttime, COALESCE(live.price,'') AS price, COALESCE(live.price_en,'') AS price_en, livehouses_id, COALESCE(livehouse.url,'') AS livehouse_url, COALESCE(livehouse.description,'') AS livehouse_description, livehouse.areas_id AS areas_id, area.prefecture AS prefecture, area.name AS name, COALESCE(live.url,'') AS live_url, longitude, latitude, COALESCE(event.open_id, '') AS open_id, COALESCE(event.start_id, '') AS start_id, COUNT(*) OVER() AS count`
 	if query.LiveListId != 0 {
 		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
 	}
@@ -457,12 +460,21 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	if query.LiveListId != 0 {
-		queryStr += `INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id AND livelistlive.livelists_id=$1)
+		queryStr += fmt.Sprintf(`INNER JOIN livelistlives livelistlive ON (livelistlive.lives_id = live.id AND livelistlive.livelists_id=$%d)
 			INNER JOIN livelists livelist ON (livelistlive.livelists_id = livelist.id)
-		`
+		`, incIndex())
 		args = append(args, query.LiveListId)
 	}
 
+	if query.SavedSearchUserId != 0 {
+		queryStr += fmt.Sprintf(`
+		INNER JOIN saved_searches ss ON (
+			ss.users_id = $%d AND
+			alias.alias ILIKE ss.keyword
+		)
+		`, incIndex())
+		args = append(args, query.SavedSearchUserId)
+	}
 	queryStr += `LEFT JOIN calendarevents event ON (event.lives_id = live.id)`
 
 	addCondition := func(condition string, conditionArgs ...any) {
@@ -494,17 +506,10 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	if query.Artist != "" {
-		ilikeQuery := `live.id IN (
-			SELECT DISTINCT liveartists.lives_id
-			FROM liveartists
-    	LEFT JOIN artistaliases alias ON alias.artists_name = liveartists.artists_name
-    	WHERE alias.alias ILIKE $%d
-		)`
-
 		if query.Artist[0] == '"' && query.Artist[len(query.Artist)-1] == '"' {
-			addCondition(ilikeQuery, query.Artist[1:len(query.Artist)-1])
+			addCondition("alias.alias ILIKE $%d", query.Artist[1:len(query.Artist)-1])
 		} else {
-			addCondition(ilikeQuery, query.Artist+"%")
+			addCondition("alias.alias ILIKE $%d", query.Artist+"%")
 		}
 	}
 
@@ -529,13 +534,8 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	queryStr += `
-	GROUP BY live.id, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
-
-	if query.LiveListId != 0 {
-		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
-	}
-
-	queryStr += ` ORDER BY starttime, id`
+		GROUP BY live.id, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id
+		ORDER BY starttime, id`
 
 	if query.Offset != 0 {
 		queryStr += fmt.Sprintf(" OFFSET $%d", incIndex())
@@ -546,6 +546,21 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 		args = append(args, query.Limit)
 	}
 
+	queryStr += `)
+		SELECT live.id, matching_artists, array_agg(DISTINCT liveartists.artists_name) AS artists, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, longitude, latitude, open_id, start_id, count`
+	if query.LiveListId != 0 {
+		queryStr += ", livelistlive.id AS livelistlive_id, livelist.users_id AS livelist_owner_id, live_description"
+	}
+	queryStr += `
+		FROM queriedlives AS live
+		LEFT JOIN liveartists ON (liveartists.lives_id = live.id)
+		LEFT JOIN artistaliases alias ON (alias.artists_name = liveartists.artists_name)
+		GROUP BY live.id, matching_artists, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id, count`
+
+	if query.LiveListId != 0 {
+		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
+	}
+
 	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
 		return
@@ -554,8 +569,9 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	for rows.Next() {
 		var l datastructures.Live
 		var artists []*string
+		var matchingArtists []*string
 		scans := make([]any, 0)
-		scans = append(scans, &l.ID, &artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId, &lives.Paginator.Total)
+		scans = append(scans, &l.ID, &matchingArtists, &artists, &l.Title, &l.OpenTime, &l.StartTime, &l.Price, &l.PriceEnglish, &l.Venue.ID, &l.Venue.Url, &l.Venue.Description, &l.Venue.Area.ID, &l.Venue.Area.Prefecture, &l.Venue.Area.Area, &l.URL, &l.Venue.Longitude, &l.Venue.Latitude, &l.CalendarOpenEventId, &l.CalendarStartEventId, &lives.Paginator.Total)
 		if query.LiveListId != 0 {
 			scans = append(scans, &l.LiveListLiveID, &l.LiveListOwnerID, &l.Desc)
 		}
@@ -566,6 +582,11 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 		for _, a := range artists {
 			if a != nil {
 				l.Artists = append(l.Artists, *a)
+			}
+		}
+		for _, ma := range matchingArtists {
+			if ma != nil {
+				l.MatchingArtists = append(l.MatchingArtists, *ma)
 			}
 		}
 		lives.Lives = append(lives.Lives, l)
@@ -798,9 +819,9 @@ func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructure
 	for _, artist := range live.Artists {
 		var rows pgx.Rows
 		rows, err = tx.Query(ctx, `
-			SELECT id, users_id, text_search FROM saved_searches s
-			LEFT JOIN saved_search_areas a ON s.id = a.saved_searches_id
-			WHERE $1 ILIKE s.text_search AND (a.areas_id IS NULL OR a.areas_id = $2)
+			SELECT users_id, keyword FROM saved_searches s
+			LEFT JOIN user_saved_search_areas a ON s.users_id = a.users_id
+			WHERE $1 ILIKE s.keyword AND (a.areas_id IS NULL OR a.areas_id = $2 OR s.allow_all_locations IS TRUE)
 		`, artist, live.Venue.Area.ID)
 		if err != nil {
 			return
@@ -809,7 +830,7 @@ func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructure
 
 		for rows.Next() {
 			var ss datastructures.SavedSearch
-			err = rows.Scan(&ss.Id, &ss.UserId, &ss.TextSearch)
+			err = rows.Scan(&ss.UserId, &ss.TextSearch)
 			if err != nil {
 				return
 			}

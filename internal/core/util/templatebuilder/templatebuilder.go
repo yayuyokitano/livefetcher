@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strconv"
 	"time"
 
@@ -98,6 +99,18 @@ func Build(w io.Writer, r *http.Request, user datastructures.AuthUser, funcMap t
 			values.Set("offset", strconv.Itoa(offset))
 			url.RawQuery = values.Encode()
 			return url.String()
+		},
+		"SubtractSlice": func(a, b []string) []string {
+			if len(b) == 0 {
+				return a
+			}
+			res := make([]string, 0)
+			for _, str := range a {
+				if !slices.Contains(b, str) {
+					res = append(res, str)
+				}
+			}
+			return res
 		},
 	}).Funcs(funcMap).ParseFiles(paths...)
 	return

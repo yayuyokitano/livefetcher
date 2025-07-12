@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -247,22 +248,28 @@ func PostSavedSearch(user datastructures.AuthUser, w io.Writer, r *http.Request,
 		return nil, se
 	}
 
-	if query.Artist == "" || query.Artist == `""` {
+	if (query.Artist == "" || query.Artist == `""`) && len(query.AdditionalArtists) == 0 {
 		return nil, logging.SE(http.StatusBadRequest, "please enter an artist search")
 	}
 
-	areas := make([]int, 0)
-	for k := range query.Areas {
-		areas = append(areas, k)
+	if query.Artist != "" {
+		err := queries.PostSavedSearch(r.Context(), query.Artist, query.AllowAllLocations, user, r)
+		if err != nil {
+			return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
+		}
+		w.Write([]byte("Successfully saved search for " + query.Artist))
+		return nil, nil
+	} else if len(query.AdditionalArtists) > 0 {
+		for artist := range query.AdditionalArtists {
+			err := queries.PostSavedSearch(r.Context(), fmt.Sprintf(`"%s"`, artist), query.AllowAllLocations, user, r)
+			if err != nil {
+				return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
+			}
+		}
+		fmt.Fprintf(w, "Successfully imported %d artists", len(query.AdditionalArtists))
+		return nil, nil
 	}
-
-	err := queries.PostSavedSearch(r.Context(), user.ID, query.Artist, areas)
-	if err != nil {
-		return nil, logging.SE(http.StatusInternalServerError, "unknown-error").SetInternalError(err)
-	}
-
-	w.Write([]byte("Successfully saved search for " + query.Artist))
-	return nil, nil
+	return nil, logging.SE(http.StatusForbidden, i18nloader.GetLocalizer(r).Localize("error.refresh-error"))
 }
 
 func AddToCalendar(user datastructures.AuthUser, w io.Writer, r *http.Request, _ http.ResponseWriter) (*datastructures.Response, *logging.StatusError) {

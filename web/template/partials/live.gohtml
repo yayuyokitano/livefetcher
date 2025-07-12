@@ -12,10 +12,23 @@
         {{ template "conflictWarning" . }}
       </div>
       <h4>{{ T "general.artists" }}</h4>
-      <ul class="live-artist-list non-bullet-list">
-        {{ range $artist := .Artists }}
-          <li class="live-artist">{{ $artist }}</li>
+      <ul class="live-artist-list non-bullet-list" x-data="{expanded: false}">
+				{{ range $matchingArtist := .MatchingArtists }}
+					<li class="live-artist bold">{{ $matchingArtist }}</li>
+				{{ end }}
+				{{ $skippedArtistCount := len .MatchingArtists }}
+        {{ range $index, $artist := SubtractSlice .Artists .MatchingArtists }}
+          <li
+						class="live-artist"
+						{{ if lt 5 (Add $index $skippedArtistCount) }}
+							x-show="expanded"
+							x-cloak
+						{{end}}
+					>{{ $artist }}</li>
         {{ end }}
+				{{ if and (lt 6 (len .Artists)) (ne (len .Artists) (len .MatchingArtists)) }}
+					<button @click.prevent="expanded = true" x-show="!expanded" type="button">and more...</button>
+				{{ end }}
       </ul>
       <div class="live-details">
         <p>{{ T "util.open" "Open" (FormatDate .OpenTime) }}</p>

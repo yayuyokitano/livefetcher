@@ -4,4 +4,10 @@
 
 {{ define "body" }}
   <h1>This is defintiely a website :)))</h1>
+	<h2>Saved Lives</h2>
+	{{ if not .SavedLives.Lives }}
+		<p>No saved lives</p>
+	{{ else }}
+		{{ template "lives" .SavedLives.Lives }}
+	{{ end }}
 {{ end }}

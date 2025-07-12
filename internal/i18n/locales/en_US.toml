@@ -248,3 +248,6 @@ search = "Search"
 profile = "Profile"
 back = "Back"
 live-lists = "Live Lists"
+
+[import]
+apple-music = "Importing from Apple Music..."

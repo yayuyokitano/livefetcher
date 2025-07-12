@@ -1,11 +1,34 @@
-{{ define "title" }}{{ .Nickname }}{{ end }}
+{{ define "title" }}{{ .User.Nickname }}{{ end }}
 
 {{ define "head" }}
+<script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async></script>
+<script src="/static/appleMusic.js"></script>
 {{ end }}
 
 {{ define "body" }}
+	<div x-data="{appleMusic: false, artists: []}">
+		<h2>Library</h2>
+		<div id="import-button-wrapper">
+			<button @click="appleMusic = true; artists = await authorizeAppleMusic()">Apple Music</button>
+		</div>
+		<div id="apple-music-progress" x-cloak x-show="appleMusic">
+			<label for="apple-music-progress-bar">{{T "import.apple-music"}}</label>
+			<progress id="apple-music-progress-bar" max="1" value="0" />
+		</div>
+		<form x-cloak x-show="artists.length > 0" hx-post="/api/savedsearch" >
+			<ul>
+				<button type="submit">Submit</button>
+				<template x-for="artist in artists">
+					<li x-data="{id: $id('artist-checkbox')}">
+						<input :id="id" type="checkbox" :name="`additionalArtists[${artist}]`" value="true" checked />
+						<label :for="id" x-text="artist"></label>
+					</li>
+				</template>
+			</ul>
+		</form>
+	</div>
   <h2>Calendar</h2>
-  {{ if .CalendarProperties.Token }}
+  {{ if .User.CalendarProperties.Token }}
     <a href="{{ GetAuthUrl }}" target="_blank" rel="noopener noreferrer"
       >Force Authorize</a
     >

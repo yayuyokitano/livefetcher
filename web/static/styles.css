@@ -292,6 +292,10 @@ td {
   margin: 0;
 }
 
+.live-artist.bold {
+	font-weight: bold;
+}
+
 .live-artist-list {
   margin-bottom: 1rem;
 }
@@ -543,6 +547,10 @@ td {
 
 #edit-user-form {
   margin-top: 3rem;
+}
+
+#import-button-wrapper {
+	margin-bottom: 0.5rem;
 }
 
 .settings-input-wrapper {
