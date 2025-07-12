@@ -293,7 +293,7 @@ td {
 }
 
 .live-artist.bold {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .live-artist-list {
@@ -550,7 +550,7 @@ td {
 }
 
 #import-button-wrapper {
-	margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .settings-input-wrapper {
