@@ -1,5 +1,7 @@
 # livefetcher
 
+**I started developing this when I was quite new to Go, and being a hobby/study project, I made a lot of crazy tech stack choices, you know, for fun. Sorrynotsorry.**
+
 This project is probably basically abandoned. There are some hoops to run it. If you get stuck, feel free to open an issue and ask, and I might be able to help.
 
 IMPORTANT: This program depends on mecab, please see https://github.com/shogo82148/go-mecab for install instructions. livefetcher Makefile expects mecab-config to be installed, and will set up environment flags appropriately if you use it. **Note that if all you are doing is creating a new connector, you do not actually need to run the software, only run tests, which do not require mecab to be installed. See wiki for details.**
