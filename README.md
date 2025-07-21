@@ -1,6 +1,6 @@
 # livefetcher
 
-**I started developing this when I was quite new to Go, and being a hobby/study project, I made a lot of crazy tech stack choices, you know, for fun. Sorrynotsorry.**
+**I started developing this when I was quite new to Go, and being a hobby/study project, I made a lot of crazy tech stack/architecture choices, you know, for fun. Sorrynotsorry.**
 
 This project is probably basically abandoned. There are some hoops to run it. If you get stuck, feel free to open an issue and ask, and I might be able to help.
 
