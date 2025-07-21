@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "author": "yayuyokitano",
+	"license": "AGPL-3.0-only",
 	"scripts": {
 		"prettier": "prettier ./web --write"
 	},

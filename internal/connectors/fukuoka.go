@@ -36,8 +36,8 @@ var FukuokaVoodooLoungeFetcher = fetchers.CreateGrafFetcher("https://voodooloung
 	FirstLiveArtists:      []string{"香野子"},
 	FirstLivePrice:        "【優先入場料金】 ￥3000 / 1DRINK ORDER 【一般前売料金】 ￥1500 / 1DRINK ORDER",
 	FirstLivePriceEnglish: "【Priority entryEntry料金】 ￥3000 / 1DRINK ORDER 【Ordinary TicketReservation料金】 ￥1500 / 1DRINK ORDER",
-	FirstLiveOpenTime:     time.Date(2025, 4, 4, 18, 50, 0, 0, util.JapanTime),
-	FirstLiveStartTime:    time.Date(2025, 4, 4, 19, 20, 0, 0, util.JapanTime),
+	FirstLiveOpenTime:     time.Date(util.GetRelevantYear(4), 4, 4, 18, 50, 0, 0, util.JapanTime),
+	FirstLiveStartTime:    time.Date(util.GetRelevantYear(4), 4, 4, 19, 20, 0, 0, util.JapanTime),
 	FirstLiveURL:          util.InsertShortYearMonth("https://voodoolounge.jp/20%d%02d.html"),
 }, htmlquerier.Querier{})
 

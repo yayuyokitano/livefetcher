@@ -226,6 +226,10 @@ func tryUpdateLive(tx pgx.Tx, ctx context.Context, live datastructures.Live, old
 }
 
 func createNotification(ctx context.Context, tx pgx.Tx, liveId *int, nt datastructures.NotificationType) (notificationID int, err error) {
+	if liveId != nil && *liveId == 0 {
+		err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id, notification_type) VALUES ($1, $2) RETURNING id", nil, nt).Scan(&notificationID)
+		return
+	}
 	err = tx.QueryRow(ctx, "INSERT INTO notifications (lives_id, notification_type) VALUES ($1, $2) RETURNING id", liveId, nt).Scan(&notificationID)
 	return
 }
@@ -534,8 +538,7 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	}
 
 	queryStr += `
-		GROUP BY live.id, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id
-		ORDER BY starttime, id`
+		GROUP BY live.id, live_title, opentime, starttime, price, price_en, livehouses_id, livehouse_url, livehouse_description, areas_id, prefecture, name, live_url, latitude, longitude, open_id, start_id`
 
 	if query.Offset != 0 {
 		queryStr += fmt.Sprintf(" OFFSET $%d", incIndex())
@@ -560,6 +563,8 @@ func GetLives(ctx context.Context, query LiveQuery, user datastructures.AuthUser
 	if query.LiveListId != 0 {
 		queryStr += `, livelistlive_id, livelist_owner_id, live_description`
 	}
+	queryStr += `
+	ORDER BY starttime, id`
 
 	rows, err := tx.Query(ctx, queryStr, args...)
 	if err != nil {
@@ -819,7 +824,7 @@ func getMatchingSavedSearches(ctx context.Context, tx pgx.Tx, live datastructure
 	for _, artist := range live.Artists {
 		var rows pgx.Rows
 		rows, err = tx.Query(ctx, `
-			SELECT users_id, keyword FROM saved_searches s
+			SELECT s.users_id, keyword FROM saved_searches s
 			LEFT JOIN user_saved_search_areas a ON s.users_id = a.users_id
 			WHERE $1 ILIKE s.keyword AND (a.areas_id IS NULL OR a.areas_id = $2 OR s.allow_all_locations IS TRUE)
 		`, artist, live.Venue.Area.ID)

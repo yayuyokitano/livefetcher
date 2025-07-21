@@ -114,7 +114,7 @@ var ShinsaibashiBigcatFetcher = fetchers.Simple{
 
 var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	BaseURL:              "http://osakabronze.com",
-	ShortYearIterableURL: "http://osakabronze.com/schedule20%d%02d.php",
+	ShortYearIterableURL: "http://osakabronze.com/schedulemonth.php?month=20%d%02d",
 	LiveSelector:         "//div[@class='eventbox']",
 	TitleQuerier:         *htmlquerier.Q("//p[@class='midashi']"),
 	ArtistsQuerier:       *htmlquerier.Q("//p[@class='bandlist']").SplitIgnoreWithin(`\n|( \/ )`, '(', ')'),
@@ -138,14 +138,14 @@ var ShinsaibashiBronzeFetcher = fetchers.Simple{
 	Longitude:      135.498078,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         27,
-		FirstLiveTitle:        "1st full album Desire of life Game Change Tour final seriesLove the past play the future",
-		FirstLiveArtists:      []string{"Hyuga", "DETOX"},
-		FirstLivePrice:        "adv ¥2500 door ¥3000(別途1D ¥600)",
-		FirstLivePriceEnglish: "adv ¥2500 door ¥3000(Separately1D ¥600)",
-		FirstLiveOpenTime:     time.Date(2024, 3, 2, 18, 30, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 3, 2, 19, 0, 0, 0, util.JapanTime),
-		FirstLiveURL:          "http://osakabronze.com/schedule20%d%02d.php",
+		NumberOfLives:         23,
+		FirstLiveTitle:        "HITORIJIME CLUB TOUR",
+		FirstLiveArtists:      []string{"TETORA"},
+		FirstLivePrice:        "adv ¥3900 door ¥----(別途1D ¥600)",
+		FirstLivePriceEnglish: "adv ¥3900 door ¥----(Separately1D ¥600)",
+		FirstLiveOpenTime:     time.Date(2025, 7, 2, 18, 15, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 7, 2, 19, 0, 0, 0, util.JapanTime),
+		FirstLiveURL:          "http://osakabronze.com/schedulemonth.php?month=20%d%02d",
 	},
 }
 
@@ -290,13 +290,13 @@ var ShinsaibashiFanjtwiceFetcher = fetchers.Simple{
 	Longitude:      135.497672,
 
 	TestInfo: fetchers.TestInfo{
-		NumberOfLives:         12,
-		FirstLiveTitle:        "GEM JAM FES！",
-		FirstLiveArtists:      []string{"meluQ", "SITRA.", "青のメロディー", "caprice", "AsteRythm", "Stella!", "ネテルダイヤ", "ゆめポケ", "めいてん"},
-		FirstLivePrice:        "前売り 1,900円 / 前方エリア 3,000円（別途1DRINK）",
-		FirstLivePriceEnglish: "Reservation 1,900円 / Front area 3,000円（Separately1DRINK）",
-		FirstLiveOpenTime:     time.Date(2024, 3, 2, 10, 15, 0, 0, util.JapanTime),
-		FirstLiveStartTime:    time.Date(2024, 3, 2, 10, 35, 0, 0, util.JapanTime),
+		NumberOfLives:         26,
+		FirstLiveTitle:        "あいらら主催ライブ 『 kyun kyun fes 』",
+		FirstLiveArtists:      []string{"AI♡RARA", "みらくらんど", "宇宙∞プラネクシア", "ボクセカ", "ティラミス", "リトルシェノン", "ChanceMovement", "No.*Day"},
+		FirstLivePrice:        "前売 1,500円/当日 2,000円(＋1D代)",
+		FirstLivePriceEnglish: "Reservation 1,500円/Same day 2,000円(＋1D代)",
+		FirstLiveOpenTime:     time.Date(2025, 7, 1, 18, 0, 0, 0, util.JapanTime),
+		FirstLiveStartTime:    time.Date(2025, 7, 1, 18, 20, 0, 0, util.JapanTime),
 		FirstLiveURL:          "http://www.fanj-twice.com/sch_twice/sch000.html",
 	},
 }

@@ -231,6 +231,7 @@ var bannedRegexes = []string{
 	`\d{2}[/. ]\s*\d{2}[/. ]`,     // date
 	`\d{2}[/. ]\s*\d{2}\s*\(.*\)`, // date
 	`【第.弾】`,                       // part
+	`^者`,
 }
 
 var removable = []string{

@@ -25,7 +25,7 @@ migrate:
 	CONTAINERIZED=true ./livefetcher migrate
 
 runtest:
-	go test -v ./... -timeout 120s
+	go test -v ./... -timeout 180s
 
 testconnector:
 	CONNECTOR_ID=$(c) go test -v ./internal/core/connectors

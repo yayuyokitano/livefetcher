@@ -11,6 +11,7 @@
       <script src="/static/vendor/head-support.js" defer></script>
       <script src="/static/vendor/htmx-ext-response-targets.js" defer></script>
       <script src="/static/vendor/alpinejs.min.js" defer></script>
+      <script src="/static/calendarDisplay.js"></script>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta charset="UTF-8" />
       <!-- TODO: add description meta tag? -->
@@ -22,7 +23,7 @@
     <body
       hx-boost="true"
       x-data="{isModalOpen: false, isMapDialogOpen: false, isNotificationDialogOpen: false, unseenNotifications: {{- if gt $notifications.UnseenCount 9 -}}
-        9+
+        '9+'
       {{- else -}}
         {{ $notifications.UnseenCount }}
       {{- end -}}}"

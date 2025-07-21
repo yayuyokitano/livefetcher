@@ -397,7 +397,7 @@ var IkebukuroAdmFetcher = fetchers.Simple{
 	LiveSelector:         "//div[@class='tribe-events-calendar-list__event-wrapper tribe-common-g-col'][not(contains(.//h3, 'HALL RENTAL'))]",
 	ExpandedLiveSelector: "//a",
 	TitleQuerier:         *htmlquerier.Q("//h1"),
-	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='tribe-events-single-event-description tribe-events-content']/p[1]/text()"),
+	ArtistsQuerier:       *htmlquerier.QAll("//div[@class='tribe-events-single-event-description tribe-events-content']/p[1]/text()").Split("/"),
 	PriceQuerier:         *htmlquerier.Q("//p[contains(., 'ADV/DOOR')]"),
 
 	TimeHandler: fetchers.TimeHandler{
@@ -1722,7 +1722,6 @@ var ShimokitazawaOtemaeFetcher = fetchers.CreateChikamichiFetcher(
 		FirstLiveOpenTime:     time.Date(2023, 10, 1, 18, 30, 0, 0, util.JapanTime),
 		FirstLiveStartTime:    time.Date(2023, 10, 1, 19, 0, 0, 0, util.JapanTime),
 		FirstLiveURL:          "https://chikamichi-otemae.com/otemae/963/",
-		KnownEmpty:            true,
 	},
 )
 
@@ -2413,7 +2412,7 @@ var ZeppHanedaFetcher = fetchers.CreateZeppFetcher("haneda", "tokyo", "tokyo", "
 	FirstLiveTitle:        "aiko Live Tour「Love Like Rock vol.10」",
 	FirstLiveArtists:      []string{"aiko"},
 	FirstLivePrice:        "1Fスタンディング/ ¥7,500 2F指定席/ ¥7,500 2Fスタンディング/ ¥7,500",
-	FirstLivePriceEnglish: "1Fスタンディング/ ¥7,500 2F指定席/ ¥7,500 2Fスタンディング/ ¥7,500",
+	FirstLivePriceEnglish: "1FStanding/ ¥7,500 2FReserved Seating/ ¥7,500 2FStanding/ ¥7,500",
 	FirstLiveOpenTime:     time.Date(2025, 3, 1, 16, 30, 0, 0, util.JapanTime),
 	FirstLiveStartTime:    time.Date(2025, 3, 1, 17, 30, 0, 0, util.JapanTime),
 	FirstLiveURL:          "https://www.zepp.co.jp/hall/haneda/schedule/single/?rid=140708",
